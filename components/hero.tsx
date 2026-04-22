@@ -1,4 +1,5 @@
 import { NextLogo } from "./next-logo";
+import { PropertyCardInfo } from "./properties/property-card-info";
 import { SupabaseLogo } from "./supabase-logo";
 
 export function Hero() {
@@ -39,6 +40,16 @@ export function Hero() {
         </a>
       </p>
       <div className="w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent my-8" />
+      <PropertyCardInfo
+        property={{
+          id: 5,
+          city: "Cadca",
+          street: "Hurbanoav",
+          postalCode: "02201",
+          title: "1 izbak",
+          img: "/twitter-image.png",
+        }}
+      />
     </div>
   );
 }
