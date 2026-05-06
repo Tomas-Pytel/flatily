@@ -1,6 +1,7 @@
 import { Property } from "@/features/dashboard/types/types";
 import { Card, CardContent, CardDescription, CardTitle } from "../ui/card";
 import Image from "next/image";
+import { MapPin } from "lucide-react";
 
 interface PropertyCardInfoProps {
   property: Property;
@@ -8,29 +9,34 @@ interface PropertyCardInfoProps {
 
 export function PropertyCardInfo({ property }: PropertyCardInfoProps) {
   return (
-    <Card className="overflow-hidden">
-      {
-        property.img && (
+    <Card className="overflow-hidden w-full h-full">
+      <div className="relative h-48 w-full bg-muted">
+        {property.img ? (
           <Image
             src={property.img}
             alt={property.title}
-            width={400}
-            height={300}
+            fill
             className="object-cover"
           />
-        ) //otherwise display a placeholder image
-      }
-
+        ) : (
+          <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
+            Žiadny obrázok
+          </div>
+        )}
+      </div>
+      {/**Card Content */}
       <CardContent className="p-6">
         <CardTitle>{property.title}</CardTitle>
-        <div className="bg-green-600">
-          <p>{property.city}</p>
-          <p>{property.street}</p>
+        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+          <MapPin className="size-3.5 shrink-0" />
+          <span className="truncate">
+            {property.street}, {property.city}
+          </span>
         </div>
+        {property.description && (
+          <CardDescription>{property.description}</CardDescription>
+        )}
       </CardContent>
-      {property.description && (
-        <CardDescription>{property.description}</CardDescription>
-      )}
     </Card>
   );
 }
