@@ -16,17 +16,14 @@ import Link from "next/link";
 import Image from "next/image";
 import Logo from "../public/favicon.ico";
 import {
-  BarChart2,
   Bell,
   ChevronsUpDown,
   LayoutDashboard,
   HelpCircle,
   LogOut,
-  Package,
-  Receipt,
   Settings,
   UserCircle,
-  Users,
+  Building2,
   Lock,
 } from "lucide-react";
 import {
@@ -39,17 +36,19 @@ import { Separator } from "./ui/separator";
 
 // This is sample data.
 const platformNav = [
-  { title: "Dashboard", icon: LayoutDashboard, badge: null, url: "#" },
-  { title: "Analytics", icon: BarChart2, badge: "New", url: "#" },
-  { title: "Customers", icon: Users, badge: null, url: "#" },
-  { title: "Products", icon: Package, badge: null, url: "#" },
-  { title: "Orders", icon: Receipt, badge: "12", url: "#" },
+  { title: "Prehľad", icon: LayoutDashboard, badge: null, url: "/dashboard" },
+  {
+    title: "Moje nehnuteľnosti",
+    icon: Building2,
+    badge: "1",
+    url: "/properties",
+  },
 ];
 
 const settingsNav = [
-  { title: "Settings", icon: Settings, url: "#" },
-  { title: "Notifications", icon: Bell, url: "#" },
-  { title: "Security", icon: Lock, url: "#" },
+  { title: "Nastavenia", icon: Settings, url: "#" },
+  { title: "Notifikácie", icon: Bell, url: "#" },
+  { title: "Bezpečnosť", icon: Lock, url: "#" },
 ];
 
 const user = {
@@ -70,7 +69,7 @@ export default function AppSidebar({
             <div className="flex items-center justify-between px-1 py-1">
               {/* Logo – hidden when collapsed */}
               <SidebarMenuButton size="lg" asChild>
-                <Link href="#">
+                <Link href="/dashboard">
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground">
                     <Image
                       src={Logo}
@@ -95,7 +94,7 @@ export default function AppSidebar({
       <SidebarContent>
         {/* Platform group */}
         <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
+          <SidebarGroupLabel>Platforma</SidebarGroupLabel>
           <SidebarMenu>
             {platformNav.map((item) => (
               <SidebarMenuItem key={item.title}>
@@ -115,7 +114,7 @@ export default function AppSidebar({
 
         {/* Settings group */}
         <SidebarGroup>
-          <SidebarGroupLabel>Settings</SidebarGroupLabel>
+          <SidebarGroupLabel>Nastavenia</SidebarGroupLabel>
           <SidebarMenu>
             {settingsNav.map((item) => (
               <SidebarMenuItem key={item.title}>
@@ -137,7 +136,7 @@ export default function AppSidebar({
               <SidebarMenuButton asChild tooltip="Help & Support">
                 <Link href="#">
                   <HelpCircle />
-                  <span>Help &amp; Support</span>
+                  <span>Pomoc &amp; Podpora</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -175,15 +174,15 @@ export default function AppSidebar({
               >
                 <DropdownMenuItem>
                   <UserCircle className="mr-2 size-4" />
-                  Account
+                  Profil
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="mr-2 size-4" />
-                  Settings
+                  Nastavenia
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <LogOut className="mr-2 size-4" />
-                  Sign out
+                  Odhlásiť sa
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
