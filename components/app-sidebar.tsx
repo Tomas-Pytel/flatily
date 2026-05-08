@@ -34,7 +34,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Separator } from "./ui/separator";
 
 // This is sample data.
 const platformNav = [
@@ -91,9 +90,9 @@ export default function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
 
-      <Separator />
       {/* Content */}
       <SidebarContent>
+        {/* <Separator /> */}
         {/* Platform group */}
         <SidebarGroup>
           <SidebarGroupLabel>Platforma</SidebarGroupLabel>
