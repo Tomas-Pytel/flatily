@@ -26,7 +26,7 @@ export default function IndicatorCard({
     <Card className="flex flex-col h-full">
       <CardHeader className="flex-row items-start justify-between gap-1 pb-3">
         <div className=" size-10 rounded-md border-2 bg-muted flex items-center justify-center">
-          <Icon className="size-6 text-muted-foreground" />
+          <Icon className="size-6" />
         </div>
         {topRight && <div className="ml-auto text-right">{topRight}</div>}
       </CardHeader>

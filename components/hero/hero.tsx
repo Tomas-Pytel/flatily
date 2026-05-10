@@ -4,6 +4,7 @@ import { FaMoneyBills } from "react-icons/fa6";
 import { HiWrenchScrewdriver } from "react-icons/hi2";
 import { FaRegFileLines } from "react-icons/fa6";
 import { InfoCard } from "./info-card";
+import Link from "next/link";
 
 export interface InformationCard {
   title: string;
@@ -45,7 +46,9 @@ export function Hero() {
             in one place with our enterprise-grade management suite.
           </p>
           <div className="flex flex-col items-center md:items-start">
-            <Button variant="default">Get started</Button>
+            <Button variant="default">
+              <Link href="/dashboard">Get started</Link>
+            </Button>
           </div>
         </div>
         <div className="relative w-full aspect-square ">
