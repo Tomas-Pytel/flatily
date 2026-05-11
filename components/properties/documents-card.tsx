@@ -1,6 +1,7 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Download, Upload } from "lucide-react";
 import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 export interface DocumentInfo {
   id: string;
@@ -16,27 +17,35 @@ interface DocumentsCardProps {
 
 export default function DocumentsCard({ documents }: DocumentsCardProps) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row justify-between items-center">
-        <h3 className="text-lg font-medium m-0">Dokumenty</h3>
-        <FileText className="h-4 w-4" />
+    <Card className="h-full flex flex-col">
+      {/**Title */}
+      <CardHeader className="flex flex-row justify-between items-center space-y-0 pb-4">
+        <CardTitle className="text-lg font-semibold m-0">Dokumenty</CardTitle>
+        <FileText className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <ul className="space-y-2">
+
+      {/**List of documents */}
+      <CardContent className="flex flex-col gap-6 flex-1">
+        <ul className="space-y-3">
           {documents.length === 0 ? (
             <p className="text-sm text-muted-foreground">Žiadne dokumenty</p>
           ) : (
             documents.map((doc) => (
-              <li key={doc.id} className="flex items-center justify-between">
-                <div className="flex gap-4">
+              <li
+                key={doc.id}
+                className="flex items-center justify-between group p-2 rounded-lg hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex gap-3">
                   {/** Document icon */}
-                  <div className="flex items-center space-x-2">
-                    <doc.icon className="h-4 w-4" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <doc.icon className="h-5 w-5" />
                   </div>
 
                   {/** Document info */}
                   <div className="flex flex-col">
-                    <span className="text-sm">{doc.title}</span>
+                    <span className="text-sm font-medium leading-none mb-1">
+                      {doc.title}
+                    </span>
                     <span className="text-xs text-muted-foreground">
                       {doc.date} • {doc.size}
                     </span>
@@ -44,22 +53,29 @@ export default function DocumentsCard({ documents }: DocumentsCardProps) {
                 </div>
 
                 {/** Download button */}
-                <button className="size-8 bg-muted rounded-md flex items-center justify-center">
+                <Button variant="ghost" size="icon" className="shrink-0">
                   <Download className="h-4 w-4" />
-                </button>
+                </Button>
               </li>
             ))
           )}
         </ul>
 
         {/**Upload area */}
-        <label className="flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-md border-2 border-dashed border-gray-300 bg-gray-50 text-gray-600 transition hover:bg-gray-100">
-          <Upload className="h-5 w-5" />
-
-          <span className="text-sm font-medium">Nahrať nový dokument</span>
-
-          <Input type="file" className="hidden" />
-        </label>
+        <div className="mt-auto">
+          <label className="relative flex min-h-25 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/20 bg-muted/30 px-4 transition-all hover:bg-muted/50 hover:border-muted-foreground/40">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background shadow-sm">
+              <Upload className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-medium">Nahrať nový dokument</p>
+              <p className="text-xs text-muted-foreground">
+                PDF, JPG alebo PNG do 10MB
+              </p>
+            </div>
+            <Input type="file" className="hidden" />
+          </label>
+        </div>
       </CardContent>
     </Card>
   );
