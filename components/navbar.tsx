@@ -8,24 +8,32 @@ import Logo from "../app/favicon.ico";
 
 export default function Navbar() {
   return (
-    <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-      <div className="w-full max-w-7xl flex justify-between items-center p-3 px-5 text-sm">
-        <div className="flex gap-5 items-center font-semibold">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src={Logo} alt="Rentio Logo" width={32} height={32} />
-            <span className="text-xl">Rentio</span>
-          </Link>
-        </div>
-        <div className="hidden md:block">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+      <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/**Logo section */}
+        <Link
+          href="/"
+          className="flex items-center gap-2 transition-opacity hover:opacity-80"
+        >
+          <Image src={Logo} alt="Rentio Logo" width={32} height={32} />
+          <span className="text-xl font-bold">Rentio</span>
+        </Link>
+
+        {/**Auth section */}
+        <div className="hidden md:flex items-center gap-4">
           {!hasEnvVars ? (
             <EnvVarWarning />
           ) : (
-            <Suspense>
+            <Suspense
+              fallback={
+                <div className="w-20 h-8 bg-muted animate-pulse rounded-md" />
+              }
+            >
               <AuthButton />
             </Suspense>
           )}
         </div>
       </div>
-    </nav>
+    </header>
   );
 }
