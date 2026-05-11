@@ -1,38 +1,27 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "./ui/card";
+import { Indicator } from "@/app/(protected)/properties/[id]/page";
+import { Card, CardHeader, CardContent } from "./ui/card";
 
 interface IndicatorCardProps {
-  icon: React.ElementType;
-  title: string;
-  value: string | number;
-  topRight?: React.ReactNode;
-  //progressBar?: boolean;
+  indicator: Indicator;
 }
 
-export default function IndicatorCard({
-  icon,
-  title,
-  value,
-  topRight,
-}: IndicatorCardProps) {
-  const Icon = icon;
+export default function IndicatorCard({ indicator }: IndicatorCardProps) {
+  const { title, value, topRight } = indicator;
+  const Icon = indicator.icon;
 
   return (
-    <Card className="flex flex-col h-full">
-      <CardHeader className="flex-row items-start justify-between gap-1 pb-3">
-        <div className=" size-10 rounded-md border-2 bg-muted flex items-center justify-center">
-          <Icon className="size-6" />
+    <Card className="flex flex-col h-full shadow-sm hover:shadow-md transition-shadow">
+      <CardHeader className="flex-row items-center justify-between space-y-0 p-6 pb-2">
+        <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+          <Icon className="size-5" />
         </div>
-        {topRight && <div className="ml-auto text-right">{topRight}</div>}
+        {topRight && <div className="text-right">{topRight}</div>}
       </CardHeader>
-      <CardContent>
-        <CardDescription>{title}</CardDescription>
-        <CardTitle>{value}</CardTitle>
+      <CardContent className="p-6 pt-2">
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+          {title}
+        </p>
+        <p className="text-2xl font-bold mt-1">{value}</p>
       </CardContent>
     </Card>
   );

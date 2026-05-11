@@ -2,14 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Download, Upload } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-
-export interface DocumentInfo {
-  id: string;
-  title: string;
-  date: string;
-  size: string;
-  icon: React.ElementType;
-}
+import { DocumentInfo } from "@/types/property";
 
 interface DocumentsCardProps {
   documents: DocumentInfo[];

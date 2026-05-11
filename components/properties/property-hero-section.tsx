@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Property } from "@/features/dashboard/types/types";
+import { Property } from "@/types/property";
 import {
   Card,
   CardContent,
@@ -10,11 +10,13 @@ import {
 import { Circle, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+interface PropertyHeroSectionProps {
+  property: Property;
+}
+
 export default function PropertyHeroSection({
   property,
-}: {
-  property: Property;
-}) {
+}: PropertyHeroSectionProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Image */}

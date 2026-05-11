@@ -1,4 +1,4 @@
-import { Property } from "@/features/dashboard/types/types";
+import { Property } from "@/types/property";
 import { Card, CardContent, CardDescription, CardTitle } from "../ui/card";
 import Image from "next/image";
 import { MapPin } from "lucide-react";

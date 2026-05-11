@@ -45,7 +45,7 @@ export default async function PropertyDetailsPage({
         {/**Indicators */}
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {indicators.map((indicator, index) => (
-            <IndicatorCard key={index} {...indicator} />
+            <IndicatorCard key={index} indicator={indicator} />
           ))}
         </section>
 
@@ -63,7 +63,7 @@ export default async function PropertyDetailsPage({
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {tenants.map((tenant, index) => (
-                  <TenantInfoCard key={index} {...tenant} />
+                  <TenantInfoCard key={index} tenant={tenant} />
                 ))}
               </div>
             </section>
