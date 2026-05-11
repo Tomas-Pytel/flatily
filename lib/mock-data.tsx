@@ -1,6 +1,12 @@
 import { Indicator } from "@/app/(protected)/properties/[id]/page";
+<<<<<<< HEAD
 import { DocumentInfo, Property } from "@/types/property";
 import { TenantInfo } from "@/types/tenant";
+=======
+import { DocumentInfo } from "@/components/properties/documents-card";
+import { TenantInfoCardProps } from "@/components/properties/tenant-info-card";
+import { Property } from "@/features/types/types/types";
+>>>>>>> b157315 (Refactored types and deletion of unused components)
 import { Banknote, FileText, TrendingUp, Users } from "lucide-react";
 
 export const mockProperties: Property[] = [
