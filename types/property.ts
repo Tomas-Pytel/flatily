@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import { LucideIcon } from "lucide-react";
 
-=======
->>>>>>> b157315 (Refactored types and deletion of unused components)
 export type PaymentStatus = "Uhradené" | "Čakajúce" | "Omeškané";
 export type PropertyStatus = "Aktívne" | "Neaktívne" | "V údržbe";
 
@@ -21,11 +18,7 @@ export interface DocumentInfo {
   title: string;
   date: string;
   size: string;
-<<<<<<< HEAD
   icon: LucideIcon;
-=======
-  icon: React.ElementType;
->>>>>>> b157315 (Refactored types and deletion of unused components)
 }
 
 export interface RepairLog {
