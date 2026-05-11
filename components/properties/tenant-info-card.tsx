@@ -3,28 +3,16 @@ import Image from "next/image";
 import { Mail, Phone } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
+import { TenantInfo } from "@/types/tenant";
+import { PaymentStatus } from "@/types/property";
 
-type PaymentStatus = "Uhradené" | "Čakajúce" | "Omeškané";
-
-export interface TenantInfoCardProps {
-  name: string;
-  leaseEndDate: string;
-  paymentStatus: PaymentStatus;
-  deposit: number;
-  phone: string;
-  email: string;
-  image?: string;
+interface TenantInfoCardProps {
+  tenant: TenantInfo;
 }
 
-export default function TenantInfoCard({
-  name,
-  leaseEndDate,
-  paymentStatus,
-  deposit,
-  phone,
-  email,
-  image,
-}: TenantInfoCardProps) {
+export default function TenantInfoCard({ tenant }: TenantInfoCardProps) {
+  const { name, leaseEndDate, paymentStatus, deposit, image } = tenant;
+
   const getStatusVariant = (status: PaymentStatus) => {
     switch (status) {
       case "Uhradené":

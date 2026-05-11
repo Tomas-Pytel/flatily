@@ -3,12 +3,7 @@ import Image from "next/image";
 import { Banknote, Wrench, FileText } from "lucide-react";
 import { InfoCard } from "./info-card";
 import Link from "next/link";
-
-export interface InformationCard {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-}
+import { InformationCard } from "@/types/hero";
 
 export function Hero() {
   const infoCards: InformationCard[] = [

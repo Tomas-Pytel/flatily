@@ -7,14 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-
-export interface RepairLog {
-  id: number;
-  date: string;
-  workType: string;
-  provider: string;
-  cost: number;
-}
+import { RepairLog } from "@/types/property";
 
 export interface RepairHistoryTableProps {
   repairs: RepairLog[];

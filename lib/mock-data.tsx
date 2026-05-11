@@ -1,7 +1,7 @@
 import { Indicator } from "@/app/(protected)/properties/[id]/page";
 import { DocumentInfo } from "@/components/properties/documents-card";
 import { TenantInfoCardProps } from "@/components/properties/tenant-info-card";
-import { Property } from "@/features/dashboard/types/types";
+import { Property } from "@/features/types/types/types";
 import { Banknote, FileText, TrendingUp, Users } from "lucide-react";
 
 export const mockProperties: Property[] = [
