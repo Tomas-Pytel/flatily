@@ -1,13 +1,143 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  output   = "../app/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+}
+
+// --- ENUMS ---
+enum PropertyStatus {
+  ACTIVE      // Obsadené/Pripravené
+  INACTIVE    // Prázdne
+  MAINTENANCE // V rekonštrukcii
+}
+
+enum PaymentStatus {
+  PENDING     // Čakajúce
+  PAID        // Uhradené
+  OVERDUE     // Omeškané
+}
+
+enum TransactionType {
+  INCOME      // Príjem (Nájom)
+  EXPENSE     // Výdavok (Opravy, dane)
+}
+
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+// --- MODELS ---
+
+// 1. Owner (User connected to Supabase Auth)
+model User {
+  id         String     @id @default(uuid())
+  email      String     @unique
+  name       String?
+  properties Property[]
+  createdAt  DateTime   @default(now())
+}
+
+// 2. Property
+model Property {
+  id           String         @id @default(uuid())
+  ownerId      String
+  owner        User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  title        String
+  description  String?
+  city         String
+  street       String
+  postalCode   String
+  imageUrl     String?
+  status       PropertyStatus @default(ACTIVE)
+  monthlyRent  Float          // Očakávaný nájom
+  
+  leases       Lease[]
+  transactions Transaction[]
+  maintenance  Maintenance[]
+  documents    Document[]
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+// 3. Tenant (Nájomca - independent of the lease so they can rent again later)
+model Tenant {
+  id          String   @id @default(uuid())
+  firstName   String
+  lastName    String
+  email       String
+  phone       String?
+  imageUrl    String?
+  
+  leases      Lease[]
+  createdAt   DateTime @default(now())
+}
+
+// 4. Lease (Nájomná zmluva - Connects Tenant to Property)
+model Lease {
+  id             String    @id @default(uuid())
+  propertyId     String
+  property       Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenantId       String
+  tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  startDate      DateTime
+  endDate        DateTime
+  rentAmount     Float     // Dohodnutý nájom pre túto zmluvu
+  depositAmount  Float     // Kaucia
+  isActive       Boolean   @default(true)
+
+  createdAt      DateTime  @default(now())
+}
+
+// 5. Transaction (Financie - Powers the "Mesačný príjem" & "Ročný výnos" stats)
+model Transaction {
+  id            String          @id @default(uuid())
+  propertyId    String
+  property      Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  type          TransactionType // Príjem alebo Výdavok
+  amount        Float
+  description   String          // Nájom Máj 2024 / Oprava kotla
+  status        PaymentStatus   @default(PENDING)
+  dueDate       DateTime
+  paidDate      DateTime?
+
+  createdAt     DateTime        @default(now())
+}
+
+// 6. Maintenance (Opravy - Powers the "História opráv" and Dashboard Alerts)
+model Maintenance {
+  id            String            @id @default(uuid())
+  propertyId    String
+  property      Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  title         String            // Typ práce
+  description   String?
+  provider      String?           // Vodoinštalatér Ján
+  cost          Float?            
+  status        MaintenanceStatus @default(OPEN)
+  resolvedDate  DateTime?
+
+  createdAt     DateTime          @default(now())
+}
+
+// 7. Document (Dokumenty - Nájomné zmluvy, protokoly)
+model Document {
+  id          String    @id @default(uuid())
+  propertyId  String
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  title       String    // Nájomná zmluva.pdf
+  fileUrl     String    // Supabase Storage URL
+  fileSize    Int       // in bytes
+  fileType    String    // application/pdf
+  
+  createdAt   DateTime  @default(now())
 }
