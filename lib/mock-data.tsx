@@ -73,6 +73,7 @@ export const mockProperties: Property[] = [
 ];
 
 export const tenants: TenantInfo[] = [
+export const tenants: TenantInfo[] = [
   {
     name: "Ján Novák",
     leaseEndDate: "31.12.2024",
