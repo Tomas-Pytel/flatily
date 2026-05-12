@@ -27,6 +27,7 @@ import {
   UserCircle,
   Building2,
   Lock,
+  LucideIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -34,9 +35,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { usePathname } from "next/navigation";
+
+interface NavItem {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  badge?: string | number | null;
+}
 
 // This is sample data.
-const platformNav = [
+const platformNav: NavItem[] = [
   { title: "Prehľad", icon: LayoutDashboard, badge: null, url: "/dashboard" },
   {
     title: "Moje nehnuteľnosti",
@@ -46,7 +55,7 @@ const platformNav = [
   },
 ];
 
-const settingsNav = [
+const settingsNav: NavItem[] = [
   { title: "Nastavenia", icon: Settings, url: "#" },
   { title: "Notifikácie", icon: Bell, url: "#" },
   { title: "Bezpečnosť", icon: Lock, url: "#" },
@@ -61,6 +70,10 @@ const user = {
 export default function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+  const isLinkActive = (url: string) =>
+    pathname === url || pathname.startsWith(`${url}/`);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       {/* Header */}
@@ -92,14 +105,17 @@ export default function AppSidebar({
 
       {/* Content */}
       <SidebarContent>
-        {/* <Separator /> */}
         {/* Platform group */}
         <SidebarGroup>
           <SidebarGroupLabel>Platforma</SidebarGroupLabel>
           <SidebarMenu>
             {platformNav.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.title}
+                  isActive={isLinkActive(item.url)}
+                >
                   <Link href={item.url}>
                     <item.icon />
                     <span>{item.title}</span>
@@ -119,7 +135,11 @@ export default function AppSidebar({
           <SidebarMenu>
             {settingsNav.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.title}
+                  isActive={isLinkActive(item.url)}
+                >
                   <Link href={item.url}>
                     <item.icon />
                     <span>{item.title}</span>
@@ -134,7 +154,7 @@ export default function AppSidebar({
         <SidebarGroup className="mt-auto">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Help & Support">
+              <SidebarMenuButton asChild tooltip="Pomoc & Podpora">
                 <Link href="#">
                   <HelpCircle />
                   <span>Pomoc &amp; Podpora</span>
