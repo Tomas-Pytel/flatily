@@ -1,7 +1,12 @@
-import { Property } from "@/types/property";
+import { Property } from "@/lib/generated/prisma/client";
 import { Card, CardContent, CardDescription, CardTitle } from "../ui/card";
 import Image from "next/image";
 import { Building2, MapPin } from "lucide-react";
+
+export type PropertyCardData = Pick<
+  Property,
+  "id" | "title" | "city" | "street" | "postalCode" | "description" | "imageUrl"
+>;
 
 interface PropertyCardInfoProps {
   property: Property;
@@ -12,9 +17,9 @@ export function PropertyCardInfo({ property }: PropertyCardInfoProps) {
     <Card className="overflow-hidden h-full flex flex-col transition-all duration-200 hover:ring-1 hover:ring-primary/20 hover:shadow-lg group">
       {/**Image section */}
       <div className="relative aspect-video w-full bg-muted overflow-hidden">
-        {property.img ? (
+        {property.imageUrl ? (
           <Image
-            src={property.img}
+            src={property.imageUrl}
             alt={property.title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
