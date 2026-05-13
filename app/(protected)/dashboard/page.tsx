@@ -2,7 +2,6 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import IndicatorCard from "@/components/indicator-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { mockProperties } from "@/lib/mock-data";
 import {
   Banknote,
   ArrowUpRight,
@@ -13,7 +12,7 @@ import {
 } from "lucide-react";
 
 export default function DashboardPage() {
-  const totalProperties = mockProperties.length;
+  const totalProperties = 3;
   const occupancyRate = "92%"; // This would be calculated in a real app
   const totalMonthlyIncome = totalProperties * 550; // Mock calculation
 

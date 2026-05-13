@@ -1,11 +1,16 @@
 import { PropertyCardInfo } from "@/components/properties/property-card-info";
 import Link from "next/link";
-import { mockProperties } from "@/lib/mock-data";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { Button } from "@/components/ui/button";
 import { Building2, Plus } from "lucide-react";
+import prisma from "@/lib/prisma";
+import { Property } from "@/lib/generated/prisma/client";
 
-export default function PropertiesPage() {
+export default async function PropertiesPage() {
+  const properties: Property[] = await prisma.property.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+
   return (
     <div className="flex h-full flex-col">
       {/**Header */}
@@ -19,9 +24,9 @@ export default function PropertiesPage() {
       {/**Properties list */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
         {/* 2. Responsive Grid */}
-        {mockProperties.length > 0 ? (
+        {properties.length > 0 ? (
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {mockProperties.map((property) => (
+            {properties.map((property) => (
               <li key={property.id}>
                 <Link
                   href={`/properties/${property.id}`}
