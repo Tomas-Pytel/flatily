@@ -25,7 +25,7 @@ export async function createProperty(values: PropertyFormValues) {
   }
 
   try {
-    const result = await prisma.property.create({
+    await prisma.property.create({
       data: {
         title: validateFields.data.title,
         city: validateFields.data.city,

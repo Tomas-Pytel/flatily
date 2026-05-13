@@ -5,7 +5,7 @@ export const propertySchema = z.object({
   city: z.string().min(2, "Mesto je povinné"),
   street: z.string().min(2, "Ulica je povinná"),
   postalCode: z.string().length(5, "PSČ musí mať 5 znakov"),
-  monthlyRent: z.coerce.number().min(1, "Nájom musí byť viac ako 0"),
+  monthlyRent: z.number().min(1, "Nájom musí byť viac ako 0"),
   description: z.string().max(150).optional(),
 });
 
