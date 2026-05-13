@@ -5,9 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Building2, Plus } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { Property } from "@/lib/generated/prisma/client";
+import { requireUser } from "@/lib/auth";
 
 export default async function PropertiesPage() {
+  const user = await requireUser();
+
   const properties: Property[] = await prisma.property.findMany({
+    where: {
+      ownerId: user.id,
+    },
     orderBy: { createdAt: "desc" },
   });
 

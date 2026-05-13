@@ -5,14 +5,13 @@ import { PropertyFormValues, propertySchema } from "@/lib/validations/property";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import { title } from "process";
 
 export async function createProperty(values: PropertyFormValues) {
   // get user
   const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getUser();
 
-  const user = data?.claims;
+  const user = data?.user;
 
   if (!user) {
     return { error: "Musíte byť prihlásený pre pridanie nehnuuteľnosti." };
