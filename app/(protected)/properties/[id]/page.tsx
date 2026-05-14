@@ -12,6 +12,7 @@ import DocumentsCard, {
 } from "@/components/properties/documents-card";
 import { notFound } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard-header";
+import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { Banknote, TrendingUp, Users, FileText } from "lucide-react";
@@ -129,8 +130,10 @@ export default async function PropertyDetailsPage({
                 <h3 className="text-lg font-semibold tracking-tight">
                   Aktuálni nájomcovia
                 </h3>
-                <Button variant="outline" size="sm">
-                  História nájmov
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/properties/${id}/tenants/new`}>
+                    Pridať nájomcu
+                  </Link>
                 </Button>
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
