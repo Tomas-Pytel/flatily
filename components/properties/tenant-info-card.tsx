@@ -3,8 +3,18 @@ import Image from "next/image";
 import { Mail, Phone } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { TenantInfo } from "@/types/tenant";
 import { PaymentStatus } from "@/types/property";
+
+export interface TenantInfo {
+  id: string;
+  name: string;
+  leaseEndDate: string;
+  paymentStatus: PaymentStatus;
+  deposit: number;
+  phone: string;
+  email: string;
+  image?: string;
+}
 
 interface TenantInfoCardProps {
   tenant: TenantInfo;

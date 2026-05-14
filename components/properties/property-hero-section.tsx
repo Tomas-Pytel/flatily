@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { Property } from "@/types/property";
 import {
   Card,
   CardContent,
@@ -9,9 +8,10 @@ import {
 } from "@/components/ui/card";
 import { Circle, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { PropertyCardData } from "./property-card-info";
 
 interface PropertyHeroSectionProps {
-  property: Property;
+  property: PropertyCardData;
 }
 
 export default function PropertyHeroSection({
@@ -21,9 +21,9 @@ export default function PropertyHeroSection({
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Image */}
       <Card className="md:col-span-1 relative h-48 w-full bg-muted overflow-hidden shadow-none border-none">
-        {property.img ? (
+        {property.imageUrl ? (
           <Image
-            src={property.img}
+            src={property.imageUrl}
             alt={property.title}
             fill
             className="object-cover rounded-xl"
