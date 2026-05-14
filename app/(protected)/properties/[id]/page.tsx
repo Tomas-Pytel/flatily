@@ -1,18 +1,20 @@
-import {
-  documents,
-  indicators,
-  mockProperties,
-  repairs,
-  tenants,
-} from "@/lib/mock-data";
 import PropertyHeroSection from "@/components/properties/property-hero-section";
 import IndicatorCard from "@/components/indicator-card";
 import { Button } from "@/components/ui/button";
-import TenantInfoCard from "@/components/properties/tenant-info-card";
-import RepairHistoryTable from "@/components/properties/repair-history-table";
-import DocumentsCard from "@/components/properties/documents-card";
+import TenantInfoCard, {
+  TenantInfo,
+} from "@/components/properties/tenant-info-card";
+import RepairHistoryTable, {
+  RepairLog,
+} from "@/components/properties/repair-history-table";
+import DocumentsCard, {
+  DocumentInfo,
+} from "@/components/properties/documents-card";
 import { notFound } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard-header";
+import prisma from "@/lib/prisma";
+import { requireUser } from "@/lib/auth";
+import { Banknote, TrendingUp, Users, FileText } from "lucide-react";
 
 export interface Indicator {
   icon: React.ElementType;
@@ -26,12 +28,82 @@ export default async function PropertyDetailsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const user = await requireUser();
   const { id } = await params;
-  const property = mockProperties.find((p) => p.id === Number(id));
+  const property = await prisma.property.findUnique({
+    where: {
+      ownerId: user.id,
+      id: id,
+    },
+    include: {
+      leases: {
+        where: { isActive: true },
+        include: { tenant: true },
+      },
+      maintenance: {
+        orderBy: { createdAt: "desc" },
+      },
+      documents: {
+        orderBy: { createdAt: "desc" },
+      },
+    },
+  });
 
   if (!property) {
     notFound();
   }
+
+  const isOccupied = property.leases.length > 0;
+
+  const indicators: Indicator[] = [
+    {
+      icon: Banknote,
+      title: "MESAČNÝ NÁJOM",
+      value: `${property.monthlyRent} €`,
+    },
+    {
+      icon: TrendingUp,
+      title: "ROČNÝ VÝNOS",
+      value: "5.82%",
+    },
+    {
+      icon: Users,
+      title: "OBSADENOSŤ",
+      value: isOccupied ? "100%" : "0%",
+      topRight: isOccupied ? (
+        <span className="text-xs text-green-500 font-medium">Obsadené</span>
+      ) : (
+        <span className="text-xs text-red-500 font-medium">Voľné</span>
+      ),
+    },
+  ];
+
+  const tenants: TenantInfo[] = property.leases.map((lease) => ({
+    id: lease.tenant.id,
+    name: `${lease.tenant.firstName} ${lease.tenant.lastName}`,
+    leaseEndDate: lease.endDate.toLocaleDateString("sk-SK"),
+    paymentStatus: "Uhradené", // Zatiaľ natvrdo, neskôr napojíme na Transactions
+    deposit: lease.depositAmount,
+    phone: lease.tenant.phone || "Nezadané",
+    email: lease.tenant.email,
+    image: lease.tenant.imageUrl || undefined,
+  }));
+
+  const repairs: RepairLog[] = property.maintenance.map((m) => ({
+    id: m.id,
+    date: m.createdAt.toLocaleDateString("sk-SK"),
+    workType: m.title,
+    provider: m.provider || "Neznámy",
+    cost: m.cost || 0,
+  }));
+
+  const documents: DocumentInfo[] = property.documents.map((d) => ({
+    id: d.id,
+    title: d.title,
+    date: d.createdAt.toLocaleDateString("sk-SK"),
+    size: `${Math.round(d.fileSize / 1024)} KB`,
+    icon: FileText,
+  }));
 
   return (
     <div className="flex h-full flex-col">
