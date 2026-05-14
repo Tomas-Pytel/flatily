@@ -1,8 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Download, Upload } from "lucide-react";
+import { FileText, Download, Upload, LucideIcon } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { DocumentInfo } from "@/types/property";
+
+export interface DocumentInfo {
+  id: string;
+  title: string;
+  date: string;
+  size: string;
+  icon: LucideIcon;
+}
 
 interface DocumentsCardProps {
   documents: DocumentInfo[];

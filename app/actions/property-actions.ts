@@ -39,7 +39,7 @@ export async function createProperty(values: PropertyFormValues) {
     });
   } catch (error) {
     console.error("Chyba pri ukladaní:", error);
-    return { error: "Nastala chyba pri ukladaní do databázy." };
+    return { error: "Nastala chyba, skuste to neskor prosim." };
   }
 
   revalidatePath("/properties");
