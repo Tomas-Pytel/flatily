@@ -35,7 +35,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { ThemeSwitcher } from "./theme-switcher";
+
+interface SidebarUser {
+  name: string;
+  email: string;
+}
+
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: SidebarUser;
+}
 
 interface NavItem {
   title: string;
@@ -47,32 +58,32 @@ interface NavItem {
 // This is sample data.
 const platformNav: NavItem[] = [
   { title: "Prehľad", icon: LayoutDashboard, badge: null, url: "/dashboard" },
-  {
-    title: "Moje nehnuteľnosti",
-    icon: Building2,
-    badge: "1",
-    url: "/properties",
-  },
+  { title: "Moje nehnuteľnosti", icon: Building2, url: "/properties" },
 ];
 
 const settingsNav: NavItem[] = [
-  { title: "Nastavenia", icon: Settings, url: "#" },
-  { title: "Notifikácie", icon: Bell, url: "#" },
-  { title: "Bezpečnosť", icon: Lock, url: "#" },
+  { title: "Nastavenia", icon: Settings, url: "/settings" },
+  { title: "Notifikácie", icon: Bell, url: "/notifications" },
+  { title: "Bezpečnosť", icon: Lock, url: "/security" },
 ];
 
-const user = {
-  name: "Jane Doe",
-  email: "jane@acme.com",
-  initials: "JD",
-};
-
-export default function AppSidebar({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
+export default function AppSidebar({ user, ...props }: AppSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const isLinkActive = (url: string) =>
     pathname === url || pathname.startsWith(`${url}/`);
+  const initials = user.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase();
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+  };
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -153,6 +164,12 @@ export default function AppSidebar({
         {/* Help (pushed to bottom) */}
         <SidebarGroup className="mt-auto">
           <SidebarMenu>
+            <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
+              <div className="flex items-center justify-between px-2 py-1.5 text-xs text-sidebar-foreground/70">
+                <span>Vzhľad</span>
+                <ThemeSwitcher />
+              </div>
+            </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip="Pomoc & Podpora">
                 <Link href="#">
@@ -165,7 +182,7 @@ export default function AppSidebar({
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer – user switcher */}
+      {/* Footer */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -176,7 +193,7 @@ export default function AppSidebar({
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <div className="flex size-8 items-center justify-center rounded-full bg-muted text-sm font-medium">
-                    {user.initials}
+                    {initials}
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{user.name}</span>
@@ -188,20 +205,24 @@ export default function AppSidebar({
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
 
+              {/** Dropdown menu items */}
               <DropdownMenuContent
                 side="top"
                 align="end"
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-48"
               >
-                <DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
                   <UserCircle className="mr-2 size-4" />
                   Profil
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
                   <Settings className="mr-2 size-4" />
                   Nastavenia
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer"
+                >
                   <LogOut className="mr-2 size-4" />
                   Odhlásiť sa
                 </DropdownMenuItem>
