@@ -5,9 +5,10 @@ import { TenantFormValues, tenantSchema } from "@/lib/validations/tenant";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useState, useTransition } from "react";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import {
+  Form,
   FormField,
   FormItem,
   FormLabel,
