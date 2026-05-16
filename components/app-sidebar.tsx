@@ -164,7 +164,7 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
         {/* Help (pushed to bottom) */}
         <SidebarGroup className="mt-auto">
           <SidebarMenu>
-            <SidebarMenuItem>
+            <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
               <div className="flex items-center justify-between px-2 py-1.5 text-xs text-sidebar-foreground/70">
                 <span>Vzhľad</span>
                 <ThemeSwitcher />
