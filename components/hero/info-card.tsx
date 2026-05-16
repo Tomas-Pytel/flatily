@@ -1,5 +1,5 @@
 import { Card } from "../ui/card";
-import { InformationCard } from "./hero";
+import { InformationCard } from "@/types/hero";
 
 interface InfoCardProps {
   card: InformationCard;
