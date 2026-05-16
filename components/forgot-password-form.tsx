@@ -49,23 +49,24 @@ export function ForgotPasswordForm({
       {success ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">Check Your Email</CardTitle>
-            <CardDescription>Password reset instructions sent</CardDescription>
+            <CardTitle className="text-2xl">Skontrolujte svoj e-mail</CardTitle>
+            <CardDescription>
+              Pokyny na obnovenie hesla boli odoslané
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              If you registered using your email and password, you will receive
-              a password reset email.
+              Ak ste sa zaregistrovali pomocou e-mailu a hesla, dostanete e-mail
+              na obnovenie hesla.
             </p>
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">Reset Your Password</CardTitle>
+            <CardTitle className="text-2xl">Resetujte svoje heslo</CardTitle>
             <CardDescription>
-              Type in your email and we&apos;ll send you a link to reset your
-              password
+              Zadajte svoj e-mail a my vám pošleme odkaz na obnovenie hesla.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -84,16 +85,16 @@ export function ForgotPasswordForm({
                 </div>
                 {error && <p className="text-sm text-red-500">{error}</p>}
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Sending..." : "Send reset email"}
+                  {isLoading ? "Posielanie..." : "Poslať email"}
                 </Button>
               </div>
               <div className="mt-4 text-center text-sm">
-                Already have an account?{" "}
+                Už máte účet?{" "}
                 <Link
                   href="/auth/login"
                   className="underline underline-offset-4"
                 >
-                  Login
+                  Prihlásiť
                 </Link>
               </div>
             </form>

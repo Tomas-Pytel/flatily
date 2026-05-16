@@ -9,14 +9,14 @@ import {
 import { Card } from "@/components/ui/card";
 
 export interface RepairLog {
-  id: number;
+  id: string;
   date: string;
   workType: string;
   provider: string;
   cost: number;
 }
 
-export interface RepairHistoryTableProps {
+interface RepairHistoryTableProps {
   repairs: RepairLog[];
 }
 
