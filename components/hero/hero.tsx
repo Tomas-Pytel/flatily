@@ -8,22 +8,21 @@ import { InformationCard } from "@/types/hero";
 export function Hero() {
   const infoCards: InformationCard[] = [
     {
-      title: "Automated Financials",
-      description:
-        "Real-time rent collection, expense tracking, and instant owner disbursements via encrypted ledger.",
-      icon: <Banknote className="size-6 text-primary" />,
+      title: "Automatizované financie",
+      description: "Prehľad platieb, nájomného a výdavkov v reálnom čase",
+      icon: <Banknote className="size-6 text-blue-500" />,
     },
     {
-      title: "Smart Maintenance",
+      title: "Inteligentná údržba",
       description:
-        "Predictive AI identifying repair needs before they become costly emergencies for your properties.",
-      icon: <Wrench className="size-6 text-primary" />,
+        "AI predikcia opráv, ktorá odhalí technické problémy skôr, než sa stanú drahými.",
+      icon: <Wrench className="size-6 text-blue-500" />,
     },
     {
-      title: "Compliance Engine",
+      title: "Legislatívny súlad",
       description:
-        "Stay updated with local regulations and automated lease generation backed by legal frameworks.",
-      icon: <FileText className="size-6 text-primary" />,
+        "Automatická generácia zmlúv a aktualizácie podľa platnej slovenskej legislatívy.",
+      icon: <FileText className="size-6 text-blue-500" />,
     },
   ];
 
@@ -32,26 +31,30 @@ export function Hero() {
       {/**Top section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-center">
         <div className="flex flex-col gap-6 items-center md:items-start text-center md:text-left">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">
-            Institutional Stability for Modern Property Owners.
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+            Stabilita a rast pre{" "}
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-cyan-400 via-blue-500 to-blue-700">
+              moderných prenajímateľov.
+            </span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-150">
-            Streamline your rentals, automate payments, and manage tenants all
-            in one place with our enterprise-grade management suite.
+          <p className="text-xl text-muted-foreground max-w-lg">
+            Zefektívnite správu svojich nehnuteľností, automatizujte platby a
+            spravujte nájomníkov na jednom mieste pomocou našej komplexnej
+            platformy.
           </p>
 
           <Button size="lg" asChild variant="default" className="mt-4">
-            <Link href="/dashboard">Get started</Link>
+            <Link href="/dashboard">Začať teraz</Link>
           </Button>
         </div>
 
         {/**Image wrapper */}
-        <div className="relative w-full aspect-square md:aspect-4/3 lg:aspect-square">
+        <div className="relative w-full aspect-4/3 rounded-3xl overflow-hidden shadow-2xl border border-border/50">
           <Image
             src="/hero-img.jpg"
-            alt="Hero Image"
+            alt="Správa nehnuteľností"
             fill
-            className="rounded-2xl shadow-2xl object-cover border"
+            className="object-cover hover:scale-105 transition-transform duration-700"
             priority
           />
         </div>
@@ -61,11 +64,11 @@ export function Hero() {
       <section className="flex flex-col items-center justify-center">
         <div className="text-center max-w-2xl space-y-4">
           <h2 className="text-3xl font-bold tracking-tight">
-            A complete ecosystem for asset growth.
+            Kompletný ekosystém pre správu majetku
           </h2>
           <p className="text-muted-foreground text-lg">
-            Precision-engineered tools to automate your workflow and secure your
-            investments.
+            Precízne navrhnuté nástroje na automatizáciu vášho workflowu a
+            ochranu vašich investícií.
           </p>
         </div>
 
