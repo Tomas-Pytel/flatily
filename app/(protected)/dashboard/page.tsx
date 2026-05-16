@@ -212,20 +212,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-
-function ActivityItem({ title, desc, time, icon: Icon, iconColor }: any) {
-  return (
-    <li className="flex items-start gap-4 p-4 hover:bg-muted/30 transition-colors">
-      <div className={`p-2 rounded-full bg-muted mt-0.5 ${iconColor}`}>
-        <Icon className="size-4" />
-      </div>
-      <div className="flex-1 space-y-1">
-        <p className="text-sm font-medium leading-none">{title}</p>
-        <p className="text-sm text-muted-foreground">{desc}</p>
-        <p className="text-[10px] text-muted-foreground uppercase font-bold">
-          {time}
-        </p>
-      </div>
-    </li>
-  );
-}
