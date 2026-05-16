@@ -21,9 +21,11 @@ export default async function PropertiesPage() {
     <div className="flex h-full flex-col">
       {/**Header */}
       <DashboardHeader title="Moje nehnuteľnosti">
-        <Button size="sm" className="gap-2">
-          <Plus className="size-4" />
-          <span className="hidden sm:inline">Pridať nehnuteľnosť</span>
+        <Button size="sm" className="gap-2" asChild>
+          <Link href={`/properties/new`}>
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">Pridať nehnuteľnosť</span>
+          </Link>
         </Button>
       </DashboardHeader>
 
