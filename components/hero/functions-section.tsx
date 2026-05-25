@@ -10,7 +10,7 @@ export default function FunctionsSection() {
             Všetko, čo potrebujete na jednom mieste
           </h2>
           <p className="text-lg text-muted-foreground">
-            Zabudnite na excelovské tabuľky a e-maily. Rentio vám poskytne
+            Zabudnite na excelovské tabuľky a e-maily. Flatily vám poskytne
             prehľadný dashboard, kde vidíte stav každej nehnuteľnosti v reálnom
             čase.
           </p>
@@ -43,7 +43,7 @@ export default function FunctionsSection() {
           <div className="p-4">
             <Image
               src="/dashboard.png"
-              alt="Rentio Dashboard"
+              alt="Flatily Dashboard"
               width={1200}
               height={800}
               className="w-full h-auto rounded-lg"
