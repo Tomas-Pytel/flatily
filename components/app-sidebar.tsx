@@ -98,12 +98,14 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground">
                     <Image
                       src={Logo}
-                      alt="Rentio Logo"
+                      alt="Flatily Logo"
                       width={32}
                       height={32}
                     />
                   </div>
-                  <span className="truncate font-semibold text-lg">Rentio</span>
+                  <span className="truncate font-semibold text-lg">
+                    Flatily
+                  </span>
                 </Link>
               </SidebarMenuButton>
 

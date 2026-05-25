@@ -15,8 +15,8 @@ export default function Navbar() {
           href="/"
           className="flex items-center gap-2 transition-opacity hover:opacity-80"
         >
-          <Image src={Logo} alt="Rentio Logo" width={32} height={32} />
-          <span className="text-xl font-bold">Rentio</span>
+          <Image src={Logo} alt="Flatily Logo" width={32} height={32} />
+          <span className="text-xl font-bold">Flatily</span>
         </Link>
 
         {/**Auth section */}
