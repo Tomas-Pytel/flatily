@@ -77,7 +77,7 @@ export default function NewMaintenanceForm({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" className="cursor-pointer">
+        <Button variant="outline" className="cursor-pointer">
           Pridať opravu
         </Button>
       </DialogTrigger>
@@ -117,9 +117,14 @@ export default function NewMaintenanceForm({
                     <FormControl>
                       <Input
                         type="number"
-                        step="0.01"
-                        {...field}
                         disabled={isPending}
+                        {...field}
+                        value={(field.value as number) || ""}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value === "" ? 0 : Number(e.target.value),
+                          )
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -238,12 +243,17 @@ export default function NewMaintenanceForm({
               <Button
                 type="button"
                 variant="outline"
+                className="cursor-pointer"
                 onClick={() => setOpen(false)}
                 disabled={isPending}
               >
                 Zrušiť
               </Button>
-              <Button type="submit" disabled={isPending}>
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="cursor-pointer"
+              >
                 {isPending ? "Ukladám..." : "Uložiť"}
               </Button>
             </div>
