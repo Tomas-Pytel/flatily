@@ -39,7 +39,7 @@ model Maintenance {
   title        String
   description  String?
   provider     String?
-  cost         Float?
+  cost         Float
   status       MaintenanceStatus @default(OPEN)
   resolvedDate DateTime?
   createdAt    DateTime          @default(now())
