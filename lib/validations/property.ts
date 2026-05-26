@@ -10,3 +10,5 @@ export const propertySchema = z.object({
 });
 
 export type PropertyFormValues = z.infer<typeof propertySchema>;
+
+export const maintenanceSchema = z.object({});
