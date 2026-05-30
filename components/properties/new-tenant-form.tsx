@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { toast } from "sonner";
 
 interface NewTenantFormProps {
   propertyId: string;
@@ -44,9 +45,10 @@ export default function NewTenantForm({ propertyId }: NewTenantFormProps) {
 
     startTransition(async () => {
       const result = await createTenantAndLease(values, propertyId);
-      if (result?.error) {
+      if (!result.success) {
         setError(result.error);
       }
+      toast.success("Nájomca bol úspešne pridaný");
     });
   };
 

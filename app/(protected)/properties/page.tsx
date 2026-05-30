@@ -6,6 +6,7 @@ import { Building2, Plus } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { Property } from "@/lib/generated/prisma/client";
 import { requireUser } from "@/lib/auth";
+import DeletePropertyButton from "@/components/properties/delete-property-button";
 
 export default async function PropertiesPage() {
   const user = await requireUser();
@@ -35,7 +36,12 @@ export default async function PropertiesPage() {
         {properties.length > 0 ? (
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {properties.map((property) => (
-              <li key={property.id}>
+              <li key={property.id} className="relative group h-full">
+                {/** Delete button */}
+                <div className="absolute right-3 top-3 z-10">
+                  <DeletePropertyButton propertyId={property.id} />
+                </div>
+
                 <Link
                   href={`/properties/${property.id}`}
                   className="block h-full"

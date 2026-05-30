@@ -1,6 +1,5 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import {
   MaintenanceFormValues,
   maintenanceSchema,
@@ -12,22 +11,28 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 
-export async function createProperty(values: PropertyFormValues) {
-  // get user
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
+export type ActionResponse<T = void> =
+  | { success: true; data?: T }
+  | { success: false; error: string };
 
-  const user = data?.user;
+/** Creates a new property */
+export async function createProperty(
+  values: PropertyFormValues,
+): Promise<ActionResponse> {
+  const user = await requireUser();
 
   if (!user) {
-    return { error: "Musíte byť prihlásený pre pridanie nehnuuteľnosti." };
+    return {
+      success: false,
+      error: "Musíte byť prihlásený pre pridanie nehnuuteľnosti.",
+    };
   }
 
   // data validation
   const validateFields = propertySchema.safeParse(values);
 
   if (!validateFields.success) {
-    return { error: "Neplatné údaje vo formulári." };
+    return { success: false, error: "Neplatné údaje vo formulári." };
   }
 
   try {
@@ -45,22 +50,45 @@ export async function createProperty(values: PropertyFormValues) {
     });
   } catch (error) {
     console.error("Chyba pri ukladaní:", error);
-    return { error: "Nastala chyba, skuste to neskor prosim." };
+    return { success: false, error: "Nastala chyba, skuste to neskor prosim." };
   }
 
   revalidatePath("/properties");
   redirect("/properties");
 }
 
+/** Deletes a property */
+export async function deleteProperty(
+  propertyId: string,
+): Promise<ActionResponse> {
+  const user = await requireUser();
+
+  try {
+    await prisma.property.delete({
+      where: {
+        id: propertyId,
+        ownerId: user.id,
+      },
+    });
+
+    revalidatePath("/properties");
+    return { success: true };
+  } catch (error) {
+    console.error("Chyba pri mazaní:", error);
+    return { success: false, error: "Nastala chyba, skuste to neskor prosim." };
+  }
+}
+
+/** Creates a new maintenance record */
 export async function createMaintenance(
   values: MaintenanceFormValues,
   propertyId: string,
-) {
+): Promise<ActionResponse> {
   const user = await requireUser();
   const validatedFields = maintenanceSchema.safeParse(values);
 
   if (!validatedFields.success) {
-    return { error: "Neplatné údaje vo formulári" };
+    return { success: false, error: "Neplatné údaje vo formulári" };
   }
 
   const data = validatedFields.data;
@@ -73,7 +101,10 @@ export async function createMaintenance(
   });
 
   if (!property) {
-    return { error: "Nemáte oprávnenie pridať opravu tejto nehnuteľnosti" };
+    return {
+      success: false,
+      error: "Nemáte oprávnenie pridať opravu tejto nehnuteľnosti",
+    };
   }
 
   try {
@@ -93,6 +124,6 @@ export async function createMaintenance(
     return { success: true };
   } catch (error) {
     console.error("Chyba pri ukladaní:", error);
-    return { error: "Nastala chyba, skuste to neskor prosim." };
+    return { success: false, error: "Nastala chyba, skuste to neskor prosim." };
   }
 }
