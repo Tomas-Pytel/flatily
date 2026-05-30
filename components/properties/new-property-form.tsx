@@ -17,6 +17,7 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import { toast } from "sonner";
 
 export default function NewPropertyForm() {
   const [error, setError] = useState<string | undefined>("");
@@ -38,9 +39,13 @@ export default function NewPropertyForm() {
     setError("");
     startTransition(async () => {
       const result = await createProperty(values);
-      if (result?.error) {
+
+      // if error occurs, set error state to show error message in form
+      if (!result.success) {
         setError(result.error);
       }
+
+      toast.success("Nehnuteľnosť bola úspešne pridaná");
     });
   };
 

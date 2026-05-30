@@ -35,6 +35,7 @@ import {
   SelectItem,
 } from "../ui/select";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface NewMaintenanceFormProps {
   propertyId: string;
@@ -64,12 +65,15 @@ export default function NewMaintenanceForm({
     setError("");
     startTransition(async () => {
       const result = await createMaintenance(values, propertyId);
-      if (result?.error) {
+
+      // if error occurs, set error state to show error message in form
+      if (!result.success) {
         setError(result.error);
       } else {
         setOpen(false);
         form.reset();
         router.refresh();
+        toast.success("Oprava bola úspešne pridaná");
       }
     });
   };
