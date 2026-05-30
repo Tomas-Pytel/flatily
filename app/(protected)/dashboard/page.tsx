@@ -4,16 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import {
-  Banknote,
-  ArrowUpRight,
-  Building2,
-  Users,
-  Wrench,
-  AlertCircle,
-} from "lucide-react";
+import { Banknote, ArrowUpRight, Building2, Users, Wrench } from "lucide-react";
 import Link from "next/link";
 import { Indicator } from "../properties/[id]/page";
+import MaintenanceCard from "@/components/dashboard/maintenance-card";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -121,51 +115,7 @@ export default async function DashboardPage() {
             <h2 className="text-lg font-semibold tracking-tight">
               Očakávajú pozornosť
             </h2>
-            <Card className="h-full">
-              {openMaintenances.length > 0 ? (
-                <CardContent className="p-0">
-                  <ul className="divide-y border-b-0">
-                    {openMaintenances.map((task) => (
-                      <li
-                        key={task.id}
-                        className="flex items-start gap-4 p-4 hover:bg-muted/30 transition-colors group"
-                      >
-                        <div className="p-2 rounded-full bg-red-500/10 text-red-500 mt-0.5 group-hover:bg-red-500/20 transition-colors">
-                          <AlertCircle className="size-4" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <p className="text-sm font-medium leading-none">
-                            {task.title}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {task.property.street}, {task.property.title}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider pt-1">
-                            Nahlásené:{" "}
-                            {task.createdAt.toLocaleDateString("sk-SK")}
-                          </p>
-                        </div>
-                        <Button variant="outline" size="sm">
-                          Vyriešiť
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              ) : (
-                <div className="flex flex-col items-center justify-center p-8 text-center h-full min-h-50">
-                  <div className="size-12 rounded-full bg-green-500/10 flex items-center justify-center mb-3">
-                    <Wrench className="size-6 text-green-600" />
-                  </div>
-                  <h3 className="font-semibold text-lg">
-                    Žiadne aktívne problémy
-                  </h3>
-                  <p className="text-sm text-muted-foreground max-w-sm mt-1">
-                    Všetky vaše nehnuteľnosti sú momentálne v bezchybnom stave.
-                  </p>
-                </div>
-              )}
-            </Card>
+            <MaintenanceCard openMaintenances={openMaintenances} />
           </section>
 
           {/* Quick actions */}
