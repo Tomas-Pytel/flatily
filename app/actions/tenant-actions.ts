@@ -5,16 +5,17 @@ import { TenantFormValues, tenantSchema } from "@/lib/validations/tenant";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { ActionResponse } from "./property-actions";
 
 export async function createTenantAndLease(
   values: TenantFormValues,
   propertyId: string,
-) {
+): Promise<ActionResponse> {
   const user = await requireUser();
   const validatedFields = tenantSchema.safeParse(values);
 
   if (!validatedFields.success) {
-    return { error: "Neplatné údaje vo formulári" };
+    return { success: false, error: "Neplatné údaje vo formulári" };
   }
 
   const data = validatedFields.data;
@@ -27,7 +28,10 @@ export async function createTenantAndLease(
   });
 
   if (!property) {
-    return { error: "Nemáte oprávnenie pridať nájomcu tejto nehnuteľnosti" };
+    return {
+      success: false,
+      error: "Nemáte oprávnenie pridať nájomcu tejto nehnuteľnosti",
+    };
   }
 
   try {
@@ -55,7 +59,7 @@ export async function createTenantAndLease(
     });
   } catch (error) {
     console.log("Chyba pri ukladani najomcu", error);
-    return { error: "Nastala chyba, skuste to neskor prosim" };
+    return { success: false, error: "Nastala chyba, skuste to neskor prosim" };
   }
 
   revalidatePath(`/properties/${property.id}`);
