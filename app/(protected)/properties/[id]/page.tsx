@@ -16,6 +16,7 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { Banknote, TrendingUp, Users, FileText } from "lucide-react";
+import NewMaintenanceForm from "@/components/properties/new-maintenance-form";
 
 export interface Indicator {
   icon: React.ElementType;
@@ -148,9 +149,10 @@ export default async function PropertyDetailsPage({
                 <h3 className="text-lg font-semibold tracking-tight">
                   História opráv
                 </h3>
-                <Button variant="outline" size="sm">
+                <NewMaintenanceForm propertyId={id} />
+                {/* <Button variant="outline" size="sm">
                   Pridať opravu
-                </Button>
+                </Button> */}
               </div>
               <RepairHistoryTable repairs={repairs} />
             </section>
