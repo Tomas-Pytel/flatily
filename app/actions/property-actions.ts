@@ -127,3 +127,72 @@ export async function createMaintenance(
     return { success: false, error: "Nastala chyba, skuste to neskor prosim." };
   }
 }
+
+export async function addPropertyImage(
+  propertyId: string,
+  imageUrl: string,
+): Promise<ActionResponse> {
+  const user = await requireUser();
+
+  const property = await prisma.property.findUnique({
+    where: {
+      id: propertyId,
+      ownerId: user.id,
+    },
+  });
+
+  if (!property)
+    return {
+      success: false,
+      error: "Nemáte oprávnení přidat obrázek této nemovitosti.",
+    };
+
+  try {
+    await prisma.propertyImage.create({
+      data: {
+        url: imageUrl,
+        propertyId: propertyId,
+      },
+    });
+
+    if (!property.imageUrl) {
+      await prisma.property.update({
+        where: { id: propertyId },
+        data: { imageUrl: imageUrl },
+      });
+    }
+
+    revalidatePath(`/properties/${propertyId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Chyba pri ukladaní obrázka:", error);
+    return {
+      success: false,
+      error: "Nastala chyba, neporadilo sa uložiť obrázok.",
+    };
+  }
+}
+
+export async function setPrimaryImage(
+  propertyId: string,
+  imageUrl: string,
+): Promise<ActionResponse> {
+  const user = await requireUser();
+
+  try {
+    await prisma.property.update({
+      where: { id: propertyId, ownerId: user.id },
+      data: { imageUrl: imageUrl },
+    });
+
+    revalidatePath(`/properties/${propertyId}`);
+    revalidatePath("/properties");
+    return { success: true };
+  } catch (error) {
+    console.error("Chyba pri nastavovaní hlavného obrázka:", error);
+    return {
+      success: false,
+      error: "Nastala chyba, neporadilo sa nastaviť hlavný obrázok.",
+    };
+  }
+}

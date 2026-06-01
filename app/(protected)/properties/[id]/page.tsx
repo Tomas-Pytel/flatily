@@ -17,6 +17,7 @@ import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { Banknote, TrendingUp, Users, FileText } from "lucide-react";
 import NewMaintenanceForm from "@/components/properties/new-maintenance-form";
+import { PropertyGalleryModal } from "@/components/properties/property-gallery-modal";
 
 export interface Indicator {
   icon: React.ElementType;
@@ -38,6 +39,9 @@ export default async function PropertyDetailsPage({
       id: id,
     },
     include: {
+      images: {
+        orderBy: { createdAt: "desc" },
+      },
       leases: {
         where: { isActive: true },
         include: { tenant: true },
@@ -115,6 +119,16 @@ export default async function PropertyDetailsPage({
       {/**Content */}
       <main className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 gap-6 lg:gap-8">
         <PropertyHeroSection property={property} />
+
+        {/**Gallery Modal */}
+        <div className="flex justify-end -mt-2 mb-2">
+          <PropertyGalleryModal
+            propertyId={property.id}
+            images={property.images}
+            currentPrimaryUrl={property.imageUrl}
+            userId={user.id}
+          />
+        </div>
 
         {/**Indicators */}
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
