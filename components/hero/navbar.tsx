@@ -1,10 +1,10 @@
 import { hasEnvVars } from "@/lib/utils";
-import { EnvVarWarning } from "./auth/env-var-warning";
+import { EnvVarWarning } from "../auth/env-var-warning";
 import { Suspense } from "react";
-import { AuthButton } from "./auth/auth-button";
+import { AuthButton } from "../auth/auth-button";
 import Link from "next/link";
 import Image from "next/image";
-import Logo from "../app/favicon.ico";
+import Logo from "../../app/favicon.ico";
 
 export default function Navbar() {
   return (
