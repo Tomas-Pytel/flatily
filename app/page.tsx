@@ -1,6 +1,6 @@
 import { Hero } from "@/components/hero/hero";
-import Footer from "@/components/footer";
-import Navbar from "@/components/navbar";
+import Footer from "@/components/hero/footer";
+import Navbar from "@/components/hero/navbar";
 import FunctionsSection from "@/components/hero/functions-section";
 import CTASection from "@/components/hero/cta-section";
 
