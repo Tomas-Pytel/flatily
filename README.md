@@ -1,109 +1,119 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# 🏠 Property Management Dashboard (Správa nehnuteľností)
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+Moderná full-stack webová aplikácia určená pre prenajímateľov a majiteľov nehnuteľností. Umožňuje jednoducho spravovať portfólio nehnuteľností, sledovať nájomníkov, evidovať opravy a bezpečne ukladať dokumenty.
 
-## Features
+Tento projekt slúži ako ukážka mojich zručností pri vývoji moderných webových aplikácií s využitím najnovších štandardov ekosystému React a Next.js (App Router, Server Actions).
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+---
 
-## Demo
+## ✨ Hlavné funkcionality
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+- **🏢 Správa portfólia:** Pridávanie, úprava a mazanie nehnuteľností v prehľadnom zobrazení.
+- **👥 Manažment nájomníkov:** Evidencia aktívnych nájomníkov, zmlúv, kontaktných údajov a výšky depozitov.
+- **🔧 Sledovanie údržby:** Záznamník opráv, sledovanie stavu riešenia (vyriešené/nevyriešené) a finančných nákladov.
+- **📁 Správa dokumentov:** Bezpečné nahrávanie a prístup k nájomným zmluvám, faktúram a iným dôležitým súborom.
+- **🖼️ Galéria:** Možnosť nahrať a spravovať fotografie pre každú nehnuteľnosť.
+- **📊 KPI Ukazovatele:** Automatické výpočty mesačného nájmu, ročného výnosu (ROI) a obsadenosti.
+- **🔒 Bezpečnosť:** Autentifikácia a autorizácia (majiteľ vidí a spravuje výlučne iba svoje dáta).
 
-## Deploy to Vercel
+---
 
-Vercel deployment will guide you through creating a Supabase account and project.
+## 🛠️ Použité technológie (Tech Stack)
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+Aplikácia je postavená na moderných a škálovateľných technológiách:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+### Frontend
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **Jazyk:** TypeScript
+- **Styling:** Tailwind CSS v4 + [shadcn/ui](https://ui.shadcn.com/) (Radix UI primitives)
+- **Formuláre a Validácia:** React Hook Form + Zod
+- **Ikony:** Lucide React
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+### Backend & Databáza
 
-## Clone and run locally
+- **API a Logika:** Next.js Server Actions (bezpečné volania na server priamo z komponentov)
+- **Databáza:** PostgreSQL hostovaná na [Supabase](https://supabase.com/)
+- **ORM:** Prisma Client
+- **Autentifikácia:** Supabase Auth (SSR)
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+---
 
-2. Create a Next.js app using the Supabase Starter template npx command
+## 🚀 Lokálne spustenie (Getting Started)
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+Ak si chcete projekt spustiť lokálne, postupujte podľa týchto krokov:
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+### 1. Klonovanie repozitára
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+```bash
+git clone https://github.com/Tomas-Pytel/flatily.git
+cd flatily
+```
 
-3. Use `cd` to change into the app's directory
+### 2. Inštalácia závislostí
 
-   ```bash
-   cd with-supabase-app
-   ```
+```bash
+npm install
+```
 
-4. Rename `.env.example` to `.env.local` and update the following:
+### 3. Nastavenie prostredia (Environment Variables)
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+```env
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+# Connect to Supabase
+DATABASE_URL=...
 
-5. You can now run the Next.js local development server:
+# Direct connection to the database. Used for migrations
+DIRECT_URL=...
+```
 
-   ```bash
-   npm run dev
-   ```
+### 4. Inicializácia databázy
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+```bash
+npx prisma generate
+npx prisma db push
+```
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+### 5. Spustenie vývojového servera
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+```bash
+npm run dev
+```
 
-## Feedback and issues
+Aplikácia bude bežať na adrese http://localhost:3000
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+---
 
-## More Supabase examples
+## 🏗️ Architektúra kódu a best practices
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+V tomto projekte som dbal na čistotu kódu a moderné prístupy:
+
+- **Server Actions:** Dátové operácie sú riešené cez Server Actions namiesto tradičných API routes, čo zrýchľuje vývoj a zaisťuje typovú bezpečnosť.
+- **Validácia dát:** Všetky vstupy z formulárov (pridanie nehnuteľnosti, nájomcu, opravy) sú striktne validované pomocou knižnice Zod ešte pred odoslaním na server.
+- **Komponentový prístup:** Zdieľané UI komponenty (tlačidlá, modaly, karty) sú extrahované a znovu použiteľné (UI zložka inšpirovaná shadcn/ui).
+- **Bezpečnosť:** Každá Server Action kontroluje prihláseného používateľa a overuje, či daný záznam v databáze patrí výlučne jemu.
+
+---
+
+## 📸 Ukážky z aplikácie
+
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+    <img src="https://github.com/Tomas-Pytel/github-images/tree/main/flatily/Landing-page.png" width="300">
+    <img src="https://github.com/Tomas-Pytel/github-images/tree/main/flatily/Dashboard.png" width="300">
+</div>
+---
+
+## 👨‍💻 Autor
+
+Tomáš Pytel
+
+- LinkedIn: https://www.linkedin.com/in/tom%C3%A1%C5%A1-pytel-6272863a4/
+- Web/Portfólio: https://tomas-pytel.github.io/portfolio-app/
