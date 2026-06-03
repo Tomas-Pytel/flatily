@@ -129,50 +129,71 @@ export async function createMaintenance(
   }
 }
 
-export async function resolveMaintenance(
-  maintenanceId: string,
-  // pathname?: string,
+export async function addPropertyImage(
+  propertyId: string,
+  imageUrl: string,
 ): Promise<ActionResponse> {
   const user = await requireUser();
 
-  const maintenance = await prisma.maintenance.findUnique({
+  const property = await prisma.property.findUnique({
     where: {
-      id: maintenanceId,
-    },
-    include: {
-      property: true,
+      id: propertyId,
+      ownerId: user.id,
     },
   });
 
-  if (!maintenance) {
-    return { success: false, error: "Vybraná položka neexistuje" };
-  }
-
-  if (maintenance.property.ownerId !== user.id) {
+  if (!property)
     return {
       success: false,
-      error: "Nemáte oprávnenie upravovať túto opravu",
+      error: "Nemáte oprávnení přidat obrázek této nemovitosti.",
     };
-  }
 
   try {
-    await prisma.maintenance.update({
-      where: {
-        id: maintenanceId,
-      },
+    await prisma.propertyImage.create({
       data: {
-        status: MaintenanceStatus.RESOLVED,
-        resolvedDate: new Date(),
+        url: imageUrl,
+        propertyId: propertyId,
       },
     });
 
-    // if (pathname) {
-    //   revalidatePath(pathname);
-    // }
+    if (!property.imageUrl) {
+      await prisma.property.update({
+        where: { id: propertyId },
+        data: { imageUrl: imageUrl },
+      });
+    }
 
+    revalidatePath(`/properties/${propertyId}`);
     return { success: true };
   } catch (error) {
-    console.log("Chyba pri oznacovani opravy, ", error);
-    return { success: false, error: "Nepodarilo sa upraviť status opravy" };
+    console.error("Chyba pri ukladaní obrázka:", error);
+    return {
+      success: false,
+      error: "Nastala chyba, neporadilo sa uložiť obrázok.",
+    };
+  }
+}
+
+export async function setPrimaryImage(
+  propertyId: string,
+  imageUrl: string,
+): Promise<ActionResponse> {
+  const user = await requireUser();
+
+  try {
+    await prisma.property.update({
+      where: { id: propertyId, ownerId: user.id },
+      data: { imageUrl: imageUrl },
+    });
+
+    revalidatePath(`/properties/${propertyId}`);
+    revalidatePath("/properties");
+    return { success: true };
+  } catch (error) {
+    console.error("Chyba pri nastavovaní hlavného obrázka:", error);
+    return {
+      success: false,
+      error: "Nastala chyba, neporadilo sa nastaviť hlavný obrázok.",
+    };
   }
 }

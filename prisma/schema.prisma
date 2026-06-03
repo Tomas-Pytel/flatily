@@ -66,6 +66,7 @@ model Property {
   leases       Lease[]
   maintenance Maintenance[]
   owner        User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  images       PropertyImage[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -87,6 +88,14 @@ model User {
   name      String?
   createdAt DateTime   @default(now())
   properties  Property[]
+}
+
+model PropertyImage {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  url        String   
+  propertyId String   @db.Uuid
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
 }
 
 enum MaintenanceStatus {
