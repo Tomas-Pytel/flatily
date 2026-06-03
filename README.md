@@ -106,8 +106,8 @@ V tomto projekte som dbal na čistotu kódu a moderné prístupy:
 ## 📸 Ukážky z aplikácie
 
 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
-    <img src="https://github.com/Tomas-Pytel/github-images/tree/main/flatily/Landing-page.png" width="300">
-    <img src="https://github.com/Tomas-Pytel/github-images/tree/main/flatily/Dashboard.png" width="300">
+    <img src="https://raw.githubusercontent.com/Tomas-Pytel/github-images/main/flatily/Landing-page.png" width="300">
+    <img src="https://raw.githubusercontent.com/Tomas-Pytel/github-images/main/flatily/Dashboard.png" width="300">
 </div>
 ---
 
