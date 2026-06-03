@@ -129,6 +129,54 @@ export async function createMaintenance(
   }
 }
 
+export async function resolveMaintenance(
+  maintenanceId: string,
+  // pathname?: string,
+): Promise<ActionResponse> {
+  const user = await requireUser();
+
+  const maintenance = await prisma.maintenance.findUnique({
+    where: {
+      id: maintenanceId,
+    },
+    include: {
+      property: true,
+    },
+  });
+
+  if (!maintenance) {
+    return { success: false, error: "Vybraná položka neexistuje" };
+  }
+
+  if (maintenance.property.ownerId !== user.id) {
+    return {
+      success: false,
+      error: "Nemáte oprávnenie upravovať túto opravu",
+    };
+  }
+
+  try {
+    await prisma.maintenance.update({
+      where: {
+        id: maintenanceId,
+      },
+      data: {
+        status: MaintenanceStatus.RESOLVED,
+        resolvedDate: new Date(),
+      },
+    });
+
+    // if (pathname) {
+    //   revalidatePath(pathname);
+    // }
+
+    return { success: true };
+  } catch (error) {
+    console.log("Chyba pri oznacovani opravy, ", error);
+    return { success: false, error: "Nepodarilo sa upraviť status opravy" };
+  }
+}
+
 export async function addPropertyImage(
   propertyId: string,
   imageUrl: string,
