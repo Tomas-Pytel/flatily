@@ -15,7 +15,7 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { Banknote, TrendingUp, Users, FileText } from "lucide-react";
+import { Banknote, TrendingUp, Users } from "lucide-react";
 import NewMaintenanceForm from "@/components/properties/new-maintenance-form";
 import { PropertyGalleryModal } from "@/components/properties/property-gallery-modal";
 
@@ -107,8 +107,11 @@ export default async function PropertyDetailsPage({
     id: d.id,
     title: d.title,
     date: d.createdAt.toLocaleDateString("sk-SK"),
-    size: `${Math.round(d.fileSize / 1024)} KB`,
-    icon: FileText,
+    size:
+      d.fileSize > 1048576
+        ? `${(d.fileSize / 1048576).toFixed(1)} MB`
+        : `${Math.round(d.fileSize / 1024)} KB`,
+    fileUrl: d.fileUrl,
   }));
 
   return (
@@ -174,7 +177,11 @@ export default async function PropertyDetailsPage({
 
           {/* Right Column: Documents */}
           <section className="flex flex-col h-full">
-            <DocumentsCard documents={documents} />
+            <DocumentsCard
+              documents={documents}
+              propertyId={id}
+              userId={user.id}
+            />
           </section>
         </div>
       </main>

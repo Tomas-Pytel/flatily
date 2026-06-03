@@ -23,6 +23,7 @@ export function PropertyCardInfo({ property }: PropertyCardInfoProps) {
             alt={property.title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
+            priority
           />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center text-muted-foreground bg-muted/50 gap-2">

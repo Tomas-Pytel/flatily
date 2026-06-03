@@ -27,6 +27,7 @@ export default function PropertyHeroSection({
             alt={property.title}
             fill
             className="object-cover rounded-xl"
+            priority
           />
         ) : (
           <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
