@@ -1,27 +1,39 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
-import { PropertyFormValues, propertySchema } from "@/lib/validations/property";
+import {
+  MaintenanceFormValues,
+  maintenanceSchema,
+  PropertyFormValues,
+  propertySchema,
+} from "@/lib/validations/property";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
+import { requireUser } from "@/lib/auth";
+import { MaintenanceStatus } from "@/lib/generated/prisma/enums";
 
-export async function createProperty(values: PropertyFormValues) {
-  // get user
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
+export type ActionResponse<T = void> =
+  | { success: true; data?: T }
+  | { success: false; error: string };
 
-  const user = data?.user;
+/** Creates a new property */
+export async function createProperty(
+  values: PropertyFormValues,
+): Promise<ActionResponse> {
+  const user = await requireUser();
 
   if (!user) {
-    return { error: "Musíte byť prihlásený pre pridanie nehnuuteľnosti." };
+    return {
+      success: false,
+      error: "Musíte byť prihlásený pre pridanie nehnuuteľnosti.",
+    };
   }
 
   // data validation
   const validateFields = propertySchema.safeParse(values);
 
   if (!validateFields.success) {
-    return { error: "Neplatné údaje vo formulári." };
+    return { success: false, error: "Neplatné údaje vo formulári." };
   }
 
   try {
@@ -39,9 +51,197 @@ export async function createProperty(values: PropertyFormValues) {
     });
   } catch (error) {
     console.error("Chyba pri ukladaní:", error);
-    return { error: "Nastala chyba, skuste to neskor prosim." };
+    return { success: false, error: "Nastala chyba, skuste to neskor prosim." };
   }
 
   revalidatePath("/properties");
   redirect("/properties");
+}
+
+/** Deletes a property */
+export async function deleteProperty(
+  propertyId: string,
+): Promise<ActionResponse> {
+  const user = await requireUser();
+
+  try {
+    await prisma.property.delete({
+      where: {
+        id: propertyId,
+        ownerId: user.id,
+      },
+    });
+
+    revalidatePath("/properties");
+    return { success: true };
+  } catch (error) {
+    console.error("Chyba pri mazaní:", error);
+    return { success: false, error: "Nastala chyba, skuste to neskor prosim." };
+  }
+}
+
+/** Creates a new maintenance record */
+export async function createMaintenance(
+  values: MaintenanceFormValues,
+  propertyId: string,
+): Promise<ActionResponse> {
+  const user = await requireUser();
+  const validatedFields = maintenanceSchema.safeParse(values);
+
+  if (!validatedFields.success) {
+    return { success: false, error: "Neplatné údaje vo formulári" };
+  }
+
+  const data = validatedFields.data;
+
+  const property = await prisma.property.findUnique({
+    where: {
+      id: propertyId,
+      ownerId: user.id,
+    },
+  });
+
+  if (!property) {
+    return {
+      success: false,
+      error: "Nemáte oprávnenie pridať opravu tejto nehnuteľnosti",
+    };
+  }
+
+  try {
+    await prisma.maintenance.create({
+      data: {
+        title: data.title,
+        cost: data.cost,
+        status: data.status,
+        description: data.description,
+        provider: data.provider,
+        resolvedDate: data.resolvedDate,
+        propertyId: propertyId,
+      },
+    });
+
+    revalidatePath(`/properties/${propertyId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Chyba pri ukladaní:", error);
+    return { success: false, error: "Nastala chyba, skuste to neskor prosim." };
+  }
+}
+
+export async function resolveMaintenance(
+  maintenanceId: string,
+  // pathname?: string,
+): Promise<ActionResponse> {
+  const user = await requireUser();
+
+  const maintenance = await prisma.maintenance.findUnique({
+    where: {
+      id: maintenanceId,
+    },
+    include: {
+      property: true,
+    },
+  });
+
+  if (!maintenance) {
+    return { success: false, error: "Vybraná položka neexistuje" };
+  }
+
+  if (maintenance.property.ownerId !== user.id) {
+    return {
+      success: false,
+      error: "Nemáte oprávnenie upravovať túto opravu",
+    };
+  }
+
+  try {
+    await prisma.maintenance.update({
+      where: {
+        id: maintenanceId,
+      },
+      data: {
+        status: MaintenanceStatus.RESOLVED,
+        resolvedDate: new Date(),
+      },
+    });
+
+    // if (pathname) {
+    //   revalidatePath(pathname);
+    // }
+
+    return { success: true };
+  } catch (error) {
+    console.log("Chyba pri oznacovani opravy, ", error);
+    return { success: false, error: "Nepodarilo sa upraviť status opravy" };
+  }
+}
+
+export async function addPropertyImage(
+  propertyId: string,
+  imageUrl: string,
+): Promise<ActionResponse> {
+  const user = await requireUser();
+
+  const property = await prisma.property.findUnique({
+    where: {
+      id: propertyId,
+      ownerId: user.id,
+    },
+  });
+
+  if (!property)
+    return {
+      success: false,
+      error: "Nemáte oprávnení přidat obrázek této nemovitosti.",
+    };
+
+  try {
+    await prisma.propertyImage.create({
+      data: {
+        url: imageUrl,
+        propertyId: propertyId,
+      },
+    });
+
+    if (!property.imageUrl) {
+      await prisma.property.update({
+        where: { id: propertyId },
+        data: { imageUrl: imageUrl },
+      });
+    }
+
+    revalidatePath(`/properties/${propertyId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Chyba pri ukladaní obrázka:", error);
+    return {
+      success: false,
+      error: "Nastala chyba, neporadilo sa uložiť obrázok.",
+    };
+  }
+}
+
+export async function setPrimaryImage(
+  propertyId: string,
+  imageUrl: string,
+): Promise<ActionResponse> {
+  const user = await requireUser();
+
+  try {
+    await prisma.property.update({
+      where: { id: propertyId, ownerId: user.id },
+      data: { imageUrl: imageUrl },
+    });
+
+    revalidatePath(`/properties/${propertyId}`);
+    revalidatePath("/properties");
+    return { success: true };
+  } catch (error) {
+    console.error("Chyba pri nastavovaní hlavného obrázka:", error);
+    return {
+      success: false,
+      error: "Nastala chyba, neporadilo sa nastaviť hlavný obrázok.",
+    };
+  }
 }

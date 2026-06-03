@@ -15,7 +15,9 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { Banknote, TrendingUp, Users, FileText } from "lucide-react";
+import { Banknote, TrendingUp, Users } from "lucide-react";
+import NewMaintenanceForm from "@/components/properties/new-maintenance-form";
+import { PropertyGalleryModal } from "@/components/properties/property-gallery-modal";
 
 export interface Indicator {
   icon: React.ElementType;
@@ -37,6 +39,9 @@ export default async function PropertyDetailsPage({
       id: id,
     },
     include: {
+      images: {
+        orderBy: { createdAt: "desc" },
+      },
       leases: {
         where: { isActive: true },
         include: { tenant: true },
@@ -102,8 +107,11 @@ export default async function PropertyDetailsPage({
     id: d.id,
     title: d.title,
     date: d.createdAt.toLocaleDateString("sk-SK"),
-    size: `${Math.round(d.fileSize / 1024)} KB`,
-    icon: FileText,
+    size:
+      d.fileSize > 1048576
+        ? `${(d.fileSize / 1048576).toFixed(1)} MB`
+        : `${Math.round(d.fileSize / 1024)} KB`,
+    fileUrl: d.fileUrl,
   }));
 
   return (
@@ -114,6 +122,16 @@ export default async function PropertyDetailsPage({
       {/**Content */}
       <main className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 gap-6 lg:gap-8">
         <PropertyHeroSection property={property} />
+
+        {/**Gallery Modal */}
+        <div className="flex justify-end -mt-2 mb-2">
+          <PropertyGalleryModal
+            propertyId={property.id}
+            images={property.images}
+            currentPrimaryUrl={property.imageUrl}
+            userId={user.id}
+          />
+        </div>
 
         {/**Indicators */}
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -148,9 +166,10 @@ export default async function PropertyDetailsPage({
                 <h3 className="text-lg font-semibold tracking-tight">
                   História opráv
                 </h3>
-                <Button variant="outline" size="sm">
+                <NewMaintenanceForm propertyId={id} />
+                {/* <Button variant="outline" size="sm">
                   Pridať opravu
-                </Button>
+                </Button> */}
               </div>
               <RepairHistoryTable repairs={repairs} />
             </section>
@@ -158,7 +177,11 @@ export default async function PropertyDetailsPage({
 
           {/* Right Column: Documents */}
           <section className="flex flex-col h-full">
-            <DocumentsCard documents={documents} />
+            <DocumentsCard
+              documents={documents}
+              propertyId={id}
+              userId={user.id}
+            />
           </section>
         </div>
       </main>
