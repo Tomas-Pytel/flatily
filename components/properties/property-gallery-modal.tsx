@@ -51,7 +51,10 @@ export function PropertyGalleryModal({
         .from("property-images")
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        toast.error("Chyba pri nahrávaní obrázku.");
+        return;
+      }
 
       const {
         data: { publicUrl },
@@ -93,7 +96,10 @@ export function PropertyGalleryModal({
       </DialogTrigger>
 
       {/* Modal window */}
-      <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
+      <DialogContent
+        className="sm:max-w-3xl max-h-[85vh] overflow-y-auto"
+        aria-describedby="property-gallery-description"
+      >
         <DialogHeader>
           <DialogTitle>Galéria nehnuteľnosti</DialogTitle>
         </DialogHeader>
