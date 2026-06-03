@@ -10,6 +10,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
+import { MaintenanceStatus } from "@/lib/generated/prisma/enums";
 
 export type ActionResponse<T = void> =
   | { success: true; data?: T }
