@@ -3,7 +3,7 @@
 import { Button } from "../ui/button";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useTransition } from "react";
-import { resolveMaintenance } from "@/app/actions/property-actions";
+import { resolveMaintenance } from "@/app/actions/maintenance-actions";
 import { toast } from "sonner";
 import { Prisma } from "@/lib/generated/prisma/client";
 

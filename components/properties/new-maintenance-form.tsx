@@ -1,6 +1,6 @@
 "use client";
 
-import { createMaintenance } from "@/app/actions/property-actions";
+import { createMaintenance } from "@/app/actions/maintenance-actions";
 import { MaintenanceStatus } from "@/lib/generated/prisma/enums";
 import {
   MaintenanceFormValues,
