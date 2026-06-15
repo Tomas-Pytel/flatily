@@ -167,9 +167,6 @@ export default async function PropertyDetailsPage({
                   História opráv
                 </h3>
                 <NewMaintenanceForm propertyId={id} />
-                {/* <Button variant="outline" size="sm">
-                  Pridať opravu
-                </Button> */}
               </div>
               <RepairHistoryTable repairs={repairs} />
             </section>
