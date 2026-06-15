@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
+import DeleteMaintenanceButton from "./delete-maintenance-button";
 
 export interface RepairLog {
   id: string;
@@ -42,6 +43,7 @@ export default function RepairHistoryTable({
             <TableHead className="text-right whitespace-nowrap">
               Náklady
             </TableHead>
+            <TableHead className="w-12" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -59,6 +61,9 @@ export default function RepairHistoryTable({
                   minimumFractionDigits: 2,
                 })}{" "}
                 €
+              </TableCell>
+              <TableCell className="text-right">
+                <DeleteMaintenanceButton maintenanceId={repair.id} />
               </TableCell>
             </TableRow>
           ))}

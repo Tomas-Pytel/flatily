@@ -133,11 +133,13 @@ export async function deleteMaintenance(
       error: "Na odstránenie daného záznamu nemáte oprávnenie.",
     };
 
+  console.log(maintenanceId);
   try {
-    prisma.maintenance.delete({
+    await prisma.maintenance.delete({
       where: { id: maintenanceId },
     });
 
+    console.log("deleted");
     revalidatePath(`/properties/${maintenance.property.id}`);
     return { success: true };
   } catch (error) {
