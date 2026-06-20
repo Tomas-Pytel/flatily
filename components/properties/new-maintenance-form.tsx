@@ -1,6 +1,9 @@
 "use client";
 
-import { createMaintenance } from "@/app/actions/maintenance-actions";
+import {
+  createMaintenance,
+  updateMaintenance,
+} from "@/app/actions/maintenance-actions";
 import { MaintenanceStatus } from "@/lib/generated/prisma/enums";
 import {
   MaintenanceFormValues,
@@ -39,19 +42,25 @@ import { toast } from "sonner";
 
 interface NewMaintenanceFormProps {
   propertyId: string;
+  initialValues?: MaintenanceFormValues & { maintenanceId: string };
+  triggerButton: React.ReactNode;
 }
 
 export default function NewMaintenanceForm({
   propertyId,
+  initialValues,
+  triggerButton,
 }: NewMaintenanceFormProps) {
   const [open, setOpen] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
+  const editMode = !!initialValues;
+
   const form = useForm<MaintenanceFormValues>({
     resolver: zodResolver(maintenanceSchema),
-    defaultValues: {
+    defaultValues: initialValues || {
       title: "",
       cost: 1,
       status: MaintenanceStatus.OPEN,
@@ -64,7 +73,13 @@ export default function NewMaintenanceForm({
   const onSubmit = (values: MaintenanceFormValues) => {
     setError("");
     startTransition(async () => {
-      const result = await createMaintenance(values, propertyId);
+      let result;
+
+      if (editMode) {
+        result = await updateMaintenance(initialValues.maintenanceId, values);
+      } else {
+        result = await createMaintenance(values, propertyId);
+      }
 
       // if error occurs, set error state to show error message in form
       if (!result.success) {
@@ -73,22 +88,23 @@ export default function NewMaintenanceForm({
         setOpen(false);
         form.reset();
         router.refresh();
-        toast.success("Oprava bola úspešne pridaná");
+
+        if (editMode)
+          toast.success("Údaje o oprave boli úspešne aktualizované");
+        else toast.success("Oprava bola úspešne pridaná");
       }
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="cursor-pointer">
-          Pridať opravu
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{triggerButton}</DialogTrigger>
 
       <DialogContent className="sm:max-w-106.25" aria-describedby={undefined}>
         <DialogHeader>
-          <DialogTitle>Nová údržba / oprava</DialogTitle>
+          <DialogTitle>
+            {editMode ? "Editácia opravy" : "Nová údržba / oprava"}
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>

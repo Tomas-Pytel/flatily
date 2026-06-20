@@ -166,7 +166,14 @@ export default async function PropertyDetailsPage({
                 <h3 className="text-lg font-semibold tracking-tight">
                   História opráv
                 </h3>
-                <NewMaintenanceForm propertyId={id} />
+                <NewMaintenanceForm
+                  propertyId={id}
+                  triggerButton={
+                    <Button variant="outline" className="cursor-pointer">
+                      Pridať opravu
+                    </Button>
+                  }
+                />
               </div>
               <RepairHistoryTable repairs={repairs} />
             </section>
