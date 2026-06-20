@@ -10,7 +10,7 @@ import {
   maintenanceSchema,
 } from "@/lib/validations/property";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import {
@@ -46,7 +46,7 @@ interface NewMaintenanceFormProps {
   triggerButton: React.ReactNode;
 }
 
-export default function NewMaintenanceForm({
+export default function MaintenanceFormDialog({
   propertyId,
   initialValues,
   triggerButton,
@@ -69,6 +69,21 @@ export default function NewMaintenanceForm({
       resolvedDate: new Date(),
     },
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset(
+        initialValues || {
+          title: "",
+          cost: 1,
+          status: MaintenanceStatus.OPEN,
+          description: "",
+          provider: "",
+          resolvedDate: new Date(),
+        },
+      );
+    }
+  }, [open, initialValues, form]);
 
   const onSubmit = (values: MaintenanceFormValues) => {
     setError("");

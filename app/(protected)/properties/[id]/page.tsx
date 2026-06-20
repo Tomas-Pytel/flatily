@@ -16,7 +16,7 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { Banknote, TrendingUp, Users } from "lucide-react";
-import NewMaintenanceForm from "@/components/properties/new-maintenance-form";
+import MaintenanceFormDialog from "@/components/properties/new-maintenance-form";
 import { PropertyGalleryModal } from "@/components/properties/property-gallery-modal";
 
 export interface Indicator {
@@ -96,11 +96,13 @@ export default async function PropertyDetailsPage({
   }));
 
   const repairs: RepairLog[] = property.maintenance.map((m) => ({
-    id: m.id,
-    date: m.createdAt.toLocaleDateString("sk-SK"),
-    workType: m.title,
+    maintenanceId: m.id,
+    resolvedDate: m.createdAt,
+    title: m.title,
     provider: m.provider || "Neznámy",
     cost: m.cost || 0,
+    description: m.description ?? undefined,
+    status: m.status,
   }));
 
   const documents: DocumentInfo[] = property.documents.map((d) => ({
@@ -166,7 +168,7 @@ export default async function PropertyDetailsPage({
                 <h3 className="text-lg font-semibold tracking-tight">
                   História opráv
                 </h3>
-                <NewMaintenanceForm
+                <MaintenanceFormDialog
                   propertyId={id}
                   triggerButton={
                     <Button variant="outline" className="cursor-pointer">
@@ -175,7 +177,7 @@ export default async function PropertyDetailsPage({
                   }
                 />
               </div>
-              <RepairHistoryTable repairs={repairs} />
+              <RepairHistoryTable repairs={repairs} propertyId={id} />
             </section>
           </div>
 

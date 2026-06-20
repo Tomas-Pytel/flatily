@@ -8,20 +8,28 @@ import {
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import DeleteMaintenanceButton from "./delete-maintenance-button";
+import MaintenanceFormDialog from "./new-maintenance-form";
+import { Button } from "../ui/button";
+import { Pencil } from "lucide-react";
+import { MaintenanceStatus } from "@/lib/generated/prisma/enums";
 
 export interface RepairLog {
-  id: string;
-  date: string;
-  workType: string;
+  maintenanceId: string;
+  resolvedDate?: Date;
+  title: string;
   provider: string;
   cost: number;
+  status: MaintenanceStatus;
+  description?: string;
 }
 
 interface RepairHistoryTableProps {
   repairs: RepairLog[];
+  propertyId: string;
 }
 
 export default function RepairHistoryTable({
+  propertyId,
   repairs,
 }: RepairHistoryTableProps) {
   if (repairs.length === 0) {
@@ -44,15 +52,19 @@ export default function RepairHistoryTable({
               Náklady
             </TableHead>
             <TableHead className="w-12" />
+            <TableHead className="w-12" />
           </TableRow>
         </TableHeader>
         <TableBody>
           {repairs.map((repair) => (
-            <TableRow key={repair.id} className="group hover:bg-muted/30">
+            <TableRow
+              key={repair.maintenanceId}
+              className="group hover:bg-muted/30"
+            >
               <TableCell className="text-muted-foreground text-xs">
-                {repair.date}
+                {repair.resolvedDate?.toLocaleDateString("sk-SK")}
               </TableCell>
-              <TableCell className="font-medium">{repair.workType}</TableCell>
+              <TableCell className="font-medium">{repair.title}</TableCell>
               <TableCell className="text-muted-foreground">
                 {repair.provider}
               </TableCell>
@@ -62,8 +74,23 @@ export default function RepairHistoryTable({
                 })}{" "}
                 €
               </TableCell>
+              <TableCell>
+                <MaintenanceFormDialog
+                  propertyId={propertyId}
+                  initialValues={repair}
+                  triggerButton={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-muted-foreground hover:text-blue-500 cursor-pointer"
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                  }
+                />
+              </TableCell>
               <TableCell className="text-right">
-                <DeleteMaintenanceButton maintenanceId={repair.id} />
+                <DeleteMaintenanceButton maintenanceId={repair.maintenanceId} />
               </TableCell>
             </TableRow>
           ))}
