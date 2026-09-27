@@ -43,9 +43,9 @@ export default function NewPropertyForm() {
       // if error occurs, set error state to show error message in form
       if (!result.success) {
         setError(result.error);
+      } else {
+        toast.success("Nehnuteľnosť bola úspešne pridaná");
       }
-
-      toast.success("Nehnuteľnosť bola úspešne pridaná");
     });
   };
 
