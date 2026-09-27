@@ -98,7 +98,7 @@ export async function resolveMaintenance(
     });
 
     // if (pathname) {
-    //   revalidatePath(pathname);
+    revalidatePath(`/properties/${maintenance.property.id}`);
     // }
 
     return { success: true };
