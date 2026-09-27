@@ -7,7 +7,7 @@ export async function requireUser() {
   const user = data?.user;
 
   if (!user) {
-    redirect("/login");
+    redirect("/auth/login");
   }
 
   return user;
