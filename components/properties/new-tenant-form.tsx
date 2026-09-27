@@ -47,8 +47,9 @@ export default function NewTenantForm({ propertyId }: NewTenantFormProps) {
       const result = await createTenantAndLease(values, propertyId);
       if (!result.success) {
         setError(result.error);
+      } else {
+        toast.success("Nájomca bol úspešne pridaný");
       }
-      toast.success("Nájomca bol úspešne pridaný");
     });
   };
 
