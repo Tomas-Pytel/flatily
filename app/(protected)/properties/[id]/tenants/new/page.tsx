@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/dashboard-header";
 import NewTenantForm from "@/components/properties/new-tenant-form";
 import { Button } from "@/components/ui/button";
-import { Link } from "lucide-react";
+import Link from "next/link";
 
 export default async function NewTenantPage({
   params,
