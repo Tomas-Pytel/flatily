@@ -150,3 +150,60 @@ export async function deleteMaintenance(
     };
   }
 }
+
+/** Updates data about existing maintenance record */
+export async function updateMaintenance(
+  maintenanceId: string,
+  values: MaintenanceFormValues,
+): Promise<ActionResponse> {
+  const user = await requireUser();
+
+  const validatedFields = maintenanceSchema.safeParse(values);
+
+  if (!validatedFields.success) {
+    return { success: false, error: "Neplatné údaje vo formulári" };
+  }
+
+  const data = validatedFields.data;
+
+  const maintenance = await prisma.maintenance.findUnique({
+    where: {
+      id: maintenanceId,
+    },
+    include: { property: { select: { id: true, ownerId: true } } },
+  });
+
+  if (!maintenance)
+    return {
+      success: false,
+      error: "Nepodarilo sa nájsť daný záznam o oprave.",
+    };
+
+  if (maintenance.property.ownerId !== user.id)
+    return {
+      success: false,
+      error: "Na úpravu daného záznamu nemáte oprávnenie.",
+    };
+
+  try {
+    await prisma.maintenance.update({
+      where: { id: maintenanceId },
+      data: {
+        title: data.title,
+        cost: data.cost,
+        status: data.status,
+        description: data.description,
+        provider: data.provider,
+        resolvedDate: data.resolvedDate,
+      },
+    });
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      error:
+        "Nepodarilo sa upraviť daný záznam o oprave, skúste to neskôr prosím.",
+    };
+  }
+}
