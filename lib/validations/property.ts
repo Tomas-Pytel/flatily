@@ -18,7 +18,8 @@ export const maintenanceSchema = z
       .string()
       .min(3, "Názov musí mať aspoň 3 znaky")
       .max(100, "Názov musí byť kratší ako 100 znakov"),
-    cost: z.number().min(1, "Cena opravy musí byť väčšia ako 1"),
+    // cost is unknown until the repair is done
+    cost: z.number().min(0, "Cena nemôže byť záporná").optional(),
     status: z.enum(MaintenanceStatus),
     provider: z.string().optional(),
     description: z.string().optional(),

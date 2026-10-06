@@ -19,7 +19,7 @@ export default async function DashboardPage() {
 
     prisma.lease.findMany({
       where: {
-        isActive: true,
+        //        isActive: true,
         property: { ownerId: user.id },
       },
       select: { rentAmount: true },
@@ -39,7 +39,7 @@ export default async function DashboardPage() {
   ]);
 
   const totalMonthlyIncome = activeLeases.reduce(
-    (sum, lease) => sum + lease.rentAmount,
+    (sum, lease) => sum + Number(lease.rentAmount),
     0,
   );
   const occupancyRate =

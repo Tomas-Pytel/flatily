@@ -10,6 +10,9 @@ import RepairHistoryTable, {
 import DocumentsCard, {
   DocumentInfo,
 } from "@/components/properties/documents-card";
+import RentChargesCard, {
+  ChargeRow,
+} from "@/components/properties/rent-charges-card";
 import { notFound } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard-header";
 import Link from "next/link";
@@ -18,6 +21,7 @@ import { requireUser } from "@/lib/auth";
 import { Banknote, TrendingUp, Users } from "lucide-react";
 import MaintenanceFormDialog from "@/components/properties/new-maintenance-form";
 import { PropertyGalleryModal } from "@/components/properties/property-gallery-modal";
+import { chargeView, leasePaymentStatus } from "@/lib/rent-charges";
 
 export interface Indicator {
   icon: React.ElementType;
@@ -43,8 +47,14 @@ export default async function PropertyDetailsPage({
         orderBy: { createdAt: "desc" },
       },
       leases: {
-        where: { isActive: true },
-        include: { tenant: true },
+        where: { status: "ACTIVE" },
+        include: {
+          tenant: true,
+          charges: {
+            orderBy: { period: "asc" },
+            include: { payments: { select: { amount: true } } },
+          },
+        },
       },
       maintenance: {
         orderBy: { createdAt: "desc" },
@@ -65,12 +75,12 @@ export default async function PropertyDetailsPage({
     {
       icon: Banknote,
       title: "MESAČNÝ NÁJOM",
-      value: `${property.monthlyRent} €`,
+      value: `${Number(property.monthlyRent).toLocaleString("sk-SK")} €`,
     },
     {
       icon: TrendingUp,
       title: "ROČNÝ VÝNOS",
-      value: "5.82%",
+      value: "5.82%", // TODO: needs Property.purchasePrice
     },
     {
       icon: Users,
@@ -86,21 +96,32 @@ export default async function PropertyDetailsPage({
 
   const tenants: TenantInfo[] = property.leases.map((lease) => ({
     id: lease.tenant.id,
+    leaseId: lease.id,
     name: `${lease.tenant.firstName} ${lease.tenant.lastName}`,
     leaseEndDate: lease.endDate.toLocaleDateString("sk-SK"),
-    paymentStatus: "Uhradené", // Zatiaľ natvrdo, neskôr napojíme na Transactions
-    deposit: lease.depositAmount,
+    paymentStatus: leasePaymentStatus(lease.charges),
+    deposit: Number(lease.depositAmount),
     phone: lease.tenant.phone || "Nezadané",
     email: lease.tenant.email,
     image: lease.tenant.imageUrl || undefined,
   }));
 
+  // at most one active lease per property (DB partial unique index)
+  const charges: ChargeRow[] = (property.leases[0]?.charges ?? []).map((c) => ({
+    id: c.id,
+    period: c.period,
+    dueDate: c.dueDate,
+    amount: Number(c.amount),
+    paid: c.payments.reduce((sum, p) => sum + Number(p.amount), 0),
+    view: chargeView(c),
+  }));
+
   const repairs: RepairLog[] = property.maintenance.map((m) => ({
     maintenanceId: m.id,
-    resolvedDate: m.createdAt,
+    resolvedDate: m.resolvedDate ?? m.createdAt,
     title: m.title,
     provider: m.provider || "Neznámy",
-    cost: m.cost || 0,
+    cost: m.cost ? Number(m.cost) : 0,
     description: m.description ?? undefined,
     status: m.status,
   }));
@@ -150,17 +171,25 @@ export default async function PropertyDetailsPage({
                 <h3 className="text-lg font-semibold tracking-tight">
                   Aktuálni nájomcovia
                 </h3>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/properties/${id}/tenants/new`}>
-                    Pridať nájomcu
-                  </Link>
-                </Button>
+                {!isOccupied && (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/properties/${id}/tenants/new`}>
+                      Pridať nájomcu
+                    </Link>
+                  </Button>
+                )}
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {tenants.map((tenant, index) => (
-                  <TenantInfoCard key={index} tenant={tenant} />
-                ))}
-              </div>
+              {tenants.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Nehnuteľnosť je voľná.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {tenants.map((tenant) => (
+                    <TenantInfoCard key={tenant.leaseId} tenant={tenant} />
+                  ))}
+                </div>
+              )}
             </section>
 
             <section className="flex flex-col gap-4">
@@ -190,6 +219,12 @@ export default async function PropertyDetailsPage({
             />
           </section>
         </div>
+
+        {/**Rent charges */}
+        <section className="flex flex-col gap-4">
+          <h3 className="text-lg font-semibold tracking-tight">Platby nájmu</h3>
+          <RentChargesCard charges={charges} />
+        </section>
       </main>
     </div>
   );

@@ -62,7 +62,7 @@ export default function MaintenanceFormDialog({
     resolver: zodResolver(maintenanceSchema),
     defaultValues: initialValues || {
       title: "",
-      cost: 1,
+      cost: undefined,
       status: MaintenanceStatus.OPEN,
       description: "",
       provider: "",
@@ -75,7 +75,7 @@ export default function MaintenanceFormDialog({
       form.reset(
         initialValues || {
           title: "",
-          cost: 1,
+          cost: undefined,
           status: MaintenanceStatus.OPEN,
           description: "",
           provider: "",
@@ -157,7 +157,9 @@ export default function MaintenanceFormDialog({
                         value={(field.value as number) || ""}
                         onChange={(e) =>
                           field.onChange(
-                            e.target.value === "" ? 0 : Number(e.target.value),
+                            e.target.value === ""
+                              ? undefined
+                              : Number(e.target.value),
                           )
                         }
                       />
