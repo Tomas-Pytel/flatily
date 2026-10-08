@@ -14,7 +14,7 @@ import RentChargesCard, {
   ChargeRow,
 } from "@/components/properties/rent-charges-card";
 import { notFound } from "next/navigation";
-import { DashboardHeader } from "@/components/dashboard-header";
+import { AppHeader } from "@/components/app-header";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
@@ -140,7 +140,7 @@ export default async function PropertyDetailsPage({
   return (
     <div className="flex h-full flex-col">
       {/**Header */}
-      <DashboardHeader title="Detail nehnuteľnosti" />
+      <AppHeader title="Detail nehnuteľnosti" />
 
       {/**Content */}
       <main className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 gap-6 lg:gap-8">

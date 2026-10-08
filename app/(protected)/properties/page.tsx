@@ -1,6 +1,6 @@
 import { PropertyCardInfo } from "@/components/properties/property-card-info";
 import Link from "next/link";
-import { DashboardHeader } from "@/components/dashboard-header";
+import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
 import { Building2, Plus } from "lucide-react";
 import prisma from "@/lib/prisma";
@@ -21,14 +21,14 @@ export default async function PropertiesPage() {
   return (
     <div className="flex h-full flex-col">
       {/**Header */}
-      <DashboardHeader title="Moje nehnuteľnosti">
+      <AppHeader title="Moje nehnuteľnosti">
         <Button size="sm" className="gap-2" asChild>
           <Link href={`/properties/new`}>
             <Plus className="size-4" />
             <span className="hidden sm:inline">Pridať nehnuteľnosť</span>
           </Link>
         </Button>
-      </DashboardHeader>
+      </AppHeader>
 
       {/**Properties list */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
