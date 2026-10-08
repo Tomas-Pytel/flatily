@@ -42,11 +42,12 @@ export async function createMaintenance(
     await prisma.maintenance.create({
       data: {
         title: data.title,
-        cost: data.cost,
+        cost: data.cost ?? null,
         status: data.status,
         description: data.description,
         provider: data.provider,
-        resolvedDate: data.resolvedDate,
+        resolvedDate:
+          data.status === MaintenanceStatus.RESOLVED ? data.resolvedDate : null,
         propertyId: propertyId,
       },
     });
@@ -190,11 +191,12 @@ export async function updateMaintenance(
       where: { id: maintenanceId },
       data: {
         title: data.title,
-        cost: data.cost,
+        cost: data.cost ?? null,
         status: data.status,
         description: data.description,
         provider: data.provider,
-        resolvedDate: data.resolvedDate,
+        resolvedDate:
+          data.status === MaintenanceStatus.RESOLVED ? data.resolvedDate : null,
       },
     });
     return { success: true };

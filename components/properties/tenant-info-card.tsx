@@ -4,9 +4,11 @@ import { Mail, Phone } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { PaymentStatus } from "@/types/property";
+import EndLeaseButton from "./end-lease-button";
 
 export interface TenantInfo {
   id: string;
+  leaseId: string;
   name: string;
   leaseEndDate: string;
   paymentStatus: PaymentStatus;
@@ -21,7 +23,7 @@ interface TenantInfoCardProps {
 }
 
 export default function TenantInfoCard({ tenant }: TenantInfoCardProps) {
-  const { name, leaseEndDate, paymentStatus, deposit, image } = tenant;
+  const { name, leaseEndDate, paymentStatus, deposit, image, leaseId } = tenant;
 
   const getStatusVariant = (status: PaymentStatus) => {
     switch (status) {
@@ -64,6 +66,8 @@ export default function TenantInfoCard({ tenant }: TenantInfoCardProps) {
             <Phone className="size-3.5" />
           </Button>
         </div>
+
+        <EndLeaseButton leaseId={leaseId} />
       </CardHeader>
 
       {/**Payment status & Deposit */}

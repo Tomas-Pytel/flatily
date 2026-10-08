@@ -1,5 +1,5 @@
 // app/properties/loading.tsx
-import { DashboardHeader } from "@/components/dashboard-header";
+import { AppHeader } from "@/components/app-header";
 import Skeleton from "@/components/loading-skeleton";
 
 function PropertyCardSkeleton() {
@@ -23,10 +23,10 @@ function PropertyCardSkeleton() {
 export default function Loading() {
   return (
     <div className="flex h-full flex-col">
-      <DashboardHeader title="Moje nehnuteľnosti">
+      <AppHeader title="Moje nehnuteľnosti">
         {/* Button placeholder */}
         <Skeleton className="h-8 w-24 rounded-md" />
-      </DashboardHeader>
+      </AppHeader>
 
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

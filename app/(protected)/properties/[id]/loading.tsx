@@ -1,5 +1,5 @@
 // app/properties/[id]/loading.tsx
-import { DashboardHeader } from "@/components/dashboard-header";
+import { AppHeader } from "@/components/app-header";
 import Skeleton from "@/components/loading-skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -62,7 +62,7 @@ function DocumentRowSkeleton() {
 export default function Loading() {
   return (
     <div className="flex h-full flex-col">
-      <DashboardHeader title="Detail nehnuteľnosti" />
+      <AppHeader title="Detail nehnuteľnosti" />
 
       <main className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 gap-6 lg:gap-8">
         {/* Hero section */}

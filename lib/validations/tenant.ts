@@ -12,9 +12,13 @@ export const tenantSchema = z
       .min(2, "Priezvisko musí mať aspoň 2 znaky")
       .max(20, "Priezvisko nesmie presiahnuť 20 znakov"),
     email: z.email("Neplatný email"),
-    phone: z.string().refine((val) => isValidPhoneNumber(val), {
-      message: "Neplatné telefónne číslo",
-    }),
+    // optional in UI ("voliteľné"), so empty string must pass
+    phone: z
+      .string()
+      .optional()
+      .refine((val) => !val || isValidPhoneNumber(val), {
+        message: "Neplatné telefónne číslo (použite formát +421...)",
+      }),
     imageUrl: z.string().optional(),
 
     // udaje o zmluve
