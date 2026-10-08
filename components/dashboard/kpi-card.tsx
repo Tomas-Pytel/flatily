@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-interface KpiCardProps {
+export interface KpiCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
@@ -23,9 +23,9 @@ interface KpiCardProps {
 
 // Border accent only for urgent states, neutral otherwise
 const statusBorder = {
-  error: "border-destructive/40",
-  warning: "border-warning/40",
-  success: "border-success/30",
+  error: "border-destructive/70",
+  warning: "border-warning/70",
+  success: "border-success/70",
   neutral: "border-border",
 } as const;
 
