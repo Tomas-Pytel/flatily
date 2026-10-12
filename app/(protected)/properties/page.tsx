@@ -1,13 +1,6 @@
-import { PropertyCardInfo } from "@/components/properties/property-card-info";
-import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
-import { Button } from "@/components/ui/button";
-import { Bell, Building2, Plus } from "lucide-react";
-import prisma from "@/lib/prisma";
-import { Property } from "@/lib/generated/prisma/client";
+import { Bell } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import DeletePropertyButton from "@/components/properties/delete-property-button";
-import { PropertiesToolbar } from "@/components/properties/properties-toolbar";
 import { ApartmentsView } from "@/components/properties/properties-view";
 
 export default async function PropertiesPage() {

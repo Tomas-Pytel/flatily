@@ -2,13 +2,14 @@
 
 import React, { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, ArrowRight, Eye, MapPin } from "lucide-react";
+import { Trash2, Eye } from "lucide-react";
 import {
   PropertiesToolbar,
   StatusFilterType,
   SortByType,
   ViewModeType,
 } from "@/components/properties/properties-toolbar";
+import { ExtendedPropertyCard } from "./extended-property-card";
 
 // --- MOCK DÁTA ---
 const mockApartments = [
@@ -24,10 +25,9 @@ const mockApartments = [
     totalFloors: 5,
     rentAmount: 750,
     utilitiesAmount: 150,
-    status: "obsadeny",
+    status: "obsadeny" as const,
     currentTenantId: "t1",
-    photoUrl:
-      "https://images.unsplash.com/photo-1502672260266-1c1e52d15461?auto=format&fit=crop&w=500&q=60",
+    paymentStatus: "Uhradené",
   },
   {
     id: "2",
@@ -41,34 +41,18 @@ const mockApartments = [
     totalFloors: 8,
     rentAmount: 600,
     utilitiesAmount: 120,
-    status: "volny",
+    status: "volny" as const,
     currentTenantId: null,
     photoUrl:
       "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=500&q=60",
-  },
-  {
-    id: "3",
-    name: "Slnečný 3-izbák v Centre",
-    address: "Hlavná 15",
-    city: "Bratislava",
-    district: "Staré Mesto",
-    area: 55,
-    rooms: 2,
-    floor: 3,
-    totalFloors: 5,
-    rentAmount: 750,
-    utilitiesAmount: 150,
-    status: "obsadeny",
-    currentTenantId: "t1",
-    photoUrl:
-      "https://images.unsplash.com/photo-1502672260266-1c1e52d15461?auto=format&fit=crop&w=500&q=60",
+    paymentStaus: "Omeškané",
   },
 ];
 
 const mockTenants = [{ id: "t1", firstName: "Jozef", lastName: "Mrkvička" }];
 
 const mockPayments = [
-  { id: "p1", apartmentId: "1", period: "Október 2026", status: "zaplatené" },
+  { id: "p1", apartmentId: "1", period: "Október 2026", status: "Uhradené" },
 ];
 
 const mockMaintenance = [{ id: "m1", apartmentId: "1", status: "open" }];
@@ -87,10 +71,6 @@ export const ApartmentsView: React.FC = () => {
   // Funkcie nahrádzajúce kontextové akcie
   const navigateTo = (view: string, id: string) => {
     console.log(`Navigating to ${view} with ID ${id}`);
-  };
-
-  const setIsNewApartmentModalOpen = (isOpen: boolean) => {
-    console.log("New Apartment Modal Open:", isOpen);
   };
 
   const handleDelete = (id: string, name: string) => {
@@ -167,6 +147,9 @@ export const ApartmentsView: React.FC = () => {
             const tenant = mockTenants.find(
               (t) => t.id === apt.currentTenantId,
             );
+            const tenantName = tenant
+              ? `${tenant.firstName} ${tenant.lastName}`
+              : null;
             const aptPayment = mockPayments.find(
               (p) => p.apartmentId === apt.id && p.period === "Október 2026",
             );
@@ -175,125 +158,25 @@ export const ApartmentsView: React.FC = () => {
             );
 
             return (
-              <div
+              <ExtendedPropertyCard
                 key={apt.id}
-                className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden flex flex-col justify-between hover:border-neutral-300 dark:hover:border-neutral-700 transition-all shadow-xs group"
-              >
-                <div>
-                  {/* Photo Container */}
-                  <div className="relative h-48 w-full overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-                    <img
-                      src={apt.photoUrl}
-                      alt={apt.name}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
-                    />
-                    <div className="absolute top-3 right-3 flex items-center gap-2">
-                      <Badge>{apt.status}</Badge>
-                    </div>
-
-                    <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-xs text-white text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5 tabular-nums">
-                      <span>{apt.area} m²</span>
-                      <span>·</span>
-                      <span>{apt.rooms} izb.</span>
-                      <span>·</span>
-                      <span>
-                        Poschodie {apt.floor}/{apt.totalFloors}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Information Body */}
-                  <div className="p-4.5 space-y-3">
-                    <div>
-                      <h3
-                        onClick={() => navigateTo("property-detail", apt.id)}
-                        className="text-base font-semibold text-neutral-900 dark:text-neutral-100 cursor-pointer hover:text-[#004AAD] dark:hover:text-[#3B82F6] transition-colors"
-                      >
-                        {apt.name}
-                      </h3>
-                      <div className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                        <MapPin className="w-3.5 h-3.5 shrink-0 text-neutral-400" />
-                        <span className="truncate">
-                          {apt.address}, {apt.city} – {apt.district}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Financial details */}
-                    <div className="flex items-baseline justify-between pt-1 border-t border-neutral-100 dark:border-neutral-800">
-                      <div>
-                        <div className="text-xs text-neutral-400">
-                          Mesačný nájom
-                        </div>
-                        <div className="text-lg font-bold text-neutral-900 dark:text-neutral-100 tabular-nums">
-                          €{apt.rentAmount}{" "}
-                          <span className="text-xs font-normal text-neutral-400">
-                            / mes.
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-neutral-400">Energie</div>
-                        <div className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 tabular-nums">
-                          +€{apt.utilitiesAmount}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Tenant & Status footer */}
-                    <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between text-xs">
-                      <div>
-                        <span className="text-neutral-400">Nájomník: </span>
-                        {tenant ? (
-                          <span className="font-medium text-neutral-800 dark:text-neutral-200">
-                            {tenant.firstName} {tenant.lastName}
-                          </span>
-                        ) : (
-                          <span className="text-[#CA8A04] dark:text-[#EAB308] font-medium">
-                            Voľný
-                          </span>
-                        )}
-                      </div>
-
-                      <div>
-                        {aptPayment ? (
-                          <Badge>{aptPayment.status}</Badge>
-                        ) : (
-                          <span className="text-neutral-400 text-[11px]">
-                            Bez záznamu
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {openRepairs.length > 0 && (
-                      <div className="text-[11px] text-[#DC2626] dark:text-[#EF4444] flex items-center gap-1 pt-1 font-medium">
-                        <span>● Otvorené opravy ({openRepairs.length})</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Card Action Footer */}
-                <div className="p-4 pt-0 flex items-center gap-2">
-                  <button
-                    onClick={() => navigateTo("property-detail", apt.id)}
-                    className="flex-1 py-2 px-3 text-xs font-medium rounded-lg text-white bg-[#004AAD] hover:bg-[#003B87] dark:bg-[#3B82F6] dark:text-[#0A0A0A] transition-colors flex items-center justify-center gap-1.5"
-                  >
-                    <span>Detail bytu</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(apt.id, apt.name)}
-                    className="p-2 text-neutral-400 hover:text-[#DC2626] dark:hover:text-[#EF4444] rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                    title="Zmazať byt"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+                id={apt.id}
+                name={apt.name}
+                address={apt.address}
+                city={apt.city}
+                district={apt.district}
+                area={apt.area}
+                rooms={apt.rooms}
+                floor={apt.floor}
+                totalFloors={apt.totalFloors}
+                rentAmount={apt.rentAmount}
+                utilitiesAmount={apt.utilitiesAmount}
+                photoUrl={apt.photoUrl}
+                tenantName={tenantName}
+                paymentStatus={aptPayment?.status}
+                openRepairsCount={openRepairs.length}
+                onDelete={handleDelete}
+              />
             );
           })}
         </div>
