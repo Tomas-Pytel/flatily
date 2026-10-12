@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 
 type CardProps = ComponentProps<typeof PropertyCard>;
 
-// Adjust to your real types. These mirror the fields used in your snippet.
 type Apartment = Pick<
   CardProps,
   | "id"
@@ -15,7 +14,6 @@ type Apartment = Pick<
   | "city"
   | "district"
   | "photoUrl"
-  | "status"
   | "rentAmount"
   | "area"
   | "rooms"
@@ -33,12 +31,7 @@ type MyPropertiesProps = {
   apartments: Apartment[];
   tenants: Tenant[];
   payments: Payment[];
-  /** Payment period to show, e.g. "Október 2026" */
   period: string;
-  /** Max cards shown. Defaults to 4 */
-  limit?: number;
-  /** Defaults to /properties */
-  allHref?: string;
   className?: string;
 };
 
@@ -47,8 +40,6 @@ export function MyProperties({
   tenants,
   payments,
   period,
-  limit = 4,
-  allHref = "/properties",
   className,
 }: MyPropertiesProps) {
   return (
@@ -62,7 +53,7 @@ export function MyProperties({
         </div>
 
         <Link
-          href={allHref}
+          href="/properties"
           className="inline-flex items-center gap-1 self-start rounded-sm text-xs font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:self-auto"
         >
           <span>Všetky byty ({apartments.length})</span>
@@ -76,7 +67,7 @@ export function MyProperties({
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-          {apartments.slice(0, limit).map((apt) => {
+          {apartments.slice(0, 4).map((apt) => {
             const tenant = tenants.find((t) => t.id === apt.currentTenantId);
             const payment = payments.find(
               (p) => p.apartmentId === apt.id && p.period === period,
@@ -90,7 +81,6 @@ export function MyProperties({
                 city={apt.city}
                 district={apt.district}
                 photoUrl={apt.photoUrl}
-                status={apt.status}
                 rentAmount={apt.rentAmount}
                 area={apt.area}
                 rooms={apt.rooms}

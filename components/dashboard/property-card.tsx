@@ -19,7 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge"; // adjust path
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 type BadgeStatus = ComponentProps<typeof Badge>["variant"];
@@ -51,15 +51,11 @@ type PropertyCardProps = {
   city: string;
   district: string;
   photoUrl?: string | null;
-  status: string;
   rentAmount: number;
   area: number;
   rooms: number;
-  /** Omit or pass null for a vacant property */
   tenantName?: string | null;
-  /** Omit or pass null when there is no payment */
   paymentStatus?: keyof typeof paymentStatusToBadge | null;
-  /** Defaults to /properties/[id] */
   href?: string;
   className?: string;
 };
@@ -70,7 +66,6 @@ export function PropertyCard({
   city,
   district,
   photoUrl,
-  status,
   rentAmount,
   area,
   rooms,
@@ -105,15 +100,12 @@ export function PropertyCard({
             <span className="text-xs font-medium">Žiadny obrázok</span>
           </div>
         )}
-        <div className="absolute right-2.5 top-2.5">
-          <Badge>{status}</Badge>
-        </div>
       </div>
 
       <CardHeader className="gap-0.5 px-4 pb-0 pt-4">
         <CardTitle className="truncate text-sm">{name}</CardTitle>
         <CardDescription className="text-xs">
-          {city} – {district}
+          {city} - {district}
         </CardDescription>
       </CardHeader>
 

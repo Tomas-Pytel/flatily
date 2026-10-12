@@ -42,6 +42,7 @@ export default async function DashboardPage() {
       value: "7/10",
       subtitle: "70% bytov obsadených",
       icon: Building,
+      href: "/properties",
     },
     {
       title: "Uhradené tento mesiac",
@@ -150,7 +151,6 @@ export default async function DashboardPage() {
   const cashFlowMock: Record<CashFlowRange, CashFlowPoint[]> = {
     "6months": last12.slice(-6),
     "12months": last12,
-    // Jan–Oct 2026
     thisYear: last12.slice(2),
   };
 
@@ -163,7 +163,6 @@ export default async function DashboardPage() {
       district: "Centrum",
       photoUrl:
         "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80",
-      status: "obsadeny",
       rentAmount: 650,
       area: 62,
       rooms: 3,
@@ -176,7 +175,6 @@ export default async function DashboardPage() {
       district: "Ružinov",
       photoUrl:
         "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80",
-      status: "konci_coskoro",
       rentAmount: 820,
       area: 54,
       rooms: 2,
@@ -187,8 +185,7 @@ export default async function DashboardPage() {
       name: "Byt Košice – Sever",
       city: "Košice",
       district: "Sever",
-      photoUrl: null, // tests the "Žiadny obrázok" fallback
-      status: "urgent",
+      photoUrl: null,
       rentAmount: 480,
       area: 38,
       rooms: 1,
@@ -201,11 +198,10 @@ export default async function DashboardPage() {
       district: "Sídlisko III",
       photoUrl:
         "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&q=80",
-      status: "volny",
       rentAmount: 420,
       area: 45,
       rooms: 2,
-      currentTenantId: null, // vacant -> "Voľný byt"
+      currentTenantId: null,
     },
     {
       id: "apt-5",
@@ -214,7 +210,6 @@ export default async function DashboardPage() {
       district: "Vlčince",
       photoUrl:
         "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80",
-      status: "obsadeny",
       rentAmount: 550,
       area: 58,
       rooms: 3,
@@ -226,19 +221,18 @@ export default async function DashboardPage() {
     { id: "ten-1", firstName: "Ján", lastName: "Novák" },
     { id: "ten-2", firstName: "Petra", lastName: "Horváthová" },
     { id: "ten-3", firstName: "Martin", lastName: "Kováčik" },
-    { id: "ten-4", firstName: "Zuzana", lastName: "Hrubá-Podolinská" }, // long name, tests truncation
+    { id: "ten-4", firstName: "Zuzana", lastName: "Hrubá-Podolinská" },
   ];
 
   const mockPayments: Props["payments"] = [
     { apartmentId: "apt-1", period: mockPeriod, status: "Uhradené" },
     { apartmentId: "apt-2", period: mockPeriod, status: "Omeškané" },
     { apartmentId: "apt-3", period: mockPeriod, status: "Čaká" },
-    // apt-4: no payment -> "Bez platby"
     {
       apartmentId: "apt-5",
       period: "September 2026",
       status: "Uhradené",
-    }, // other period, ignored
+    },
   ];
 
   return (
@@ -251,7 +245,7 @@ export default async function DashboardPage() {
           href: "/properties/new",
         }}
       >
-        <Bell className="size-4 text-muted-foreground/70" />
+        <Bell className="size-4 text-muted-foreground" />
       </AppHeader>
 
       <main className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4 sm:p-6 lg:gap-8 lg:p-8 *:shrink-0">
@@ -300,9 +294,6 @@ export default async function DashboardPage() {
           tenants={mockTenants}
           payments={mockPayments}
           period={mockPeriod}
-          //limit={limit}
-          //allHref={allHref}
-          // className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
         />
       </main>
     </div>
