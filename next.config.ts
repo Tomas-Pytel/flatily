@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/storage/v1/object/public/**",
       },
+      {
+        protocol: "https", // Unsplash images for mock data - remove in production
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

@@ -20,13 +20,13 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-svh overflow-hidden">
       <Suspense fallback={<SidebarSkeleton />}>
         <SidebarWithUser />
       </Suspense>
       <SidebarInset>
         {/* Page content */}
-        <main className="flex-1">{children}</main>
+        {children}
       </SidebarInset>
     </SidebarProvider>
   );
