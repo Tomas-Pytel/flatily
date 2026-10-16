@@ -10,6 +10,7 @@ import {
   ViewModeType,
 } from "@/components/properties/properties-toolbar";
 import { ExtendedPropertyCard } from "./extended-property-card";
+import Image from "next/image";
 
 // --- MOCK DÁTA ---
 const mockApartments = [
@@ -28,6 +29,8 @@ const mockApartments = [
     status: "obsadeny" as const,
     currentTenantId: "t1",
     paymentStatus: "Uhradené",
+    photoUrl:
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=500&q=60",
   },
   {
     id: "2",
@@ -61,7 +64,6 @@ const mockMaintenance = [{ id: "m1", apartmentId: "1", status: "open" }];
 export const ApartmentsView: React.FC = () => {
   // Lokálne stavy nahrádzajúce kontext
   const [apartments, setApartments] = useState(mockApartments);
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Stavy zobrazenia
   const [statusFilter, setStatusFilter] = useState<StatusFilterType>("all");
@@ -86,17 +88,6 @@ export const ApartmentsView: React.FC = () => {
   const filteredApartments = useMemo(() => {
     return apartments
       .filter((apt) => {
-        // Search filter
-        const query = searchQuery.toLowerCase().trim();
-        const matchesSearch =
-          !query ||
-          apt.name.toLowerCase().includes(query) ||
-          apt.address.toLowerCase().includes(query) ||
-          apt.city.toLowerCase().includes(query) ||
-          apt.district.toLowerCase().includes(query);
-
-        if (!matchesSearch) return false;
-
         // Status filter
         if (statusFilter === "all") return true;
         if (statusFilter === "obsadeny") return apt.status === "obsadeny";
@@ -122,7 +113,7 @@ export const ApartmentsView: React.FC = () => {
         if (sortBy === "status") return a.status.localeCompare(b.status);
         return 0;
       });
-  }, [apartments, searchQuery, statusFilter, sortBy]);
+  }, [apartments, statusFilter, sortBy]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
@@ -217,7 +208,7 @@ export const ApartmentsView: React.FC = () => {
                           onClick={() => navigateTo("property-detail", apt.id)}
                           className="font-semibold text-neutral-900 dark:text-neutral-100 cursor-pointer hover:text-[#004AAD] dark:hover:text-[#3B82F6] flex items-center gap-2.5"
                         >
-                          <img
+                          <Image
                             src={apt.photoUrl}
                             alt=""
                             referrerPolicy="no-referrer"

@@ -61,7 +61,7 @@ export function CashFlowChart({
   className,
 }: CashFlowChartProps) {
   const [range, setRange] = useState<CashFlowRange>(defaultRange);
-  const points = data[range] ?? [];
+  const points = useMemo(() => data[range] ?? [], [data, range]);
 
   const net = useMemo(
     () => points.reduce((sum, p) => sum + p.income - p.expenses, 0),

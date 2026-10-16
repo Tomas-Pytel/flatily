@@ -10,7 +10,7 @@ import {
 } from "@/components/dashboard/cash-flow-chart";
 import { KpiCard, KpiCardProps } from "@/components/dashboard/kpi-card";
 import { MyProperties } from "@/components/dashboard/my-properties";
-import { requireUser } from "@/lib/auth";
+//import { requireUser } from "@/lib/auth";
 import {
   AlertCircle,
   Bell,
@@ -23,7 +23,7 @@ import {
 import { ComponentProps } from "react";
 
 export default async function DashboardPage() {
-  const user = await requireUser();
+  //const user = await requireUser();
 
   const kpiCards: KpiCardProps[] = [
     {
@@ -240,10 +240,6 @@ export default async function DashboardPage() {
       <AppHeader
         title="Prehľad"
         subtitle="Tu máte prehľad o svojich bytoch a nájmoch."
-        primaryAction={{
-          label: "Pridať nehnuteľnosť",
-          href: "/properties/new",
-        }}
       >
         <Bell className="size-4 text-muted-foreground" />
       </AppHeader>

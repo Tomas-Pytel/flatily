@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowUpDown, LayoutGrid, List, Plus } from "lucide-react";
+import { ArrowUpDown, LayoutGrid, List } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -17,6 +17,17 @@ export type StatusFilterType =
   | "oprava";
 export type SortByType = "name" | "rent_desc" | "rent_asc" | "status";
 export type ViewModeType = "grid" | "table";
+export interface Apartment {
+  id: string;
+  name: string;
+  status: StatusFilterType;
+  rent?: number;
+}
+
+export interface MaintenanceItem {
+  id: string;
+  status: string;
+}
 
 interface ApartmentsToolbarProps {
   statusFilter: StatusFilterType;
@@ -25,8 +36,8 @@ interface ApartmentsToolbarProps {
   setSortBy: (sort: SortByType) => void;
   viewMode: ViewModeType;
   setViewMode: (mode: ViewModeType) => void;
-  apartments: any[];
-  maintenance: any[];
+  apartments: Apartment[];
+  maintenance: MaintenanceItem[];
 }
 
 const sortItems = [
@@ -108,7 +119,10 @@ export const PropertiesToolbar: React.FC<ApartmentsToolbarProps> = ({
         <div className="flex items-center gap-1.5 text-xs text-neutral-500">
           <ArrowUpDown className="w-3.5 h-3.5" />
 
-          <Select onValueChange={(value) => setSortBy(value as SortByType)}>
+          <Select
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value as SortByType)}
+          >
             <SelectTrigger className="w-[180] bg-neutral-100 dark:bg-neutral-800 border-none rounded-lg px-2.5 py-1.5 text-xs text-neutral-800 dark:text-neutral-200 focus:outline-none cursor-pointer">
               <SelectValue placeholder="Vyberte možnosť" />
             </SelectTrigger>

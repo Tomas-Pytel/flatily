@@ -1,10 +1,10 @@
 import { AppHeader } from "@/components/app-header";
 import { Bell } from "lucide-react";
-import { requireUser } from "@/lib/auth";
+//import { requireUser } from "@/lib/auth";
 import { ApartmentsView } from "@/components/properties/properties-view";
 
 export default async function PropertiesPage() {
-  const user = await requireUser();
+  //const user = await requireUser();
 
   // const properties: Property[] = await prisma.property.findMany({
   //   where: {
@@ -19,10 +19,6 @@ export default async function PropertiesPage() {
       <AppHeader
         title="Moje nehnuteľnosti"
         subtitle="Spravujte svoje byty, nájomníkov a nájomné zmluvy."
-        primaryAction={{
-          label: "Pridať nehnuteľnosť",
-          href: "/properties/new",
-        }}
       >
         <Bell className="size-4 text-muted-foreground/70" />
       </AppHeader>
