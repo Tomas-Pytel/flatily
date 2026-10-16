@@ -105,7 +105,7 @@ export const ApartmentsView: React.FC = () => {
           const aptPayment = mockPayments.find(
             (p) => p.apartmentId === apt.id && p.status === "omeskane",
           );
-          return apt.status === "problem" || !!aptPayment;
+          return apt.status === "obsadeny" || !!aptPayment;
         }
         if (statusFilter === "oprava") {
           const aptRepair = mockMaintenance.find(
