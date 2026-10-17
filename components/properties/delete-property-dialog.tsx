@@ -37,7 +37,12 @@ export function DeletePropertyDialog({
     setError(null);
 
     try {
-      await deleteProperty(propertyId);
+      const result = await deleteProperty(propertyId);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+
       onOpenChange(false);
       onDeleted();
     } catch (deleteError) {
