@@ -7,176 +7,361 @@ datasource db {
   provider = "postgresql"
 }
 
+// ─────────────────────────────────────────────────────────────
+// USER + SETTINGS
+// ─────────────────────────────────────────────────────────────
+
 model User {
-  id         String     @id @db.Uuid
-  email      String     @unique
-  name       String?
-  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
-  properties Property[]
-  tenants    Tenant[]
+  id        String   @id @db.Uuid
+  email     String   @unique
+  name      String?
+  phone     String?
+  company   String?
+  ico       String?
+  dic       String?
+  iban      String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  settings      UserSettings?
+  properties    Property[]
+  tenants       Tenant[]
+  documents     Document[]
+  contractors   Contractor[] 
+  equipment     Equipment[]  // Väzba na vlastný zoznam vybavenia
+  notifications Notification[]
 
   @@map("users")
 }
 
+model UserSettings {
+  id                       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  currency                 String  @default("EUR")
+  language                 String  @default("sk")
+  timezone                 String  @default("Europe/Bratislava")
+  notificationsEmail       Boolean @default(true) @map("notifications_email")
+  notificationsPush        Boolean @default(true) @map("notifications_push")
+  contractExpiryNoticeDays Int     @default(30) @map("contract_expiry_notice_days")
+  userId                   String  @unique @map("user_id") @db.Uuid
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+// ─────────────────────────────────────────────────────────────
+// PROPERTY
+// ─────────────────────────────────────────────────────────────
+
 model Property {
-  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title       String
-  description String?
-  city        String
-  street      String
-  postalCode  String          @map("postal_code")
-  imageUrl    String?         @map("image_url")
-  status      PropertyStatus  @default(ACTIVE)
-  monthlyRent Decimal         @map("monthly_rent") @db.Decimal(12, 2)
-  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
-  ownerId     String          @map("owner_id") @db.Uuid
-  owner       User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title           String
+  description     String?
+  street          String
+  city            String
+  district        String?
+  postalCode      String         @map("postal_code")
+  isProblematic   Boolean        @default(false) @map("is_problematic")
+  monthlyRent     Decimal        @map("monthly_rent") @db.Decimal(12, 2)
+  utilitiesAmount Decimal        @default(0) @map("utilities_amount") @db.Decimal(12, 2)
+  depositAmount   Decimal        @default(0) @map("deposit_amount") @db.Decimal(12, 2)
+  rooms           Int            @default(1)
+  area            Decimal        @db.Decimal(7, 2)
+  floor           Int            @default(0)
+  totalFloors     Int            @default(1) @map("total_floors")
+  hasElevator     Boolean        @default(false) @map("has_elevator")
+  hasBalcony      Boolean        @default(false) @map("has_balcony")
+  hasCellar       Boolean        @default(false) @map("has_cellar")
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  ownerId     String              @map("owner_id") @db.Uuid
+  owner       User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   leases      Lease[]
   maintenance Maintenance[]
   documents   Document[]
   images      PropertyImage[]
+  equipment   PropertyEquipment[]
 
   @@index([ownerId, createdAt(sort: Desc)])
+  @@index([ownerId, isProblematic])
   @@map("properties")
 }
 
+// ─────────────────────────────────────────────────────────────
+// IMAGES & EQUIPMENT (Izolované per User)
+// ─────────────────────────────────────────────────────────────
+
+model PropertyImage {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  url        String
+  isCover    Boolean  @default(false) @map("is_cover")
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  propertyId String   @map("property_id") @db.Uuid
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, sortOrder])
+  @@map("property_images")
+}
+
+model Equipment {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  ownerId    String              @map("owner_id") @db.Uuid
+  owner      User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  properties PropertyEquipment[]
+
+  @@unique([ownerId, name]) // Vybavenie je unikátne len pre daného používateľa
+  @@map("equipment")
+}
+
+model PropertyEquipment {
+  propertyId  String    @map("property_id") @db.Uuid
+  equipmentId String    @map("equipment_id") @db.Uuid
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@id([propertyId, equipmentId])
+  @@map("property_equipment")
+}
+
+// ─────────────────────────────────────────────────────────────
+// TENANT
+// ─────────────────────────────────────────────────────────────
+
 model Tenant {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstName String   @map("first_name")
-  lastName  String   @map("last_name")
-  email     String
-  phone     String?
-  imageUrl  String?  @map("image_url")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
-  ownerId   String   @map("owner_id") @db.Uuid
-  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstName    String   @map("first_name")
+  lastName     String   @map("last_name")
+  email        String
+  phone        String?
+  idCardNumber String?  @map("id_card_number")
+  notes        String?
+  imageUrl     String?  @map("image_url")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  ownerId   String     @map("owner_id") @db.Uuid
+  owner     User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   leases    Lease[]
+  documents Document[]
 
   @@unique([ownerId, email])
   @@map("tenants")
 }
 
+// ─────────────────────────────────────────────────────────────
+// LEASE
+// ─────────────────────────────────────────────────────────────
+
 model Lease {
-  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  startDate     DateTime     @map("start_date") @db.Date
-  endDate       DateTime     @map("end_date") @db.Date
-  rentAmount    Decimal      @map("rent_amount") @db.Decimal(12, 2)
-  depositAmount Decimal      @map("deposit_amount") @db.Decimal(12, 2)
-  paymentDay    Int          @default(1) @map("payment_day")
-  status        LeaseStatus  @default(ACTIVE)
-  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
-  propertyId    String       @map("property_id") @db.Uuid
-  tenantId      String       @map("tenant_id") @db.Uuid
-  property      Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: NoAction)
-  charges       RentCharge[]
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  startDate     DateTime    @map("start_date") @db.Date
+  endDate       DateTime    @map("end_date") @db.Date
+  rentAmount    Decimal     @map("rent_amount") @db.Decimal(12, 2)
+  depositAmount Decimal     @map("deposit_amount") @db.Decimal(12, 2)
+  paymentDay    Int         @default(1) @map("payment_day")
+  autoRenew     Boolean     @default(false) @map("auto_renew")
+  notes         String?
+  status        LeaseStatus @default(DRAFT)
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  propertyId String       @map("property_id") @db.Uuid
+  tenantId   String       @map("tenant_id") @db.Uuid
+  property   Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenant     Tenant       @relation(fields: [tenantId], references: [id], onDelete: NoAction)
+  charges    RentCharge[]
+  documents  Document[]
 
   @@index([propertyId, status])
   @@index([tenantId])
+  @@index([status, endDate])
   @@map("leases")
 }
 
+// ─────────────────────────────────────────────────────────────
+// RENT CHARGES + PAYMENTS
+// ─────────────────────────────────────────────────────────────
+
 model RentCharge {
-  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  period    DateTime     @db.Date
-  dueDate   DateTime     @map("due_date") @db.Date
-  amount    Decimal      @db.Decimal(12, 2)
-  status    ChargeStatus @default(PENDING)
-  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
-  leaseId   String       @map("lease_id") @db.Uuid
-  lease     Lease        @relation(fields: [leaseId], references: [id], onDelete: Cascade)
-  payments  Payment[]
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  period         DateTime  @db.Date
+  dueDate        DateTime  @map("due_date") @db.Date
+  amount         Decimal   @db.Decimal(12, 2)
+  variableSymbol String?   @map("variable_symbol")
+  note           String?
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  leaseId  String    @map("lease_id") @db.Uuid
+  lease    Lease     @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  payments Payment[]
 
   @@unique([leaseId, period])
+  @@index([dueDate])
   @@map("rent_charges")
 }
 
 model Payment {
-  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  amount    Decimal    @db.Decimal(12, 2)
-  paidAt    DateTime   @map("paid_at") @db.Date
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  amount    Decimal  @db.Decimal(12, 2)
+  paidAt    DateTime @map("paid_at") @db.Date
   note      String?
-  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
-  chargeId  String     @map("charge_id") @db.Uuid
-  charge    RentCharge @relation(fields: [chargeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  chargeId String     @map("charge_id") @db.Uuid
+  charge   RentCharge @relation(fields: [chargeId], references: [id], onDelete: Cascade)
 
   @@index([chargeId])
   @@map("payments")
 }
 
-model Maintenance {
-  id           String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title        String
-  description  String?
-  provider     String?
-  cost         Decimal?          @db.Decimal(12, 2)
-  status       MaintenanceStatus @default(OPEN)
-  resolvedDate DateTime?         @map("resolved_date") @db.Date
-  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
-  propertyId   String            @map("property_id") @db.Uuid
-  property     Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+// ─────────────────────────────────────────────────────────────
+// CONTRACTOR & MAINTENANCE
+// ─────────────────────────────────────────────────────────────
 
-  @@index([propertyId, status])
+model Contractor {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  ownerId     String        @map("owner_id") @db.Uuid
+  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  maintenance Maintenance[]
+
+  @@index([ownerId])
+  @@map("contractors")
+}
+
+model Maintenance {
+  id            String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title         String
+  description   String?
+  priority      MaintenancePriority @default(MEDIUM)
+  status        MaintenanceStatus   @default(OPEN)
+  estimatedCost Decimal?            @map("estimated_cost") @db.Decimal(12, 2)
+  actualCost    Decimal?            @map("actual_cost") @db.Decimal(12, 2)
+  resolvedDate  DateTime?           @map("resolved_date") @db.Date
+  createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  propertyId   String      @map("property_id") @db.Uuid
+  property     Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  contractorId String?     @map("contractor_id") @db.Uuid
+  contractor   Contractor? @relation(fields: [contractorId], references: [id], onDelete: SetNull)
+
+  @@index([propertyId, status, priority])
   @@map("maintenance_records")
 }
 
-model Document {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title      String
-  fileUrl    String   @map("file_url")
-  fileSize   Int      @map("file_size")
-  fileType   String   @map("file_type")
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  propertyId String   @map("property_id") @db.Uuid
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+// ─────────────────────────────────────────────────────────────
+// DOCUMENT
+// ─────────────────────────────────────────────────────────────
 
+model Document {
+  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String
+  category  DocumentCategory @default(OTHER)
+  fileUrl   String           @map("file_url")
+  fileSize  Int              @map("file_size")
+  fileType  String           @map("file_type")
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  ownerId    String    @map("owner_id") @db.Uuid
+  owner      User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  propertyId String?   @map("property_id") @db.Uuid
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenantId   String?   @map("tenant_id") @db.Uuid
+  tenant     Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  leaseId    String?   @map("lease_id") @db.Uuid
+  lease      Lease?    @relation(fields: [leaseId], references: [id], onDelete: SetNull)
+
+  @@index([ownerId, category])
   @@index([propertyId])
+  @@index([tenantId])
+  @@index([leaseId])
   @@map("documents")
 }
 
-model PropertyImage {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  url        String
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  propertyId String   @map("property_id") @db.Uuid
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+// ─────────────────────────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────────────────────────
 
-  @@index([propertyId])
-  @@map("property_images")
+model Notification {
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type           NotificationType
+  severity       NotificationSeverity @default(INFO)
+  title          String
+  message        String
+  read           Boolean              @default(false)
+  actionRoute    String?              @map("action_route")
+  actionEntityId String?              @map("action_entity_id") @db.Uuid
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt(sort: Desc)])
+  @@map("notifications")
 }
 
+// ─────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────
+
 enum LeaseStatus {
+  DRAFT
   ACTIVE
   ENDED
-
+  EXPIRED
   @@map("lease_status")
 }
 
-enum ChargeStatus {
-  PENDING
-  PARTIAL
-  PAID
-
-  @@map("charge_status")
+enum MaintenancePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+  @@map("maintenance_priority")
 }
 
 enum MaintenanceStatus {
   OPEN
   IN_PROGRESS
   RESOLVED
-
   @@map("maintenance_status")
 }
 
-enum PropertyStatus {
-  ACTIVE
-  INACTIVE
-  MAINTENANCE
+enum DocumentCategory {
+  CONTRACTS
+  INVOICES
+  RECORDS
+  REPAIRS
+  PROPERTY
+  OTHER
+  @@map("document_category")
+}
 
-  @@map("property_status")
+enum NotificationType {
+  PAYMENT_OVERDUE
+  CONTRACT_EXPIRING
+  URGENT_REPAIR
+  PAYMENT_RECEIVED
+  REPAIR_RESOLVED
+  NEW_DOCUMENT
+  @@map("notification_type")
+}
+
+enum NotificationSeverity {
+  ERROR
+  WARNING
+  SUCCESS
+  INFO
+  @@map("notification_severity")
 }
