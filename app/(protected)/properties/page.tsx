@@ -109,9 +109,7 @@ export default async function PropertiesPage({
 }) {
   const user = await requireUser();
   const params = await searchParams;
-  const statusFilter = statusFilters.includes(
-    params.status as StatusFilterType,
-  )
+  const statusFilter = statusFilters.includes(params.status as StatusFilterType)
     ? (params.status as StatusFilterType)
     : "all";
   const sortBy = sortOptions.includes(params.sort as SortByType)
@@ -130,8 +128,10 @@ export default async function PropertiesPage({
     const activeTenant = property.leases[0]?.tenant;
     const charge = property.leases[0]?.charges[0];
     const paidAmount =
-      charge?.payments.reduce((sum, payment) => sum + Number(payment.amount), 0) ??
-      0;
+      charge?.payments.reduce(
+        (sum, payment) => sum + Number(payment.amount),
+        0,
+      ) ?? 0;
     const paymentStatus: PaymentStatus | null = charge
       ? paidAmount >= Number(charge.amount)
         ? "Uhradené"
@@ -168,6 +168,10 @@ export default async function PropertiesPage({
       <AppHeader
         title="Moje nehnuteľnosti"
         subtitle="Spravujte svoje byty, nájomníkov a nájomné zmluvy."
+        primaryAction={{
+          label: "Pridať nový byt",
+          href: "/properties/new",
+        }}
       >
         <Bell className="size-4 text-muted-foreground/70" />
       </AppHeader>

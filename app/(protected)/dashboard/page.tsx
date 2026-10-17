@@ -38,6 +38,10 @@ export default async function DashboardPage() {
       <AppHeader
         title="Prehľad"
         subtitle="Tu máte prehľad o svojich bytoch a nájmoch."
+        primaryAction={{
+          label: "Pridať nový byt",
+          href: "/properties/new",
+        }}
       >
         <Bell className="size-4 text-muted-foreground" />
       </AppHeader>
