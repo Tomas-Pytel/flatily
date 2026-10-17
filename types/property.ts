@@ -1,2 +1,21 @@
 export type PaymentStatus = "Uhradené" | "Čakajúce" | "Omeškané";
 export type PropertyStatus = "Aktívne" | "Neaktívne" | "V údržbe";
+
+export type PropertyListItem = {
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  district: string;
+  area: number;
+  rooms: number;
+  floor: number;
+  totalFloors: number;
+  rentAmount: number;
+  utilitiesAmount: number;
+  photoUrl: string | null;
+  tenantName: string | null;
+  status: "obsadeny" | "volny";
+  paymentStatus: PaymentStatus | null;
+  openRepairsCount: number;
+};

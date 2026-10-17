@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   Clock3,
   MapPin,
-  Trash2,
   LucideIcon,
 } from "lucide-react";
 
@@ -16,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { DeletePropertyButton } from "@/components/properties/delete-property-button";
+import type { PropertyListItem } from "@/types/property";
 
 type BadgeStatus = ComponentProps<typeof Badge>["variant"];
 type PaymentStatus = "Uhradené" | "Čakajúce" | "Omeškané";
@@ -42,46 +43,34 @@ const paymentStatusToBadge: Record<
 };
 
 type ExtendedPropertyCardProps = {
-  id: string;
-  name: string;
-  address?: string;
-  city: string;
-  district: string;
-  photoUrl?: string | null;
-  rentAmount: number;
-  utilitiesAmount?: number;
-  area: number;
-  rooms: number;
-  floor?: number;
-  totalFloors?: number;
-  tenantName?: string | null;
-  paymentStatus?: PaymentStatus | null;
-  openRepairsCount?: number;
+  property: PropertyListItem;
   href?: string;
-  onDelete?: (id: string, name: string) => void;
   className?: string;
 };
 
 export function ExtendedPropertyCard({
-  id,
-  name,
-  address,
-  city,
-  district,
-  photoUrl,
-  rentAmount,
-  utilitiesAmount = 0,
-  area,
-  rooms,
-  floor,
-  totalFloors,
-  tenantName,
-  paymentStatus,
-  openRepairsCount = 0,
-  href = `/properties/${id}`,
-  onDelete,
+  property,
+  href,
   className,
 }: ExtendedPropertyCardProps) {
+  const {
+    id,
+    name,
+    address,
+    city,
+    district,
+    photoUrl,
+    rentAmount,
+    utilitiesAmount,
+    area,
+    rooms,
+    floor,
+    totalFloors,
+    tenantName,
+    paymentStatus,
+    openRepairsCount,
+  } = property;
+  const propertyHref = href ?? `/properties/${id}`;
   const PaymentIcon = paymentStatus
     ? paymentStatusToBadge[paymentStatus].icon
     : null;
@@ -133,7 +122,7 @@ export function ExtendedPropertyCard({
           {/* Názov a Adresa */}
           <div>
             <Link
-              href={href}
+              href={propertyHref}
               className="text-base font-semibold text-foreground transition-colors hover:text-primary"
             >
               {name}
@@ -209,23 +198,13 @@ export function ExtendedPropertyCard({
       {/* Footer Akcie */}
       <div className="flex items-center gap-2 px-4 pb-4 pt-0">
         <Button asChild className="flex-1 text-xs font-medium shadow-xs">
-          <Link href={href}>
+          <Link href={propertyHref}>
             Detail bytu
             <ArrowRight className="ml-1.5 size-3.5" />
           </Link>
         </Button>
 
-        {onDelete && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onDelete(id, name)}
-            className="text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive hover:cursor-pointer"
-            title="Zmazať byt"
-          >
-            <Trash2 className="size-4" />
-          </Button>
-        )}
+        <DeletePropertyButton propertyId={id} propertyName={name} />
       </div>
     </Card>
   );

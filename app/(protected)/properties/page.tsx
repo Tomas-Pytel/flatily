@@ -4,8 +4,12 @@ import { requireUser } from "@/lib/auth";
 import { ApartmentsView } from "@/components/properties/properties-view";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma/browser";
-
-type PropertyPaymentStatus = "Uhradené" | "Čakajúce" | "Omeškané";
+import type { PaymentStatus, PropertyListItem } from "@/types/property";
+import type {
+  SortByType,
+  StatusFilterType,
+  ViewModeType,
+} from "@/components/properties/properties-toolbar";
 
 function getCurrentMonthStart() {
   const now = new Date();
@@ -40,6 +44,10 @@ const propertySelect = {
     where: {
       status: "ACTIVE",
     },
+    orderBy: {
+      startDate: "desc",
+    },
+    take: 1,
     select: {
       tenant: {
         select: {
@@ -50,6 +58,9 @@ const propertySelect = {
       charges: {
         where: {
           period: getCurrentMonthStart(),
+        },
+        orderBy: {
+          dueDate: "desc",
         },
         select: {
           amount: true,
@@ -76,27 +87,37 @@ const propertySelect = {
   },
 } satisfies Prisma.PropertySelect;
 
-export type PropertyListItem = {
-  id: string;
-  name: string;
-  address: string;
-  city: string;
-  district: string;
-  area: number;
-  rooms: number;
-  floor: number;
-  totalFloors: number;
-  rentAmount: number;
-  utilitiesAmount: number;
-  photoUrl: string | null;
-  tenantName: string | null;
-  status: "obsadeny" | "volny";
-  paymentStatus: PropertyPaymentStatus | null;
-  openRepairsCount: number;
+type PropertiesSearchParams = {
+  status?: string;
+  sort?: string;
+  view?: string;
 };
 
-export default async function PropertiesPage() {
+const statusFilters: StatusFilterType[] = [
+  "all",
+  "obsadeny",
+  "volny",
+  "problem_platba",
+  "oprava",
+];
+const sortOptions: SortByType[] = ["name", "rent_desc", "rent_asc", "status"];
+
+export default async function PropertiesPage({
+  searchParams,
+}: {
+  searchParams: Promise<PropertiesSearchParams>;
+}) {
   const user = await requireUser();
+  const params = await searchParams;
+  const statusFilter = statusFilters.includes(
+    params.status as StatusFilterType,
+  )
+    ? (params.status as StatusFilterType)
+    : "all";
+  const sortBy = sortOptions.includes(params.sort as SortByType)
+    ? (params.sort as SortByType)
+    : "name";
+  const viewMode: ViewModeType = params.view === "table" ? "table" : "grid";
 
   const propertyRows = await prisma.property.findMany({
     select: propertySelect,
@@ -111,7 +132,7 @@ export default async function PropertiesPage() {
     const paidAmount =
       charge?.payments.reduce((sum, payment) => sum + Number(payment.amount), 0) ??
       0;
-    const paymentStatus: PropertyPaymentStatus | null = charge
+    const paymentStatus: PaymentStatus | null = charge
       ? paidAmount >= Number(charge.amount)
         ? "Uhradené"
         : charge.dueDate < new Date()
@@ -154,7 +175,12 @@ export default async function PropertiesPage() {
       {/**Properties list */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
         {/* 2. Responsive Grid */}
-        <ApartmentsView properties={properties} />
+        <ApartmentsView
+          properties={properties}
+          statusFilter={statusFilter}
+          sortBy={sortBy}
+          viewMode={viewMode}
+        />
       </main>
     </div>
   );

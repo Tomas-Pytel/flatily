@@ -19,4 +19,5 @@ export async function deleteProperty(propertyId: string) {
   }
 
   revalidatePath("/properties");
+  revalidatePath("/dashboard");
 }

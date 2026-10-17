@@ -46,6 +46,7 @@ export default function FunctionsSection() {
               alt="Flatily Dashboard"
               width={1200}
               height={800}
+              sizes="(min-width: 1024px) 50vw, 100vw"
               className="w-full h-auto rounded-lg"
             />
           </div>

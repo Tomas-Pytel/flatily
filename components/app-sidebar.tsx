@@ -187,9 +187,9 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
     router.push("/auth/login");
   };
 
-  const apartmentsCount = props.counts?.apartments || 12;
-  const urgentRepairsCount = props.counts?.urgentRepairs || 2;
-  const unreadNotifsCount = props.counts?.unreadNotifs || 5;
+  const apartmentsCount = props.counts?.apartments ?? null;
+  const urgentRepairsCount = props.counts?.urgentRepairs ?? null;
+  const unreadNotifsCount = props.counts?.unreadNotifs ?? null;
 
   const platformNav: NavItem[] = [
     { title: "Prehľad", icon: LayoutDashboard, badge: null, url: "/dashboard" },
@@ -205,7 +205,10 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
       title: "Opravy",
       icon: Wrench,
       url: "/maintenance",
-      alertCount: urgentRepairsCount > 0 ? urgentRepairsCount : null,
+      alertCount:
+        urgentRepairsCount !== null && urgentRepairsCount > 0
+          ? urgentRepairsCount
+          : null,
       alertType: "danger",
     },
     { title: "Dokumenty", icon: FileText, url: "/documents" },
@@ -216,7 +219,10 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
       title: "Notifikácie",
       icon: Bell,
       url: "/notifications",
-      alertCount: unreadNotifsCount > 0 ? unreadNotifsCount : null,
+      alertCount:
+        unreadNotifsCount !== null && unreadNotifsCount > 0
+          ? unreadNotifsCount
+          : null,
       alertType: "primary",
     },
     { title: "Nastavenia", icon: Settings, url: "/settings" },
