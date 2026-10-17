@@ -11,48 +11,11 @@ import {
 } from "@/components/properties/properties-toolbar";
 import { ExtendedPropertyCard } from "./extended-property-card";
 import Image from "next/image";
+import { PropertyListItem } from "@/app/(protected)/properties/page";
 
-// --- MOCK DÁTA ---
-const mockApartments = [
-  {
-    id: "1",
-    name: "Slnečný 2-izbák v Centre",
-    address: "Hlavná 15",
-    city: "Bratislava",
-    district: "Staré Mesto",
-    area: 55,
-    rooms: 2,
-    floor: 3,
-    totalFloors: 5,
-    rentAmount: 750,
-    utilitiesAmount: 150,
-    status: "obsadeny" as const,
-    currentTenantId: "t1",
-    paymentStatus: "Uhradené",
-    photoUrl:
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=500&q=60",
-  },
-  {
-    id: "2",
-    name: "Moderný loft pri rieke",
-    address: "Nábrežná 8",
-    city: "Bratislava",
-    district: "Ružinov",
-    area: 42,
-    rooms: 1,
-    floor: 2,
-    totalFloors: 8,
-    rentAmount: 600,
-    utilitiesAmount: 120,
-    status: "volny" as const,
-    currentTenantId: null,
-    photoUrl:
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=500&q=60",
-    paymentStaus: "Omeškané",
-  },
-];
-
-const mockTenants = [{ id: "t1", firstName: "Jozef", lastName: "Mrkvička" }];
+interface ApartmentsViewProps {
+  properties: PropertyListItem[];
+}
 
 const mockPayments = [
   { id: "p1", apartmentId: "1", period: "Október 2026", status: "Uhradené" },
@@ -61,9 +24,9 @@ const mockPayments = [
 const mockMaintenance = [{ id: "m1", apartmentId: "1", status: "open" }];
 // -----------------
 
-export const ApartmentsView: React.FC = () => {
+export const ApartmentsView = ({ properties }: ApartmentsViewProps) => {
   // Lokálne stavy nahrádzajúce kontext
-  const [apartments, setApartments] = useState(mockApartments);
+  const [apartments, setApartments] = useState(properties);
 
   // Stavy zobrazenia
   const [statusFilter, setStatusFilter] = useState<StatusFilterType>("all");
@@ -134,16 +97,10 @@ export const ApartmentsView: React.FC = () => {
         <span>Zatiaľ nemáte žiadny byt</span>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredApartments.map((apt) => {
-            const tenant = mockTenants.find(
-              (t) => t.id === apt.currentTenantId,
-            );
-            const tenantName = tenant
-              ? `${tenant.firstName} ${tenant.lastName}`
-              : null;
-            const aptPayment = mockPayments.find(
-              (p) => p.apartmentId === apt.id && p.period === "Október 2026",
-            );
+        {filteredApartments.map((apt) => {
+          const aptPayment = mockPayments.find(
+            (p) => p.apartmentId === apt.id && p.period === "Október 2026",
+          );
             const openRepairs = mockMaintenance.filter(
               (m) => m.apartmentId === apt.id && m.status !== "resolved",
             );
@@ -163,7 +120,7 @@ export const ApartmentsView: React.FC = () => {
                 rentAmount={apt.rentAmount}
                 utilitiesAmount={apt.utilitiesAmount}
                 photoUrl={apt.photoUrl}
-                tenantName={tenantName}
+                tenantName={apt.tenantName}
                 paymentStatus={aptPayment?.status}
                 openRepairsCount={openRepairs.length}
                 onDelete={handleDelete}
@@ -190,9 +147,6 @@ export const ApartmentsView: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
                 {filteredApartments.map((apt) => {
-                  const tenant = mockTenants.find(
-                    (t) => t.id === apt.currentTenantId,
-                  );
                   const aptPayment = mockPayments.find(
                     (p) =>
                       p.apartmentId === apt.id && p.period === "Október 2026",
@@ -209,8 +163,10 @@ export const ApartmentsView: React.FC = () => {
                           className="font-semibold text-neutral-900 dark:text-neutral-100 cursor-pointer hover:text-[#004AAD] dark:hover:text-[#3B82F6] flex items-center gap-2.5"
                         >
                           <Image
-                            src={apt.photoUrl}
-                            alt=""
+                            src={apt.photoUrl || "/avatar-img.jpg"}
+                            alt={`Náhľad nehnuteľnosti ${apt.name}`}
+                            width={32}
+                            height={32}
                             referrerPolicy="no-referrer"
                             className="w-8 h-8 rounded-md object-cover"
                           />
@@ -227,9 +183,7 @@ export const ApartmentsView: React.FC = () => {
                         €{apt.rentAmount}
                       </td>
                       <td className="px-4 py-3.5 text-neutral-700 dark:text-neutral-300">
-                        {tenant
-                          ? `${tenant.firstName} ${tenant.lastName}`
-                          : "—"}
+                        {apt.tenantName ?? "—"}
                       </td>
                       <td className="px-4 py-3.5">
                         {aptPayment ? (

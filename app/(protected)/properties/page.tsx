@@ -1,17 +1,98 @@
 import { AppHeader } from "@/components/app-header";
 import { Bell } from "lucide-react";
-//import { requireUser } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { ApartmentsView } from "@/components/properties/properties-view";
+import prisma from "@/lib/prisma";
+import { Prisma } from "@/lib/generated/prisma/browser";
+
+const propertySelect = {
+  id: true,
+  title: true,
+  street: true,
+  city: true,
+  district: true,
+  monthlyRent: true,
+  utilitiesAmount: true,
+  rooms: true,
+  area: true,
+  floor: true,
+  totalFloors: true,
+  images: {
+    where: {
+      isCover: true,
+    },
+    orderBy: {
+      sortOrder: "asc",
+    },
+    take: 1,
+    select: {
+      url: true,
+    },
+  },
+  leases: {
+    where: {
+      status: "ACTIVE",
+    },
+    select: {
+      tenant: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.PropertySelect;
+
+export type PropertyListItem = {
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  district: string;
+  area: number;
+  rooms: number;
+  floor: number;
+  totalFloors: number;
+  rentAmount: number;
+  utilitiesAmount: number;
+  photoUrl: string | null;
+  tenantName: string | null;
+  status: "obsadeny" | "volny";
+};
 
 export default async function PropertiesPage() {
-  //const user = await requireUser();
+  const user = await requireUser();
 
-  // const properties: Property[] = await prisma.property.findMany({
-  //   where: {
-  //     ownerId: user.id,
-  //   },
-  //   orderBy: { createdAt: "desc" },
-  // });
+  const propertyRows = await prisma.property.findMany({
+    select: propertySelect,
+    where: {
+      ownerId: user.id,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  const properties: PropertyListItem[] = propertyRows.map((property) => {
+    const activeTenant = property.leases[0]?.tenant;
+
+    return {
+      id: property.id,
+      name: property.title,
+      address: property.street,
+      city: property.city,
+      district: property.district ?? "",
+      area: Number(property.area),
+      rooms: property.rooms,
+      floor: property.floor,
+      totalFloors: property.totalFloors,
+      rentAmount: Number(property.monthlyRent),
+      utilitiesAmount: Number(property.utilitiesAmount),
+      photoUrl: property.images[0]?.url ?? null,
+      tenantName: activeTenant
+        ? `${activeTenant.firstName} ${activeTenant.lastName}`
+        : null,
+      status: activeTenant ? "obsadeny" : "volny",
+    };
+  });
 
   return (
     <div className="flex h-full flex-col">
@@ -26,7 +107,7 @@ export default async function PropertiesPage() {
       {/**Properties list */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
         {/* 2. Responsive Grid */}
-        <ApartmentsView />
+        <ApartmentsView properties={properties} />
       </main>
     </div>
   );

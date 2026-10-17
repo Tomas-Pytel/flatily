@@ -35,6 +35,10 @@ const paymentStatusToBadge: Record<
     variant: "destructive", // Zmenené na destructive (červená) podľa pôvodného
     icon: AlertCircle,
   },
+  Čakajúce: {
+    variant: "default",
+    icon: Clock3,
+  },
   Čaká: {
     variant: "default",
     icon: Clock3,
