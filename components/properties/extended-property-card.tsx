@@ -18,10 +18,10 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 type BadgeStatus = ComponentProps<typeof Badge>["variant"];
+type PaymentStatus = "Uhradené" | "Čakajúce" | "Omeškané";
 
-// Mapovanie pre stav platby (spodný badge)
 const paymentStatusToBadge: Record<
-  string,
+  PaymentStatus,
   {
     variant: BadgeStatus;
     icon: LucideIcon;
@@ -32,14 +32,10 @@ const paymentStatusToBadge: Record<
     icon: CheckCircle2,
   },
   Omeškané: {
-    variant: "destructive", // Zmenené na destructive (červená) podľa pôvodného
+    variant: "destructive",
     icon: AlertCircle,
   },
   Čakajúce: {
-    variant: "default",
-    icon: Clock3,
-  },
-  Čaká: {
     variant: "default",
     icon: Clock3,
   },
@@ -59,7 +55,7 @@ type ExtendedPropertyCardProps = {
   floor?: number;
   totalFloors?: number;
   tenantName?: string | null;
-  paymentStatus?: keyof typeof paymentStatusToBadge | null;
+  paymentStatus?: PaymentStatus | null;
   openRepairsCount?: number;
   href?: string;
   onDelete?: (id: string, name: string) => void;
@@ -121,7 +117,7 @@ export function ExtendedPropertyCard({
             <span>{area} m²</span>
             <span>·</span>
             <span>{rooms} izb.</span>
-            {floor && totalFloors && (
+            {floor !== undefined && totalFloors !== undefined && (
               <>
                 <span>·</span>
                 <span>

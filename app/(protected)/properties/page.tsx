@@ -5,6 +5,13 @@ import { ApartmentsView } from "@/components/properties/properties-view";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma/browser";
 
+type PropertyPaymentStatus = "Uhradené" | "Čakajúce" | "Omeškané";
+
+function getCurrentMonthStart() {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+}
+
 const propertySelect = {
   id: true,
   title: true,
@@ -40,6 +47,31 @@ const propertySelect = {
           lastName: true,
         },
       },
+      charges: {
+        where: {
+          period: getCurrentMonthStart(),
+        },
+        select: {
+          amount: true,
+          dueDate: true,
+          payments: {
+            select: {
+              amount: true,
+            },
+          },
+        },
+        take: 1,
+      },
+    },
+  },
+  maintenance: {
+    where: {
+      status: {
+        in: ["OPEN", "IN_PROGRESS"],
+      },
+    },
+    select: {
+      id: true,
     },
   },
 } satisfies Prisma.PropertySelect;
@@ -59,6 +91,8 @@ export type PropertyListItem = {
   photoUrl: string | null;
   tenantName: string | null;
   status: "obsadeny" | "volny";
+  paymentStatus: PropertyPaymentStatus | null;
+  openRepairsCount: number;
 };
 
 export default async function PropertiesPage() {
@@ -73,6 +107,17 @@ export default async function PropertiesPage() {
   });
   const properties: PropertyListItem[] = propertyRows.map((property) => {
     const activeTenant = property.leases[0]?.tenant;
+    const charge = property.leases[0]?.charges[0];
+    const paidAmount =
+      charge?.payments.reduce((sum, payment) => sum + Number(payment.amount), 0) ??
+      0;
+    const paymentStatus: PropertyPaymentStatus | null = charge
+      ? paidAmount >= Number(charge.amount)
+        ? "Uhradené"
+        : charge.dueDate < new Date()
+          ? "Omeškané"
+          : "Čakajúce"
+      : null;
 
     return {
       id: property.id,
@@ -91,6 +136,8 @@ export default async function PropertiesPage() {
         ? `${activeTenant.firstName} ${activeTenant.lastName}`
         : null,
       status: activeTenant ? "obsadeny" : "volny",
+      paymentStatus,
+      openRepairsCount: property.maintenance.length,
     };
   });
 

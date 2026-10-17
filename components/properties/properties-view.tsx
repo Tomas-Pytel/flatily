@@ -12,60 +12,50 @@ import {
 import { ExtendedPropertyCard } from "./extended-property-card";
 import Image from "next/image";
 import { PropertyListItem } from "@/app/(protected)/properties/page";
+import { deleteProperty } from "@/app/actions/properties";
+import { useRouter } from "next/navigation";
 
 interface ApartmentsViewProps {
   properties: PropertyListItem[];
 }
 
-const mockPayments = [
-  { id: "p1", apartmentId: "1", period: "Október 2026", status: "Uhradené" },
-];
-
-const mockMaintenance = [{ id: "m1", apartmentId: "1", status: "open" }];
-// -----------------
-
 export const ApartmentsView = ({ properties }: ApartmentsViewProps) => {
-  // Lokálne stavy nahrádzajúce kontext
-  const [apartments, setApartments] = useState(properties);
-
-  // Stavy zobrazenia
+  const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<StatusFilterType>("all");
   const [sortBy, setSortBy] = useState<SortByType>("name");
   const [viewMode, setViewMode] = useState<ViewModeType>("grid");
-
-  // Funkcie nahrádzajúce kontextové akcie
   const navigateTo = (view: string, id: string) => {
     console.log(`Navigating to ${view} with ID ${id}`);
   };
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     const isConfirmed = window.confirm(
       `Naozaj chcete zmazať byt "${name}"? Akciu nie je možné vrátiť späť.`,
     );
-    if (isConfirmed) {
-      setApartments((prev) => prev.filter((apt) => apt.id !== id));
-      console.log("Deleted apartment:", id);
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      await deleteProperty(id);
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to delete property:", error);
+      window.alert("Nehnuteľnosť sa nepodarilo zmazať. Skúste to znova.");
     }
   };
 
   const filteredApartments = useMemo(() => {
-    return apartments
+    return properties
       .filter((apt) => {
-        // Status filter
         if (statusFilter === "all") return true;
         if (statusFilter === "obsadeny") return apt.status === "obsadeny";
         if (statusFilter === "volny") return apt.status === "volny";
         if (statusFilter === "problem_platba") {
-          const aptPayment = mockPayments.find(
-            (p) => p.apartmentId === apt.id && p.status === "omeskane",
-          );
-          return apt.status === "obsadeny" || !!aptPayment;
+          return apt.paymentStatus === "Omeškané";
         }
         if (statusFilter === "oprava") {
-          const aptRepair = mockMaintenance.find(
-            (m) => m.apartmentId === apt.id && m.status !== "resolved",
-          );
-          return !!aptRepair;
+          return apt.openRepairsCount > 0;
         }
         return true;
       })
@@ -76,7 +66,7 @@ export const ApartmentsView = ({ properties }: ApartmentsViewProps) => {
         if (sortBy === "status") return a.status.localeCompare(b.status);
         return 0;
       });
-  }, [apartments, statusFilter, sortBy]);
+  }, [properties, statusFilter, sortBy]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-150">
@@ -88,8 +78,11 @@ export const ApartmentsView = ({ properties }: ApartmentsViewProps) => {
         setSortBy={setSortBy}
         viewMode={viewMode}
         setViewMode={setViewMode}
-        apartments={apartments}
-        maintenance={mockMaintenance}
+        apartments={properties}
+        openRepairsCount={properties.reduce(
+          (total, apartment) => total + apartment.openRepairsCount,
+          0,
+        )}
       />
 
       {/* Content Rendering: Grid vs Table vs Empty */}
@@ -97,14 +90,7 @@ export const ApartmentsView = ({ properties }: ApartmentsViewProps) => {
         <span>Zatiaľ nemáte žiadny byt</span>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredApartments.map((apt) => {
-          const aptPayment = mockPayments.find(
-            (p) => p.apartmentId === apt.id && p.period === "Október 2026",
-          );
-            const openRepairs = mockMaintenance.filter(
-              (m) => m.apartmentId === apt.id && m.status !== "resolved",
-            );
-
+          {filteredApartments.map((apt) => {
             return (
               <ExtendedPropertyCard
                 key={apt.id}
@@ -121,8 +107,8 @@ export const ApartmentsView = ({ properties }: ApartmentsViewProps) => {
                 utilitiesAmount={apt.utilitiesAmount}
                 photoUrl={apt.photoUrl}
                 tenantName={apt.tenantName}
-                paymentStatus={aptPayment?.status}
-                openRepairsCount={openRepairs.length}
+                paymentStatus={apt.paymentStatus}
+                openRepairsCount={apt.openRepairsCount}
                 onDelete={handleDelete}
               />
             );
@@ -147,11 +133,6 @@ export const ApartmentsView = ({ properties }: ApartmentsViewProps) => {
               </thead>
               <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
                 {filteredApartments.map((apt) => {
-                  const aptPayment = mockPayments.find(
-                    (p) =>
-                      p.apartmentId === apt.id && p.period === "Október 2026",
-                  );
-
                   return (
                     <tr
                       key={apt.id}
@@ -186,8 +167,8 @@ export const ApartmentsView = ({ properties }: ApartmentsViewProps) => {
                         {apt.tenantName ?? "—"}
                       </td>
                       <td className="px-4 py-3.5">
-                        {aptPayment ? (
-                          <Badge>{aptPayment.status} </Badge>
+                        {apt.paymentStatus ? (
+                          <Badge>{apt.paymentStatus} </Badge>
                         ) : (
                           <span className="text-neutral-400">—</span>
                         )}
@@ -203,6 +184,7 @@ export const ApartmentsView = ({ properties }: ApartmentsViewProps) => {
                             }
                             className="p-1.5 text-[#004AAD] dark:text-[#3B82F6] hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md"
                             title="Detail"
+                            aria-label={`Otvoriť detail nehnuteľnosti ${apt.name}`}
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -210,6 +192,7 @@ export const ApartmentsView = ({ properties }: ApartmentsViewProps) => {
                             onClick={() => handleDelete(apt.id, apt.name)}
                             className="p-1.5 text-neutral-400 hover:text-[#DC2626] dark:hover:text-[#EF4444] hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md"
                             title="Zmazať"
+                            aria-label={`Zmazať nehnuteľnosť ${apt.name}`}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

@@ -24,11 +24,6 @@ export interface Apartment {
   rent?: number;
 }
 
-export interface MaintenanceItem {
-  id: string;
-  status: string;
-}
-
 interface ApartmentsToolbarProps {
   statusFilter: StatusFilterType;
   setStatusFilter: (status: StatusFilterType) => void;
@@ -37,7 +32,7 @@ interface ApartmentsToolbarProps {
   viewMode: ViewModeType;
   setViewMode: (mode: ViewModeType) => void;
   apartments: Apartment[];
-  maintenance: MaintenanceItem[];
+  openRepairsCount: number;
 }
 
 const sortItems = [
@@ -55,7 +50,7 @@ export const PropertiesToolbar: React.FC<ApartmentsToolbarProps> = ({
   viewMode,
   setViewMode,
   apartments,
-  maintenance,
+  openRepairsCount,
 }) => {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-[#141414] border border-neutral-200 dark:border-neutral-800 rounded-xl p-4">
@@ -109,7 +104,7 @@ export const PropertiesToolbar: React.FC<ApartmentsToolbarProps> = ({
               : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
           }`}
         >
-          Oprava ({maintenance.filter((m) => m.status !== "resolved").length})
+          Oprava ({openRepairsCount})
         </button>
       </div>
 
