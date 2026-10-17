@@ -164,7 +164,7 @@ export default async function PropertiesPage({
 
   return (
     <div className="flex h-full flex-col">
-      {/**Header */}
+      {/*Header */}
       <AppHeader
         title="Moje nehnuteľnosti"
         subtitle="Spravujte svoje byty, nájomníkov a nájomné zmluvy."
@@ -176,9 +176,9 @@ export default async function PropertiesPage({
         <Bell className="size-4 text-muted-foreground/70" />
       </AppHeader>
 
-      {/**Properties list */}
+      {/*Properties list */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
-        {/* 2. Responsive Grid */}
+        {/* Responsive Grid */}
         <ApartmentsView
           properties={properties}
           statusFilter={statusFilter}

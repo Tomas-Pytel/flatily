@@ -45,7 +45,7 @@ export const NewPropertyForm = () => {
       rooms: 1,
       area: 1,
       floor: 0,
-      totalFloors: 0,
+      totalFloors: 1,
       hasElevator: true,
       hasBalcony: true,
       hasCellar: true,
@@ -55,17 +55,17 @@ export const NewPropertyForm = () => {
   const onSubmit = async (data: NewPropertyFormOutput) => {
     form.clearErrors("root.server");
 
-    try {
-      await createNewProperty(data);
-      form.reset();
-      router.push("/properties");
-    } catch (error) {
-      console.error("Failed to create property:", error);
+    const result = await createNewProperty(data);
+
+    if (!result.success) {
       form.setError("root.server", {
-        message:
-          "Uloženie zatiaľ nie je implementované. Vaše údaje zostali vo formulári.",
+        message: result.error,
       });
+      return;
     }
+
+    form.reset();
+    router.push("/properties");
   };
 
   const renderNumberField = (

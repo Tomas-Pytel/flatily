@@ -28,7 +28,7 @@ export function Hero() {
 
   return (
     <div className="flex flex-col w-full max-w-7xl gap-20 items-center px-4 sm:px-6 lg:px-8">
-      {/**Top section */}
+      {/*Top section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-center">
         <div className="flex flex-col gap-6 items-center md:items-start text-center md:text-left">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
@@ -48,7 +48,7 @@ export function Hero() {
           </Button>
         </div>
 
-        {/**Image wrapper */}
+        {/*Image wrapper */}
         <div className="relative w-full aspect-4/3 rounded-3xl overflow-hidden shadow-2xl border border-border/50">
           <Image
             src="/hero-img.jpg"
@@ -60,7 +60,7 @@ export function Hero() {
         </div>
       </section>
 
-      {/**Bottom section */}
+      {/*Bottom section */}
       <section className="flex flex-col items-center justify-center">
         <div className="text-center max-w-2xl space-y-4">
           <h2 className="text-3xl font-bold tracking-tight">
@@ -72,7 +72,7 @@ export function Hero() {
           </p>
         </div>
 
-        {/**Information cards */}
+        {/*Information cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mt-12 w-full">
           {infoCards.map((card, index) => (
             <InfoCard key={index} card={card} />

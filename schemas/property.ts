@@ -36,7 +36,7 @@ export const newPropertySchema = z.object({
   floor: z.coerce
     .number({ message: "Poschodie musí byť číslo" })
     .int("Poschodie musí byť celé číslo")
-    .positive("Poschodie musí byť aspoň 0.")
+    .nonnegative("Poschodie nemôže byť záporné")
     .default(0),
 
   totalFloors: z.coerce

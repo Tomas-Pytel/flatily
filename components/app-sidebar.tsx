@@ -352,7 +352,7 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
 
-              {/** Dropdown menu items */}
+              {/*Dropdown menu items */}
               <DropdownMenuContent
                 side="top"
                 align="end"
