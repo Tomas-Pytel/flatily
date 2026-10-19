@@ -1,6 +1,6 @@
 "use client";
 
-import Skeleton from "@/components/loading-skeleton";
+import Skeleton from "@/components/common/loading-skeleton";
 import { Card } from "@/components/ui/card";
 import { useSearchParams } from "next/navigation";
 

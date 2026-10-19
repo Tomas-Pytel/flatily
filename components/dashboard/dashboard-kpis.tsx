@@ -8,7 +8,7 @@ import {
 
 import { KpiCard, type KpiCardProps } from "@/components/dashboard/kpi-card";
 import { Card } from "@/components/ui/card";
-import Skeleton from "@/components/loading-skeleton";
+import Skeleton from "@/components/common/loading-skeleton";
 import { getDashboardAggregates } from "@/lib/dashboard";
 
 type DashboardDates = {

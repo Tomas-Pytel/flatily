@@ -1,4 +1,4 @@
-import { AppHeader } from "@/components/app-header";
+import { AppHeader } from "@/components/common/app-header";
 import { AttentionSectionSkeleton } from "@/components/dashboard/attention-section";
 import { CashFlowSectionSkeleton } from "@/components/dashboard/cash-flow-section";
 import { DashboardKpisSkeleton } from "@/components/dashboard/dashboard-kpis";

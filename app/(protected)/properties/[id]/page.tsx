@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AppHeader } from "@/components/app-header";
+import { AppHeader } from "@/components/common/app-header";
 import { requireUser } from "@/lib/auth";
 
 interface PropertyDetailPageProps {

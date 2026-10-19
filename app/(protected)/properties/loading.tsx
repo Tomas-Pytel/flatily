@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 
-import { AppHeader } from "@/components/app-header";
-import Skeleton from "@/components/loading-skeleton";
+import { AppHeader } from "@/components/common/app-header";
+import Skeleton from "@/components/common/loading-skeleton";
 import {
   PropertiesViewSkeleton,
   PropertiesViewSkeletonWithSearchParams,
