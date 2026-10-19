@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Eye } from "lucide-react";
+import { Building2, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DeletePropertyButton } from "@/components/properties/delete-property-button";
 import type { PropertyListItem } from "@/types/property";
@@ -37,15 +37,22 @@ export function PropertiesTable({
                     href={`/properties/${property.id}`}
                     className="flex items-center gap-2.5 font-semibold text-neutral-900 hover:text-[#004AAD] dark:text-neutral-100 dark:hover:text-[#3B82F6]"
                   >
-                    <Image
-                      src={property.photoUrl || "/avatar-img.jpg"}
-                      alt={`Náhľad nehnuteľnosti ${property.name}`}
-                      width={32}
-                      height={32}
-                      sizes="32px"
-                      referrerPolicy="no-referrer"
-                      className="h-8 w-8 rounded-md object-cover"
-                    />
+                    {property.photoUrl ? (
+                      <Image
+                        src={property.photoUrl}
+                        alt={`Náhľad nehnuteľnosti ${property.name}`}
+                        width={32}
+                        height={32}
+                        sizes="32px"
+                        referrerPolicy="no-referrer"
+                        className="h-8 w-8 rounded-md object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted/50 text-muted-foreground">
+                        <Building2 className="size-5 opacity-40" />
+                      </div>
+                    )}
+
                     <span>{property.name}</span>
                   </Link>
                 </td>
