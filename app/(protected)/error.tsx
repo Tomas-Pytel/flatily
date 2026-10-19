@@ -18,8 +18,14 @@ export default function ProtectedError({
           prehľad.
         </p>
         <div className="mt-6 flex justify-center gap-3">
-          <Button onClick={reset}>Skúsiť znova</Button>
-          <Button asChild variant="outline">
+          <Button onClick={reset} className="cursor-pointer">
+            Skúsiť znova
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          >
             <Link href="/dashboard">Prehľad</Link>
           </Button>
         </div>

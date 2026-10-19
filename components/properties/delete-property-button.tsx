@@ -28,7 +28,7 @@ export function DeletePropertyButton({
       <button
         type="button"
         onClick={() => setIsDialogOpen(true)}
-        className="rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-[#DC2626] dark:hover:bg-neutral-800 dark:hover:text-[#EF4444]"
+        className="rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-[#DC2626] dark:hover:bg-neutral-800 dark:hover:text-[#EF4444] hover:cursor-pointer"
         title="Zmazať"
         aria-label={`Zmazať nehnuteľnosť ${propertyName}`}
       >
