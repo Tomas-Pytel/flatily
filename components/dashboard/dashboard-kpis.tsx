@@ -10,6 +10,7 @@ import { KpiCard, type KpiCardProps } from "@/components/dashboard/kpi-card";
 import { Card } from "@/components/ui/card";
 import Skeleton from "@/components/common/loading-skeleton";
 import { getDashboardSummary } from "@/lib/dashboard";
+import { pluralize } from "@/lib/utils";
 
 type DashboardDates = {
   now: Date;
@@ -62,14 +63,14 @@ export async function DashboardKpis({
     {
       title: "Po splatnosti",
       value: formatAmount(aggregates.overdueAmount),
-      subtitle: `${aggregates.overdueCount} neuhradené platby`,
+      subtitle: `${aggregates.overdueCount} ${pluralize(aggregates.overdueCount, "neuhradená platba", "neuhradené platby", "neuhradených platieb")}`,
       icon: AlertCircle,
       statusColor: aggregates.overdueCount ? "warning" : "neutral",
     },
     {
       title: "Otvorené opravy",
       value: aggregates.openRepairCount,
-      subtitle: `${aggregates.urgentRepairCount} urgentné opravy`,
+      subtitle: `${aggregates.urgentRepairCount} ${pluralize(aggregates.urgentRepairCount, "urgentná oprava", "urgentné opravy", "urgentných opráv")}`,
       statusColor: aggregates.openRepairCount ? "error" : "neutral",
       icon: Wrench,
     },

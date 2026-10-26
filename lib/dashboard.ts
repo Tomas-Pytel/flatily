@@ -266,6 +266,28 @@ export async function getAttentionItems({
     }
   }
 
+  const typeOrder = {
+    overdue: 0,
+    urgentRepair: 1,
+    expiringLease: 2,
+  } as const;
+
+  items.sort((a, b) => {
+    const typeDifference = typeOrder[a.type] - typeOrder[b.type];
+    if (typeDifference !== 0) return typeDifference;
+
+    if (a.type === "overdue" && b.type === "overdue") {
+      return a.dueDate.getTime() - b.dueDate.getTime();
+    }
+    if (a.type === "urgentRepair" && b.type === "urgentRepair") {
+      return a.createdAt.getTime() - b.createdAt.getTime();
+    }
+    if (a.type === "expiringLease" && b.type === "expiringLease") {
+      return a.endDate.getTime() - b.endDate.getTime();
+    }
+    return 0;
+  });
+
   return items;
 }
 
