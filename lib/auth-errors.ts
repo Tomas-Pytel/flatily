@@ -1,4 +1,7 @@
-import { isAuthError } from "@supabase/supabase-js";
+import {
+  isAuthError,
+  isAuthSessionMissingError,
+} from "@supabase/supabase-js";
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   invalid_credentials: "Nesprávny e-mail alebo heslo",
@@ -15,6 +18,10 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
 };
 
 export function getAuthErrorMessage(error: unknown): string {
+  if (isAuthSessionMissingError(error)) {
+    return "Odkaz vypršal alebo je neplatný. Požiadajte o nové obnovenie hesla.";
+  }
+
   if (!isAuthError(error) || !error.code) {
     return "Nastala chyba. Skúste to znova.";
   }
