@@ -18,7 +18,7 @@ type CashFlowAggregateRow = {
   expenses: string | number;
 };
 
-export type DashboardAggregates = {
+export type DashboardSummary = {
   propertyCount: number;
   occupiedPropertyCount: number;
   monthlyIncome: number;
@@ -27,11 +27,6 @@ export type DashboardAggregates = {
   overdueCount: number;
   openRepairCount: number;
   urgentRepairCount: number;
-  cashFlow: Array<{
-    period: Date;
-    income: number;
-    expenses: number;
-  }>;
 };
 
 export type DashboardProperty = {
@@ -90,71 +85,77 @@ export async function getRecentProperties({
   userId: string;
   currentMonth: Date;
   nextMonth: Date;
-}): Promise<DashboardProperty[]> {
-  const properties = await prisma.property.findMany({
-    where: { ownerId: userId },
-    take: 4,
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      title: true,
-      city: true,
-      district: true,
-      monthlyRent: true,
-      area: true,
-      rooms: true,
-      images: {
-        where: { isCover: true },
-        orderBy: { sortOrder: "asc" },
-        take: 1,
-        select: { url: true },
-      },
-      leases: {
-        where: { status: "ACTIVE" },
-        orderBy: { startDate: "desc" },
-        take: 1,
-        select: {
-          tenant: { select: { id: true, firstName: true, lastName: true } },
-          charges: {
-            where: { period: { gte: currentMonth, lt: nextMonth } },
-            take: 1,
-            select: {
-              amount: true,
-              dueDate: true,
-              payments: { select: { amount: true } },
+}): Promise<{ properties: DashboardProperty[]; totalCount: number }> {
+  const [properties, totalCount] = await Promise.all([
+    prisma.property.findMany({
+      where: { ownerId: userId },
+      take: 4,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        city: true,
+        district: true,
+        monthlyRent: true,
+        area: true,
+        rooms: true,
+        images: {
+          where: { isCover: true },
+          orderBy: { sortOrder: "asc" },
+          take: 1,
+          select: { url: true },
+        },
+        leases: {
+          where: { status: "ACTIVE" },
+          orderBy: { startDate: "desc" },
+          take: 1,
+          select: {
+            tenant: { select: { id: true, firstName: true, lastName: true } },
+            charges: {
+              where: { period: { gte: currentMonth, lt: nextMonth } },
+              take: 1,
+              select: {
+                amount: true,
+                dueDate: true,
+                payments: { select: { amount: true } },
+              },
             },
           },
         },
       },
-    },
-  });
+    }),
+    prisma.property.count({ where: { ownerId: userId } }),
+  ]);
 
-  return properties.map((property) => {
-    const lease = property.leases[0];
-    const charge = lease?.charges[0];
+  return {
+    properties: properties.map((property) => {
+      const lease = property.leases[0];
+      const charge = lease?.charges[0];
 
-    return {
-      id: property.id,
-      name: property.title,
-      city: property.city,
-      district: property.district ?? "",
-      photoUrl: property.images[0]?.url ?? null,
-      rentAmount: Number(property.monthlyRent),
-      area: Number(property.area),
-      rooms: property.rooms,
-      tenant: lease?.tenant ?? null,
-      payment: charge
-        ? {
-            amount: Number(charge.amount),
-            dueDate: charge.dueDate,
-            paidAmount: charge.payments.reduce(
-              (sum, payment) => sum + Number(payment.amount),
-              0,
-            ),
-          }
-        : null,
-    };
-  });
+      return {
+        id: property.id,
+        name: property.title,
+        city: property.city,
+        district: property.district ?? "",
+        photoUrl: property.images[0]?.url ?? null,
+        rentAmount: Number(property.monthlyRent),
+        area: Number(property.area),
+        rooms: property.rooms,
+        tenant: lease?.tenant ?? null,
+        payment: charge
+          ? {
+              amount: Number(charge.amount),
+              dueDate: charge.dueDate,
+              paidAmount: charge.payments.reduce(
+                (sum, payment) => sum.plus(payment.amount),
+                new Prisma.Decimal(0),
+              ).toNumber(),
+            }
+          : null,
+      };
+    }),
+    totalCount,
+  };
 }
 
 export async function getAttentionItems({
@@ -235,17 +236,17 @@ export async function getAttentionItems({
 
       for (const charge of lease.charges) {
         const paidAmount = charge.payments.reduce(
-          (sum, payment) => sum + Number(payment.amount),
-          0,
+          (sum, payment) => sum.plus(payment.amount),
+          new Prisma.Decimal(0),
         );
-        if (charge.dueDate < now && paidAmount < Number(charge.amount)) {
+        if (charge.dueDate < now && paidAmount.lt(charge.amount)) {
           items.push({
             type: "overdue",
             propertyId: property.id,
             propertyTitle: property.title,
             city: property.city,
             tenantName,
-            amount: Number(charge.amount) - paidAmount,
+            amount: new Prisma.Decimal(charge.amount).minus(paidAmount).toNumber(),
             dueDate: charge.dueDate,
           });
         }
@@ -268,7 +269,7 @@ export async function getAttentionItems({
   return items;
 }
 
-export async function getDashboardAggregates({
+export async function getDashboardSummary({
   userId,
   now,
   currentMonth,
@@ -280,9 +281,8 @@ export async function getDashboardAggregates({
   currentMonth: Date;
   nextMonth: Date;
   twelveMonthsAgo: Date;
-}): Promise<DashboardAggregates> {
-  const [summaryRows, cashFlowRows] = await Promise.all([
-    prisma.$queryRaw<DashboardAggregateRow[]>(Prisma.sql`
+}): Promise<DashboardSummary> {
+  const summaryRows = await prisma.$queryRaw<DashboardAggregateRow[]>(Prisma.sql`
       WITH current_charges AS (
         SELECT
           rc.amount,
@@ -331,8 +331,37 @@ export async function getDashboardAggregates({
            AND m.created_at >= ${twelveMonthsAgo}
            AND m.status <> 'RESOLVED'
            AND m.priority = 'URGENT') AS "urgentRepairCount"
-    `),
-    prisma.$queryRaw<CashFlowAggregateRow[]>(Prisma.sql`
+    `);
+
+  const summary = summaryRows[0];
+  if (!summary) {
+    throw new Error("Nepodarilo sa načítať agregácie dashboardu.");
+  }
+
+  return {
+    propertyCount: summary.propertyCount,
+    occupiedPropertyCount: summary.occupiedPropertyCount,
+    monthlyIncome: numeric(summary.monthlyIncome),
+    currentRent: numeric(summary.currentRent),
+    overdueAmount: numeric(summary.overdueAmount),
+    overdueCount: summary.overdueCount,
+    openRepairCount: summary.openRepairCount,
+    urgentRepairCount: summary.urgentRepairCount,
+  };
+}
+
+export async function getCashFlow({
+  userId,
+  now,
+  nextMonth,
+  twelveMonthsAgo,
+}: {
+  userId: string;
+  now: Date;
+  nextMonth: Date;
+  twelveMonthsAgo: Date;
+}): Promise<Array<{ period: Date; income: number; expenses: number }>> {
+  const cashFlowRows = await prisma.$queryRaw<CashFlowAggregateRow[]>(Prisma.sql`
       WITH months AS (
         SELECT generate_series(
           date_trunc('month'::text, ${twelveMonthsAgo}::timestamptz),
@@ -369,27 +398,11 @@ export async function getDashboardAggregates({
       LEFT JOIN income ON income.period = months.period
       LEFT JOIN expenses ON expenses.period = months.period
       ORDER BY months.period
-    `),
-  ]);
+    `);
 
-  const summary = summaryRows[0];
-  if (!summary) {
-    throw new Error("Nepodarilo sa načítať agregácie dashboardu.");
-  }
-
-  return {
-    propertyCount: summary.propertyCount,
-    occupiedPropertyCount: summary.occupiedPropertyCount,
-    monthlyIncome: numeric(summary.monthlyIncome),
-    currentRent: numeric(summary.currentRent),
-    overdueAmount: numeric(summary.overdueAmount),
-    overdueCount: summary.overdueCount,
-    openRepairCount: summary.openRepairCount,
-    urgentRepairCount: summary.urgentRepairCount,
-    cashFlow: cashFlowRows.map((row) => ({
-      period: row.period,
-      income: numeric(row.income),
-      expenses: numeric(row.expenses),
-    })),
-  };
+  return cashFlowRows.map((row) => ({
+    period: row.period,
+    income: numeric(row.income),
+    expenses: numeric(row.expenses),
+  }));
 }

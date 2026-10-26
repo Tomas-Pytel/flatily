@@ -16,7 +16,7 @@ export async function RecentProperties({
   currentMonth,
   nextMonth,
 }: RecentPropertiesProps) {
-  const properties = await getRecentProperties({
+  const { properties, totalCount } = await getRecentProperties({
     userId,
     currentMonth,
     nextMonth,
@@ -50,6 +50,7 @@ export async function RecentProperties({
   return (
     <MyProperties
       apartments={apartments}
+      totalCount={totalCount}
       tenants={properties.flatMap((property) =>
         property.tenant ? [property.tenant] : [],
       )}

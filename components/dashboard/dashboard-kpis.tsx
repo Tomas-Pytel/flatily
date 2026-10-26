@@ -9,7 +9,7 @@ import {
 import { KpiCard, type KpiCardProps } from "@/components/dashboard/kpi-card";
 import { Card } from "@/components/ui/card";
 import Skeleton from "@/components/common/loading-skeleton";
-import { getDashboardAggregates } from "@/lib/dashboard";
+import { getDashboardSummary } from "@/lib/dashboard";
 
 type DashboardDates = {
   now: Date;
@@ -30,7 +30,7 @@ export async function DashboardKpis({
   nextMonth,
   twelveMonthsAgo,
 }: DashboardKpisProps) {
-  const aggregates = await getDashboardAggregates({
+  const aggregates = await getDashboardSummary({
     userId,
     now,
     currentMonth,

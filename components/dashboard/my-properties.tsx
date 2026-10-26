@@ -29,6 +29,7 @@ type Payment = {
 
 type MyPropertiesProps = {
   apartments: Apartment[];
+  totalCount: number;
   tenants: Tenant[];
   payments: Payment[];
   period: string;
@@ -37,6 +38,7 @@ type MyPropertiesProps = {
 
 export function MyProperties({
   apartments,
+  totalCount,
   tenants,
   payments,
   period,
@@ -56,7 +58,7 @@ export function MyProperties({
           href="/properties"
           className="inline-flex items-center gap-1 self-start rounded-sm text-xs font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:self-auto"
         >
-          <span>Všetky byty ({apartments.length})</span>
+          <span>Všetky byty ({totalCount})</span>
           <ChevronRight className="size-4" />
         </Link>
       </div>

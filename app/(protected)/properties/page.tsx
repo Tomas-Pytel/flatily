@@ -131,11 +131,11 @@ export default async function PropertiesPage({
     const charge = property.leases[0]?.charges[0];
     const paidAmount =
       charge?.payments.reduce(
-        (sum, payment) => sum + Number(payment.amount),
-        0,
-      ) ?? 0;
+        (sum, payment) => sum.plus(payment.amount),
+        new Prisma.Decimal(0),
+      ) ?? new Prisma.Decimal(0);
     const paymentStatus: PaymentStatus | null = charge
-      ? paidAmount >= Number(charge.amount)
+      ? paidAmount.gte(charge.amount)
         ? "Uhradené"
         : charge.dueDate < new Date()
           ? "Omeškané"

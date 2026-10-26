@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 
 import Skeleton from "@/components/common/loading-skeleton";
-import { getDashboardAggregates } from "@/lib/dashboard";
+import { getCashFlow } from "@/lib/dashboard";
 import type {
   CashFlowPoint,
   CashFlowRange,
@@ -26,20 +26,18 @@ type CashFlowSectionProps = {
 export async function CashFlowSection({
   userId,
   now,
-  currentMonth,
   nextMonth,
   twelveMonthsAgo,
 }: CashFlowSectionProps) {
-  const aggregates = await getDashboardAggregates({
+  const cashFlowRows = await getCashFlow({
     userId,
     now,
-    currentMonth,
     nextMonth,
     twelveMonthsAgo,
   });
   const monthLabel = (date: Date) =>
     date.toLocaleDateString("sk-SK", { month: "short" }).replace(".", "");
-  const last12: CashFlowPoint[] = aggregates.cashFlow.map((row) => ({
+  const last12: CashFlowPoint[] = cashFlowRows.map((row) => ({
     label: monthLabel(row.period),
     income: row.income,
     expenses: row.expenses,
@@ -49,7 +47,7 @@ export async function CashFlowSection({
     "12months": last12,
     thisYear: last12.filter(
       (_, index) =>
-        aggregates.cashFlow[index]?.period.getUTCFullYear() ===
+        cashFlowRows[index]?.period.getUTCFullYear() ===
         now.getUTCFullYear(),
     ),
   };
