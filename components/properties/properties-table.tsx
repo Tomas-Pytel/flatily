@@ -1,9 +1,20 @@
+import type { ComponentProps } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Building2, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DeletePropertyButton } from "@/components/properties/delete-property-button";
 import type { PropertyListItem } from "@/types/property";
+
+type BadgeVariant = ComponentProps<typeof Badge>["variant"];
+
+const propertyStatusLabels: Record<
+  PropertyListItem["status"],
+  { label: string; variant: BadgeVariant }
+> = {
+  obsadeny: { label: "Obsadený", variant: "default" },
+  volny: { label: "Voľný", variant: "warning" },
+};
 
 export function PropertiesTable({
   properties,
@@ -63,7 +74,7 @@ export function PropertiesTable({
                   {property.area} m² · {property.rooms} izb.
                 </td>
                 <td className="px-4 py-3.5 text-right font-bold tabular-nums text-neutral-900 dark:text-neutral-100">
-                  €{property.rentAmount}
+                  €{property.rentAmount.toLocaleString("sk-SK")}
                 </td>
                 <td className="px-4 py-3.5 text-neutral-700 dark:text-neutral-300">
                   {property.tenantName ?? "—"}
@@ -76,7 +87,9 @@ export function PropertiesTable({
                   )}
                 </td>
                 <td className="px-4 py-3.5">
-                  <Badge>{property.status}</Badge>
+                  <Badge variant={propertyStatusLabels[property.status].variant}>
+                    {propertyStatusLabels[property.status].label}
+                  </Badge>
                 </td>
                 <td className="px-4 py-3.5 text-right">
                   <div className="flex items-center justify-end gap-1">

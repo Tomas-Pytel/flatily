@@ -16,76 +16,78 @@ function getCurrentMonthStart() {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
 }
 
-const propertySelect = {
-  id: true,
-  title: true,
-  street: true,
-  city: true,
-  district: true,
-  monthlyRent: true,
-  utilitiesAmount: true,
-  rooms: true,
-  area: true,
-  floor: true,
-  totalFloors: true,
-  images: {
-    where: {
-      isCover: true,
-    },
-    orderBy: {
-      sortOrder: "asc",
-    },
-    take: 1,
-    select: {
-      url: true,
-    },
-  },
-  leases: {
-    where: {
-      status: "ACTIVE",
-    },
-    orderBy: {
-      startDate: "desc",
-    },
-    take: 1,
-    select: {
-      tenant: {
-        select: {
-          firstName: true,
-          lastName: true,
-        },
+function getPropertySelect(period: Date) {
+  return {
+    id: true,
+    title: true,
+    street: true,
+    city: true,
+    district: true,
+    monthlyRent: true,
+    utilitiesAmount: true,
+    rooms: true,
+    area: true,
+    floor: true,
+    totalFloors: true,
+    images: {
+      where: {
+        isCover: true,
       },
-      charges: {
-        where: {
-          period: getCurrentMonthStart(),
-        },
-        orderBy: {
-          dueDate: "desc",
-        },
-        select: {
-          amount: true,
-          dueDate: true,
-          payments: {
-            select: {
-              amount: true,
-            },
+      orderBy: {
+        sortOrder: "asc",
+      },
+      take: 1,
+      select: {
+        url: true,
+      },
+    },
+    leases: {
+      where: {
+        status: "ACTIVE",
+      },
+      orderBy: {
+        startDate: "desc",
+      },
+      take: 1,
+      select: {
+        tenant: {
+          select: {
+            firstName: true,
+            lastName: true,
           },
         },
-        take: 1,
+        charges: {
+          where: {
+            period,
+          },
+          orderBy: {
+            dueDate: "desc",
+          },
+          select: {
+            amount: true,
+            dueDate: true,
+            payments: {
+              select: {
+                amount: true,
+              },
+            },
+          },
+          take: 1,
+        },
       },
     },
-  },
-  maintenance: {
-    where: {
-      status: {
-        in: ["OPEN", "IN_PROGRESS"],
+    maintenance: {
+      where: {
+        status: {
+          in: ["OPEN", "IN_PROGRESS"],
+        },
+      },
+      select: {
+        id: true,
       },
     },
-    select: {
-      id: true,
-    },
-  },
-} satisfies Prisma.PropertySelect;
+  } satisfies Prisma.PropertySelect;
+}
 
 type PropertiesSearchParams = {
   status?: string;
@@ -118,7 +120,7 @@ export default async function PropertiesPage({
   const viewMode: ViewModeType = params.view === "table" ? "table" : "grid";
 
   const propertyRows = await prisma.property.findMany({
-    select: propertySelect,
+    select: getPropertySelect(getCurrentMonthStart()),
     where: {
       ownerId: user.id,
     },
