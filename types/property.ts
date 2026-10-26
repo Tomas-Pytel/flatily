@@ -1,7 +1,6 @@
 import type { Property as PrismaProperty } from "@/lib/generated/prisma/client";
 
 export type PaymentStatus = "Uhradené" | "Čakajúce" | "Omeškané";
-export type PropertyStatus = "Aktívne" | "Neaktívne" | "V údržbe";
 export type PropertyOccupancyStatus = "Voľný" | "Obsadený";
 
 export type PropertyDetail = Omit<
