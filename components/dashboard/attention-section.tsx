@@ -13,7 +13,6 @@ type AttentionSectionProps = {
   userId: string;
   now: Date;
   today: Date;
-  nextMonth: Date;
   twelveMonthsAgo: Date;
 };
 
@@ -24,13 +23,11 @@ export async function AttentionSection({
   userId,
   now,
   today,
-  nextMonth,
   twelveMonthsAgo,
 }: AttentionSectionProps) {
   const attentionItems = await getAttentionItems({
     userId,
     today,
-    nextMonth,
     twelveMonthsAgo,
   });
   const daysFromNow = (date: Date) =>

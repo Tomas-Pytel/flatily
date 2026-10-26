@@ -162,12 +162,10 @@ export async function getRecentProperties({
 export async function getAttentionItems({
   userId,
   today,
-  nextMonth,
   twelveMonthsAgo,
 }: {
   userId: string;
   today: Date;
-  nextMonth: Date;
   twelveMonthsAgo: Date;
 }): Promise<DashboardAttentionItem[]> {
   const properties = await prisma.property.findMany({
@@ -184,14 +182,8 @@ export async function getAttentionItems({
           endDate: true,
           tenant: { select: { firstName: true, lastName: true } },
           charges: {
-            where: {
-              period: {
-                gte: new Date(
-                  Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1),
-                ),
-                lt: nextMonth,
-              },
-            },
+            where: { dueDate: { lt: today } },
+            orderBy: { dueDate: "asc" },
             select: {
               amount: true,
               dueDate: true,
@@ -312,7 +304,6 @@ export async function getDashboardSummary({
       WITH current_charges AS (
         SELECT
           rc.amount,
-          rc.due_date,
           COALESCE(SUM(pay.amount), 0) AS paid_amount
         FROM rent_charges rc
         JOIN leases l ON l.id = rc.lease_id
@@ -322,7 +313,21 @@ export async function getDashboardSummary({
           AND l.status = 'ACTIVE'
           AND rc.period >= ${currentMonth}
           AND rc.period < ${nextMonth}
-        GROUP BY rc.id, rc.amount, rc.due_date
+        GROUP BY rc.id, rc.amount
+      ),
+      overdue_charges AS (
+        SELECT
+          rc.amount,
+          COALESCE(SUM(pay.amount), 0) AS paid_amount
+        FROM rent_charges rc
+        JOIN leases l ON l.id = rc.lease_id
+        JOIN properties p ON p.id = l.property_id
+        LEFT JOIN payments pay ON pay.charge_id = rc.id
+        WHERE p.owner_id = ${userId}::uuid
+          AND l.status = 'ACTIVE'
+          AND rc.due_date < ${todayDate}::date
+        GROUP BY rc.id, rc.amount
+        HAVING COALESCE(SUM(pay.amount), 0) < rc.amount
       )
       SELECT
         (SELECT COUNT(*)::int
@@ -334,16 +339,8 @@ export async function getDashboardSummary({
          WHERE p.owner_id = ${userId}::uuid) AS "occupiedPropertyCount",
         COALESCE((SELECT SUM(paid_amount) FROM current_charges), 0) AS "monthlyIncome",
         COALESCE((SELECT SUM(amount) FROM current_charges), 0) AS "currentRent",
-        COALESCE((
-          SELECT SUM(amount - paid_amount)
-          FROM current_charges
-          WHERE due_date < ${todayDate}::date
-            AND paid_amount < amount
-        ), 0) AS "overdueAmount",
-        (SELECT COUNT(*)::int
-         FROM current_charges
-         WHERE due_date < ${todayDate}::date
-           AND paid_amount < amount) AS "overdueCount",
+        COALESCE((SELECT SUM(amount - paid_amount) FROM overdue_charges), 0) AS "overdueAmount",
+        (SELECT COUNT(*)::int FROM overdue_charges) AS "overdueCount",
         (SELECT COUNT(*)::int
          FROM maintenance_records m
          JOIN properties p ON p.id = m.property_id
