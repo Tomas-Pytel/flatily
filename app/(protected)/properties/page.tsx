@@ -1,4 +1,4 @@
-import { AppHeader } from "@/components/app-header";
+import { AppHeader } from "@/components/common/app-header";
 import { Bell } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { ApartmentsView } from "@/components/properties/properties-view";

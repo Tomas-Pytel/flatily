@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import Image from "next/image";
-import Logo from "../public/favicon.ico";
+import Logo from "@/app/favicon.ico";
 import {
   Bell,
   ChevronsUpDown,
@@ -36,7 +36,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ThemeSwitcher } from "./theme-switcher";
@@ -358,17 +358,17 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
                 align="end"
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-48"
               >
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem className="cursor-pointer focus:bg-neutral-100 dark:focus:bg-neutral-800">
                   <UserCircle className="mr-2 size-4" />
                   Profil
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem className="cursor-pointer focus:bg-neutral-100 dark:focus:bg-neutral-800">
                   <Settings className="mr-2 size-4" />
                   Nastavenia
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="cursor-pointer"
+                  className="cursor-pointer focus:bg-neutral-100 dark:focus:bg-neutral-800"
                 >
                   <LogOut className="mr-2 size-4" />
                   Odhlásiť sa

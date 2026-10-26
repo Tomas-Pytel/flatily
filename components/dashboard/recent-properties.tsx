@@ -1,6 +1,6 @@
 import { MyProperties } from "@/components/dashboard/my-properties";
 import { Card } from "@/components/ui/card";
-import Skeleton from "@/components/loading-skeleton";
+import Skeleton from "@/components/common/loading-skeleton";
 import { getRecentProperties } from "@/lib/dashboard";
 
 type RecentPropertiesProps = {

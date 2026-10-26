@@ -1,8 +1,8 @@
-import AppSidebar from "@/components/app-sidebar";
+import AppSidebar from "@/components/common/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { requireUser } from "@/lib/auth";
 import { Suspense } from "react";
-import SidebarSkeleton from "@/components/sidebar-skeleton";
+import SidebarSkeleton from "@/components/common/sidebar-skeleton";
 
 async function SidebarWithUser() {
   const user = await requireUser();
