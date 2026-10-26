@@ -105,12 +105,7 @@ export function PropertyCard({
       </CardContent>
 
       <CardFooter className="px-4 pb-4 pt-4">
-        <Button
-          asChild
-          variant="secondary"
-          size="sm"
-          className="w-full text-xs"
-        >
+        <Button asChild size="sm" className="w-full text-xs">
           <Link href={href}>
             <span>Detail bytu</span>
             <ArrowRight className="size-3.5" />
