@@ -5,7 +5,7 @@ import {
   type AttentionCardProps,
 } from "@/components/dashboard/attention-card";
 import { Card } from "@/components/ui/card";
-import Skeleton from "@/components/loading-skeleton";
+import Skeleton from "@/components/common/loading-skeleton";
 import { getAttentionItems } from "@/lib/dashboard";
 
 type AttentionSectionProps = {
@@ -44,7 +44,10 @@ export async function AttentionSection({
         subtitle: `${item.propertyTitle} (${item.city})`,
         amount: formatAmount(item.amount),
         icon: AlertCircle,
-        action: { label: "Zobraziť byt", href: `/properties/${item.propertyId}` },
+        action: {
+          label: "Zobraziť byt",
+          href: `/properties/${item.propertyId}`,
+        },
       };
     }
     if (item.type === "expiringLease") {
@@ -57,7 +60,10 @@ export async function AttentionSection({
         title: item.tenantName,
         subtitle: `${item.propertyTitle} (${item.city})`,
         icon: Clock4,
-        action: { label: "Zobraziť byt", href: `/properties/${item.propertyId}` },
+        action: {
+          label: "Zobraziť byt",
+          href: `/properties/${item.propertyId}`,
+        },
       };
     }
     return {
