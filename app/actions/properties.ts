@@ -22,7 +22,7 @@ export async function deleteProperty(
       },
     });
     deletedCount = result.count;
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "Nehnuteľnosť sa nepodarilo zmazať. Skúste to znova.",
@@ -67,7 +67,7 @@ export async function createNewProperty(
       select: { id: true },
     });
     propertyId = property.id;
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "Nehnuteľnosť sa nepodarilo uložiť. Skúste to znova.",

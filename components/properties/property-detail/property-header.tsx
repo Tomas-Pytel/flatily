@@ -2,19 +2,16 @@
 import { Badge } from "@/components/ui/badge";
 import type { PropertyDetail, PropertyOccupancyStatus } from "@/types/property";
 import {
-  AlertCircle,
   Building2,
   CheckCircle2,
   FilePlus,
   LucideIcon,
   MapPin,
-  Trash2,
   TriangleAlertIcon,
   Wrench,
 } from "lucide-react";
 import { DeletePropertyButton } from "../delete-property-button";
 import Image from "next/image";
-import { deleteProperty } from "@/app/actions/properties";
 import { Button } from "@/components/ui/button";
 import { BadgeStatus } from "../extended-property-card";
 
@@ -37,20 +34,14 @@ const occupancyStatusToBadge: Record<
 
 interface PropertyHeaderProps {
   property: PropertyDetail;
-  //   setIsNewMaintenanceModalOpen: (value: boolean) => void;
-  //   setIsUploadDocModalOpen: (value: boolean) => void;
 }
 
 export default function PropertyHeader({
   property,
-  //   setIsNewMaintenanceModalOpen,
-  //   setIsUploadDocModalOpen,
 }: PropertyHeaderProps) {
   const StatusIcon = property.status
     ? occupancyStatusToBadge[property.status].icon
     : null;
-  const setIsNewMaintenanceModalOpen = (value: boolean) => {};
-  const setIsUploadDocModalOpen = (value: boolean) => {};
 
   return (
     <div className="relative h-64 sm:h-72 w-full bg-neutral-900 overflow-hidden">
@@ -104,7 +95,6 @@ export default function PropertyHeader({
         <div className="flex items-center gap-2">
           <Button
             variant="default"
-            onClick={() => setIsNewMaintenanceModalOpen(true)}
             className="cursor-pointer"
           >
             <Wrench className="w-3.5 h-3.5" />
@@ -113,7 +103,6 @@ export default function PropertyHeader({
 
           <Button
             variant="secondary"
-            onClick={() => setIsUploadDocModalOpen(true)}
             className="cursor-pointer bg-white/90 text-neutral-800 hover:bg-white dark:bg-neutral-800/90 dark:text-neutral-200 dark:hover:bg-neutral-800"
           >
             <FilePlus className="w-3.5 h-3.5" />
