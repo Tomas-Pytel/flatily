@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { newPropertySchema } from "@/schemas/property";
 import type { ActionResult } from "@/types/action-result";
+import type { PropertyDetail } from "@/types/property";
 
 export async function deleteProperty(
   propertyId: string,
@@ -77,4 +78,48 @@ export async function createNewProperty(
   revalidatePath("/dashboard");
 
   return { success: true, data: { id: propertyId } };
+}
+
+export async function getProperty(
+  propertyId: string,
+): Promise<ActionResult<PropertyDetail>> {
+  const user = await requireUser();
+  const existingProperty = await prisma.property.findUnique({
+    where: {
+      id: propertyId,
+      ownerId: user.id,
+    },
+    include: {
+      images: {
+        where: { isCover: true },
+        orderBy: { sortOrder: "asc" },
+        take: 1,
+        select: { url: true },
+      },
+      leases: {
+        where: { status: "ACTIVE" },
+        orderBy: { startDate: "desc" },
+        take: 1,
+      },
+    },
+  });
+
+  if (!existingProperty)
+    return {
+      success: false,
+      error: "Nehnuteľnosť neexistuje alebo k nej nemáte prístup.",
+    };
+
+  return {
+    success: true,
+    data: {
+      ...existingProperty,
+      monthlyRent: Number(existingProperty.monthlyRent),
+      utilitiesAmount: Number(existingProperty.utilitiesAmount),
+      depositAmount: Number(existingProperty.depositAmount),
+      area: Number(existingProperty.area),
+      photoUrl: existingProperty.images[1]?.url,
+      status: existingProperty.leases[1] ? "Obsadený" : "Voľný",
+    },
+  };
 }
