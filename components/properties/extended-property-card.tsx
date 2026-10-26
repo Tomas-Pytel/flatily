@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { DeletePropertyButton } from "@/components/properties/delete-property-button";
 import type { PropertyListItem } from "@/types/property";
 
-type BadgeStatus = ComponentProps<typeof Badge>["variant"];
+export type BadgeStatus = ComponentProps<typeof Badge>["variant"];
 type PaymentStatus = "Uhradené" | "Čakajúce" | "Omeškané";
 
 const paymentStatusToBadge: Record<
