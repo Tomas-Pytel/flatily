@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Link from "next/link";
 
 export default function Page() {
   return (
@@ -14,15 +15,22 @@ export default function Page() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">
-                Thank you for signing up!
+                Ďakujeme za registráciu!
               </CardTitle>
-              <CardDescription>Check your email to confirm</CardDescription>
+              <CardDescription>Skontrolujte svoj e-mail</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                You&apos;ve successfully signed up. Please check your email to
-                confirm your account before signing in.
+                Ak je e-mail platný, poslali sme naň odkaz na potvrdenie účtu.
+                Pred prihlásením potvrďte svoj účet kliknutím na odkaz v
+                e-maile.
               </p>
+              <Link
+                href="/auth/login"
+                className="text-sm underline underline-offset-4"
+              >
+                Prejsť na prihlásenie
+              </Link>
             </CardContent>
           </Card>
         </div>
