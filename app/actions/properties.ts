@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { newPropertySchema } from "@/schemas/property";
@@ -84,6 +85,14 @@ export async function getProperty(
   propertyId: string,
 ): Promise<ActionResult<PropertyDetail>> {
   const user = await requireUser();
+
+  if (!z.uuid().safeParse(propertyId).success) {
+    return {
+      success: false,
+      error: "Nehnuteľnosť neexistuje alebo k nej nemáte prístup.",
+    };
+  }
+
   const existingProperty = await prisma.property.findUnique({
     where: {
       id: propertyId,
