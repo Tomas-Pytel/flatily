@@ -147,6 +147,7 @@ export const NewPropertyForm = () => {
                   <FormControl>
                     <Input
                       placeholder="napr. 2-izbový byt, Hlavná 24"
+                      maxLength={100}
                       {...field}
                     />
                   </FormControl>
@@ -164,7 +165,7 @@ export const NewPropertyForm = () => {
                   <FormItem>
                     <FormLabel>Ulica a číslo *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Hlavná 24" {...field} />
+                      <Input placeholder="Hlavná 24" maxLength={100} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -178,7 +179,7 @@ export const NewPropertyForm = () => {
                   <FormItem>
                     <FormLabel>Mesto *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Košice" {...field} />
+                      <Input placeholder="Košice" maxLength={60} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -197,6 +198,7 @@ export const NewPropertyForm = () => {
                     <FormControl>
                       <Input
                         placeholder="Staré Mesto"
+                        maxLength={60}
                         {...field}
                         value={field.value ?? ""}
                       />
@@ -289,6 +291,7 @@ export const NewPropertyForm = () => {
                     <Textarea
                       rows={3}
                       placeholder="Charakteristika bytu, rekonštrukcia, výhody..."
+                      maxLength={1000}
                       {...field}
                       value={field.value ?? ""}
                     />
