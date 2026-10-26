@@ -27,7 +27,7 @@ export default function Page() {
               </p>
               <Link
                 href="/auth/login"
-                className="text-sm underline underline-offset-4"
+                className="mt-4 inline-block text-sm underline underline-offset-4"
               >
                 Prejsť na prihlásenie
               </Link>
