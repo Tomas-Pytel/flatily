@@ -7,7 +7,8 @@ import type { PaymentStatus } from "@/types/property";
 type DashboardAggregateRow = {
   propertyCount: number;
   occupiedPropertyCount: number;
-  monthlyIncome: string | number;
+  paidThisMonth: string | number;
+  expectedRent: string | number;
   currentRent: string | number;
   overdueAmount: string | number;
   overdueCount: number;
@@ -24,7 +25,8 @@ type CashFlowAggregateRow = {
 export type DashboardSummary = {
   propertyCount: number;
   occupiedPropertyCount: number;
-  monthlyIncome: number;
+  paidThisMonth: number;
+  expectedRent: number;
   currentRent: number;
   overdueAmount: number;
   overdueCount: number;
@@ -329,7 +331,14 @@ export async function getDashboardSummary({
          FROM properties p
          JOIN leases l ON l.property_id = p.id AND l.status = 'ACTIVE'
          WHERE p.owner_id = ${userId}::uuid) AS "occupiedPropertyCount",
-        COALESCE((SELECT SUM(paid_amount) FROM current_charges), 0) AS "monthlyIncome",
+        COALESCE((SELECT SUM(paid_amount) FROM current_charges), 0) AS "paidThisMonth",
+        COALESCE((SELECT SUM(l.rent_amount)
+                  FROM leases l
+                  JOIN properties p ON p.id = l.property_id
+                  WHERE p.owner_id = ${userId}::uuid
+                    AND l.status = 'ACTIVE'
+                    AND l.start_date <= ${todayDate}::date
+                    AND l.end_date >= ${todayDate}::date), 0) AS "expectedRent",
         COALESCE((SELECT SUM(amount) FROM current_charges), 0) AS "currentRent",
         COALESCE((SELECT SUM(amount - paid_amount) FROM overdue_charges), 0) AS "overdueAmount",
         (SELECT COUNT(*)::int FROM overdue_charges) AS "overdueCount",
@@ -356,7 +365,8 @@ export async function getDashboardSummary({
   return {
     propertyCount: summary.propertyCount,
     occupiedPropertyCount: summary.occupiedPropertyCount,
-    monthlyIncome: numeric(summary.monthlyIncome),
+    paidThisMonth: numeric(summary.paidThisMonth),
+    expectedRent: numeric(summary.expectedRent),
     currentRent: numeric(summary.currentRent),
     overdueAmount: numeric(summary.overdueAmount),
     overdueCount: summary.overdueCount,

@@ -42,9 +42,9 @@ export async function DashboardKpis({
 
   const cards: KpiCardProps[] = [
     {
-      title: "Mesačný príjem",
-      value: formatAmount(aggregates.monthlyIncome),
-      subtitle: "uhradené v aktuálnom mesiaci",
+      title: "Očakávaný príjem",
+      value: formatAmount(aggregates.expectedRent),
+      subtitle: "nájomné z platných zmlúv bez energií",
       statusColor: "success",
       icon: TrendingUp,
     },
@@ -57,8 +57,8 @@ export async function DashboardKpis({
     },
     {
       title: "Uhradené tento mesiac",
-      value: formatAmount(aggregates.monthlyIncome),
-      subtitle: `${aggregates.currentRent ? Math.round((aggregates.monthlyIncome / aggregates.currentRent) * 100) : 0}% nájomného uhradené`,
+      value: formatAmount(aggregates.paidThisMonth),
+      subtitle: `${aggregates.currentRent ? Math.round((aggregates.paidThisMonth / aggregates.currentRent) * 100) : 0}% nájomného uhradené`,
       icon: CheckCircle2,
     },
     {
