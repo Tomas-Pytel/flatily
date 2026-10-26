@@ -12,7 +12,7 @@ export type PropertyDetail = Omit<
   utilitiesAmount: number;
   depositAmount: number;
   area: number;
-  photoUrl: string;
+  photoUrl: string | null;
   status: PropertyOccupancyStatus;
 };
 

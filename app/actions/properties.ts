@@ -100,6 +100,7 @@ export async function getProperty(
         where: { status: "ACTIVE" },
         orderBy: { startDate: "desc" },
         take: 1,
+        select: { id: true },
       },
     },
   });
@@ -110,16 +111,18 @@ export async function getProperty(
       error: "Nehnuteľnosť neexistuje alebo k nej nemáte prístup.",
     };
 
+  const { images, leases, ...property } = existingProperty;
+
   return {
     success: true,
     data: {
-      ...existingProperty,
-      monthlyRent: Number(existingProperty.monthlyRent),
-      utilitiesAmount: Number(existingProperty.utilitiesAmount),
-      depositAmount: Number(existingProperty.depositAmount),
-      area: Number(existingProperty.area),
-      photoUrl: existingProperty.images[1]?.url,
-      status: existingProperty.leases[1] ? "Obsadený" : "Voľný",
+      ...property,
+      monthlyRent: Number(property.monthlyRent),
+      utilitiesAmount: Number(property.utilitiesAmount),
+      depositAmount: Number(property.depositAmount),
+      area: Number(property.area),
+      photoUrl: images[0]?.url ?? null,
+      status: leases[0] ? "Obsadený" : "Voľný",
     },
   };
 }

@@ -58,6 +58,8 @@ export default function PropertyHeader({
         <Image
           src={property.photoUrl}
           alt={property.title}
+          fill
+          sizes="100vw"
           referrerPolicy="no-referrer"
           className="w-full h-full object-cover opacity-90"
         />
