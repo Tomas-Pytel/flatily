@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AppHeader } from "@/components/app-header";
+import { AppHeader } from "@/components/common/app-header";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import PropertyHeader from "@/components/properties/property-detail/property-header";
