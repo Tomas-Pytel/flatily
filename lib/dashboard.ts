@@ -1,6 +1,8 @@
 import { Prisma } from "@/lib/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import { isPastDue } from "@/lib/utils";
+import { getPaymentStatus } from "@/lib/payments";
+import type { PaymentStatus } from "@/types/property";
 
 type DashboardAggregateRow = {
   propertyCount: number;
@@ -40,11 +42,7 @@ export type DashboardProperty = {
   area: number;
   rooms: number;
   tenant: { id: string; firstName: string; lastName: string } | null;
-  payment: {
-    amount: number;
-    dueDate: Date;
-    paidAmount: number;
-  } | null;
+  paymentStatus: PaymentStatus | null;
 };
 
 export type DashboardAttentionItem =
@@ -81,11 +79,11 @@ const numeric = (value: string | number) =>
 export async function getRecentProperties({
   userId,
   currentMonth,
-  nextMonth,
+  today,
 }: {
   userId: string;
   currentMonth: Date;
-  nextMonth: Date;
+  today: Date;
 }): Promise<{ properties: DashboardProperty[]; totalCount: number }> {
   const [properties, totalCount] = await Promise.all([
     prisma.property.findMany({
@@ -113,9 +111,11 @@ export async function getRecentProperties({
           select: {
             tenant: { select: { id: true, firstName: true, lastName: true } },
             charges: {
-              where: { period: { gte: currentMonth, lt: nextMonth } },
-              take: 1,
+              where: {
+                OR: [{ period: currentMonth }, { dueDate: { lt: today } }],
+              },
               select: {
+                period: true,
                 amount: true,
                 dueDate: true,
                 payments: { select: { amount: true } },
@@ -131,7 +131,6 @@ export async function getRecentProperties({
   return {
     properties: properties.map((property) => {
       const lease = property.leases[0];
-      const charge = lease?.charges[0];
 
       return {
         id: property.id,
@@ -143,15 +142,8 @@ export async function getRecentProperties({
         area: Number(property.area),
         rooms: property.rooms,
         tenant: lease?.tenant ?? null,
-        payment: charge
-          ? {
-              amount: Number(charge.amount),
-              dueDate: charge.dueDate,
-              paidAmount: charge.payments.reduce(
-                (sum, payment) => sum.plus(payment.amount),
-                new Prisma.Decimal(0),
-              ).toNumber(),
-            }
+        paymentStatus: lease
+          ? getPaymentStatus(lease.charges, currentMonth, today)
           : null,
       };
     }),

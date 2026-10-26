@@ -4,7 +4,8 @@ import { requireUser } from "@/lib/auth";
 import { ApartmentsView } from "@/components/properties/properties-view";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma/browser";
-import { getToday, isPastDue } from "@/lib/utils";
+import { getToday } from "@/lib/utils";
+import { getPaymentStatus } from "@/lib/payments";
 import type { PaymentStatus, PropertyListItem } from "@/types/property";
 import type {
   SortByType,
@@ -12,7 +13,7 @@ import type {
   ViewModeType,
 } from "@/components/properties/properties-toolbar";
 
-function getPropertySelect(period: Date) {
+function getPropertySelect(period: Date, today: Date) {
   return {
     id: true,
     title: true,
@@ -54,12 +55,10 @@ function getPropertySelect(period: Date) {
         },
         charges: {
           where: {
-            period,
-          },
-          orderBy: {
-            dueDate: "desc",
+            OR: [{ period }, { dueDate: { lt: today } }],
           },
           select: {
+            period: true,
             amount: true,
             dueDate: true,
             payments: {
@@ -68,7 +67,6 @@ function getPropertySelect(period: Date) {
               },
             },
           },
-          take: 1,
         },
       },
     },
@@ -120,7 +118,7 @@ export default async function PropertiesPage({
   );
 
   const propertyRows = await prisma.property.findMany({
-    select: getPropertySelect(currentMonthStart),
+    select: getPropertySelect(currentMonthStart, today),
     where: {
       ownerId: user.id,
     },
@@ -128,18 +126,9 @@ export default async function PropertiesPage({
   });
   const properties: PropertyListItem[] = propertyRows.map((property) => {
     const activeTenant = property.leases[0]?.tenant;
-    const charge = property.leases[0]?.charges[0];
-    const paidAmount =
-      charge?.payments.reduce(
-        (sum, payment) => sum.plus(payment.amount),
-        new Prisma.Decimal(0),
-      ) ?? new Prisma.Decimal(0);
-    const paymentStatus: PaymentStatus | null = charge
-      ? paidAmount.gte(charge.amount)
-        ? "Uhradené"
-        : isPastDue(charge.dueDate, today)
-          ? "Omeškané"
-          : "Čakajúce"
+    const lease = property.leases[0];
+    const paymentStatus: PaymentStatus | null = lease
+      ? getPaymentStatus(lease.charges, currentMonthStart, today)
       : null;
 
     return {
