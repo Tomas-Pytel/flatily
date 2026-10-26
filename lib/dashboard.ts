@@ -1,5 +1,6 @@
 import { Prisma } from "@/lib/generated/prisma/client";
 import prisma from "@/lib/prisma";
+import { isPastDue } from "@/lib/utils";
 
 type DashboardAggregateRow = {
   propertyCount: number;
@@ -160,12 +161,12 @@ export async function getRecentProperties({
 
 export async function getAttentionItems({
   userId,
-  now,
+  today,
   nextMonth,
   twelveMonthsAgo,
 }: {
   userId: string;
-  now: Date;
+  today: Date;
   nextMonth: Date;
   twelveMonthsAgo: Date;
 }): Promise<DashboardAttentionItem[]> {
@@ -185,7 +186,9 @@ export async function getAttentionItems({
           charges: {
             where: {
               period: {
-                gte: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)),
+                gte: new Date(
+                  Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1),
+                ),
                 lt: nextMonth,
               },
             },
@@ -220,8 +223,8 @@ export async function getAttentionItems({
       : "";
 
     if (lease) {
-      const daysToEnd = Math.ceil(
-        (lease.endDate.getTime() - now.getTime()) / 86_400_000,
+      const daysToEnd = Math.round(
+        (lease.endDate.getTime() - today.getTime()) / 86_400_000,
       );
       if (daysToEnd >= 0 && daysToEnd <= 30) {
         items.push({
@@ -239,7 +242,7 @@ export async function getAttentionItems({
           (sum, payment) => sum.plus(payment.amount),
           new Prisma.Decimal(0),
         );
-        if (charge.dueDate < now && paidAmount.lt(charge.amount)) {
+        if (isPastDue(charge.dueDate, today) && paidAmount.lt(charge.amount)) {
           items.push({
             type: "overdue",
             propertyId: property.id,
@@ -293,17 +296,18 @@ export async function getAttentionItems({
 
 export async function getDashboardSummary({
   userId,
-  now,
+  today,
   currentMonth,
   nextMonth,
   twelveMonthsAgo,
 }: {
   userId: string;
-  now: Date;
+  today: Date;
   currentMonth: Date;
   nextMonth: Date;
   twelveMonthsAgo: Date;
 }): Promise<DashboardSummary> {
+  const todayDate = today.toISOString().slice(0, 10);
   const summaryRows = await prisma.$queryRaw<DashboardAggregateRow[]>(Prisma.sql`
       WITH current_charges AS (
         SELECT
@@ -333,12 +337,12 @@ export async function getDashboardSummary({
         COALESCE((
           SELECT SUM(amount - paid_amount)
           FROM current_charges
-          WHERE due_date < ${now}
+          WHERE due_date < ${todayDate}::date
             AND paid_amount < amount
         ), 0) AS "overdueAmount",
         (SELECT COUNT(*)::int
          FROM current_charges
-         WHERE due_date < ${now}
+         WHERE due_date < ${todayDate}::date
            AND paid_amount < amount) AS "overdueCount",
         (SELECT COUNT(*)::int
          FROM maintenance_records m

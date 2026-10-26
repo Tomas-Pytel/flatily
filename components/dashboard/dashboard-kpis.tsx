@@ -14,6 +14,7 @@ import { pluralize } from "@/lib/utils";
 
 type DashboardDates = {
   now: Date;
+  today: Date;
   currentMonth: Date;
   nextMonth: Date;
   twelveMonthsAgo: Date;
@@ -26,14 +27,14 @@ const formatAmount = (amount: number) =>
 
 export async function DashboardKpis({
   userId,
-  now,
+  today,
   currentMonth,
   nextMonth,
   twelveMonthsAgo,
 }: DashboardKpisProps) {
   const aggregates = await getDashboardSummary({
     userId,
-    now,
+    today,
     currentMonth,
     nextMonth,
     twelveMonthsAgo,

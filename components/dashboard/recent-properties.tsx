@@ -2,11 +2,13 @@ import { MyProperties } from "@/components/dashboard/my-properties";
 import { Card } from "@/components/ui/card";
 import Skeleton from "@/components/common/loading-skeleton";
 import { getRecentProperties } from "@/lib/dashboard";
+import { isPastDue } from "@/lib/utils";
 import type { PaymentStatus } from "@/types/property";
 
 type RecentPropertiesProps = {
   userId: string;
   now: Date;
+  today: Date;
   currentMonth: Date;
   nextMonth: Date;
   twelveMonthsAgo: Date;
@@ -14,6 +16,7 @@ type RecentPropertiesProps = {
 
 export async function RecentProperties({
   userId,
+  today,
   currentMonth,
   nextMonth,
 }: RecentPropertiesProps) {
@@ -32,7 +35,7 @@ export async function RecentProperties({
     const paid = charge.paidAmount;
     return paid >= charge.amount
       ? ("Uhradené" as const)
-      : charge.dueDate < new Date()
+      : isPastDue(charge.dueDate, today)
         ? ("Omeškané" as const)
         : ("Čakajúce" as const);
   };

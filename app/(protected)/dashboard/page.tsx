@@ -16,22 +16,24 @@ import {
   RecentPropertiesSkeleton,
 } from "@/components/dashboard/recent-properties";
 import { requireUser } from "@/lib/auth";
+import { getToday } from "@/lib/utils";
 import { Bell } from "lucide-react";
 import { Suspense } from "react";
 
 export default async function DashboardPage() {
   const user = await requireUser();
   const now = new Date();
+  const today = getToday();
   const currentMonth = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1),
   );
   const nextMonth = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1),
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 1),
   );
   const twelveMonthsAgo = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1),
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 11, 1),
   );
-  const dates = { now, currentMonth, nextMonth, twelveMonthsAgo };
+  const dates = { now, today, currentMonth, nextMonth, twelveMonthsAgo };
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">

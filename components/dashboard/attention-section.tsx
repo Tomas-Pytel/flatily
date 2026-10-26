@@ -12,6 +12,7 @@ import { pluralize } from "@/lib/utils";
 type AttentionSectionProps = {
   userId: string;
   now: Date;
+  today: Date;
   nextMonth: Date;
   twelveMonthsAgo: Date;
 };
@@ -22,12 +23,13 @@ const formatAmount = (amount: number) =>
 export async function AttentionSection({
   userId,
   now,
+  today,
   nextMonth,
   twelveMonthsAgo,
 }: AttentionSectionProps) {
   const attentionItems = await getAttentionItems({
     userId,
-    now,
+    today,
     nextMonth,
     twelveMonthsAgo,
   });
@@ -35,7 +37,9 @@ export async function AttentionSection({
     Math.ceil((date.getTime() - now.getTime()) / 86_400_000);
   const cards: AttentionCardProps[] = attentionItems.map((item) => {
     if (item.type === "overdue") {
-      const days = Math.max(1, daysFromNow(item.dueDate) * -1);
+      const days = Math.round(
+        (today.getTime() - item.dueDate.getTime()) / 86_400_000,
+      );
       return {
         tone: "error",
         badgeStatus: "destructive",

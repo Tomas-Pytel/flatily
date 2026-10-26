@@ -4,17 +4,13 @@ import { requireUser } from "@/lib/auth";
 import { ApartmentsView } from "@/components/properties/properties-view";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma/browser";
+import { getToday, isPastDue } from "@/lib/utils";
 import type { PaymentStatus, PropertyListItem } from "@/types/property";
 import type {
   SortByType,
   StatusFilterType,
   ViewModeType,
 } from "@/components/properties/properties-toolbar";
-
-function getCurrentMonthStart() {
-  const now = new Date();
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-}
 
 function getPropertySelect(period: Date) {
   return {
@@ -110,6 +106,7 @@ export default async function PropertiesPage({
   searchParams: Promise<PropertiesSearchParams>;
 }) {
   const user = await requireUser();
+  const today = getToday();
   const params = await searchParams;
   const statusFilter = statusFilters.includes(params.status as StatusFilterType)
     ? (params.status as StatusFilterType)
@@ -118,9 +115,12 @@ export default async function PropertiesPage({
     ? (params.sort as SortByType)
     : "name";
   const viewMode: ViewModeType = params.view === "table" ? "table" : "grid";
+  const currentMonthStart = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1),
+  );
 
   const propertyRows = await prisma.property.findMany({
-    select: getPropertySelect(getCurrentMonthStart()),
+    select: getPropertySelect(currentMonthStart),
     where: {
       ownerId: user.id,
     },
@@ -137,7 +137,7 @@ export default async function PropertiesPage({
     const paymentStatus: PaymentStatus | null = charge
       ? paidAmount.gte(charge.amount)
         ? "Uhradené"
-        : charge.dueDate < new Date()
+        : isPastDue(charge.dueDate, today)
           ? "Omeškané"
           : "Čakajúce"
       : null;
