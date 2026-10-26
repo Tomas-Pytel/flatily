@@ -57,79 +57,54 @@ export function PropertiesToolbar({
     router.push(`${pathname}?${params.toString()}`);
   }
 
+  const statusFilters: Array<{
+    value: StatusFilterType;
+    label: string;
+    count?: number;
+  }> = [
+    { value: "all", label: "Všetky", count: apartments.length },
+    {
+      value: "obsadeny",
+      label: "Obsadené",
+      count: apartments.filter((apartment) => apartment.status === "obsadeny")
+        .length,
+    },
+    {
+      value: "volny",
+      label: "Voľné",
+      count: apartments.filter((apartment) => apartment.status === "volny")
+        .length,
+    },
+    { value: "problem_platba", label: "Problém s platbou" },
+    { value: "oprava", label: "Oprava", count: openRepairsCount },
+  ];
+
   return (
     <div className="flex flex-col justify-between gap-4 rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-[#141414] md:flex-row md:items-center">
       <div className="flex items-center gap-1 overflow-x-auto pb-1 text-xs scrollbar-none md:pb-0">
-        <Button
-          type="button"
-          size="sm"
-          variant={statusFilter === "all" ? "default" : "ghost"}
-          aria-pressed={statusFilter === "all"}
-          className={`rounded-lg px-3 py-1.5 font-medium whitespace-nowrap transition-colors hover:cursor-pointer ${
-            statusFilter === "all"
-              ? "bg-primary text-white shadow-xs dark:bg-primary dark:text-neutral-900"
-              : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
-          }`}
-          onClick={() => updateParam("status", "all")}
-        >
-          Všetky ({apartments.length})
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={statusFilter === "obsadeny" ? "default" : "ghost"}
-          aria-pressed={statusFilter === "obsadeny"}
-          className={`rounded-lg px-3 py-1.5 font-medium whitespace-nowrap transition-colors hover:cursor-pointer ${
-            statusFilter === "obsadeny"
-              ? "bg-primary text-white shadow-xs dark:bg-primary dark:text-neutral-900"
-              : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
-          }`}
-          onClick={() => updateParam("status", "obsadeny")}
-        >
-          Obsadené ({apartments.filter((a) => a.status === "obsadeny").length})
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={statusFilter === "volny" ? "default" : "ghost"}
-          aria-pressed={statusFilter === "volny"}
-          className={`rounded-lg px-3 py-1.5 font-medium whitespace-nowrap transition-colors hover:cursor-pointer ${
-            statusFilter === "volny"
-              ? "bg-primary text-white shadow-xs dark:bg-primary dark:text-neutral-900"
-              : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
-          }`}
-          onClick={() => updateParam("status", "volny")}
-        >
-          Voľné ({apartments.filter((a) => a.status === "volny").length})
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={statusFilter === "problem_platba" ? "default" : "ghost"}
-          aria-pressed={statusFilter === "problem_platba"}
-          className={`rounded-lg px-3 py-1.5 font-medium whitespace-nowrap transition-colors hover:cursor-pointer ${
-            statusFilter === "problem_platba"
-              ? "bg-primary text-white shadow-xs dark:bg-primary dark:text-neutral-900"
-              : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
-          }`}
-          onClick={() => updateParam("status", "problem_platba")}
-        >
-          Problém s platbou
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={statusFilter === "oprava" ? "default" : "ghost"}
-          aria-pressed={statusFilter === "oprava"}
-          className={`rounded-lg px-3 py-1.5 font-medium whitespace-nowrap transition-colors hover:cursor-pointer ${
-            statusFilter === "oprava"
-              ? "bg-primary text-white shadow-xs dark:bg-primary dark:text-neutral-900"
-              : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
-          }`}
-          onClick={() => updateParam("status", "oprava")}
-        >
-          Oprava ({openRepairsCount})
-        </Button>
+        {statusFilters.map((filter) => {
+          const active = statusFilter === filter.value;
+
+          return (
+            <Button
+              key={filter.value}
+              type="button"
+              size="sm"
+              variant={active ? "default" : "ghost"}
+              aria-pressed={active}
+              className={`rounded-lg px-3 py-1.5 font-medium whitespace-nowrap transition-colors hover:cursor-pointer ${
+                active
+                  ? "bg-primary text-white shadow-xs dark:bg-primary dark:text-neutral-900"
+                  : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-400"
+              }`}
+              onClick={() => updateParam("status", filter.value)}
+            >
+              {filter.count === undefined
+                ? filter.label
+                : `${filter.label} (${filter.count})`}
+            </Button>
+          );
+        })}
       </div>
 
       <div className="flex shrink-0 items-center justify-end gap-2.5">

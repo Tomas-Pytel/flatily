@@ -34,16 +34,16 @@ export function PropertiesTable({
   return (
     <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xs dark:border-neutral-800 dark:bg-[#141414]">
       <Table className="text-left text-xs">
-        <TableHeader className="border-b border-neutral-200 bg-neutral-50 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900">
-          <TableRow className="border-neutral-200 dark:border-neutral-800">
-            <TableHead className="px-4 py-3">Byt</TableHead>
-            <TableHead className="px-4 py-3">Lokalita</TableHead>
-            <TableHead className="px-4 py-3">Parametre</TableHead>
-            <TableHead className="px-4 py-3 text-right">Mesačný nájom</TableHead>
-            <TableHead className="px-4 py-3">Nájomník</TableHead>
-            <TableHead className="px-4 py-3">Platba</TableHead>
-            <TableHead className="px-4 py-3">Stav</TableHead>
-            <TableHead className="px-4 py-3 text-right">Akcie</TableHead>
+        <TableHeader className="border-b border-neutral-200 bg-neutral-50 text-[11px] uppercase tracking-wider dark:border-neutral-800 dark:bg-neutral-900">
+          <TableRow className="border-neutral-200 hover:bg-transparent dark:border-neutral-800">
+            <TableHead className="px-4 py-3 font-semibold text-neutral-500">Byt</TableHead>
+            <TableHead className="px-4 py-3 font-semibold text-neutral-500">Lokalita</TableHead>
+            <TableHead className="px-4 py-3 font-semibold text-neutral-500">Parametre</TableHead>
+            <TableHead className="px-4 py-3 text-right font-semibold text-neutral-500">Mesačný nájom</TableHead>
+            <TableHead className="px-4 py-3 font-semibold text-neutral-500">Nájomník</TableHead>
+            <TableHead className="px-4 py-3 font-semibold text-neutral-500">Platba</TableHead>
+            <TableHead className="px-4 py-3 font-semibold text-neutral-500">Stav</TableHead>
+            <TableHead className="px-4 py-3 text-right font-semibold text-neutral-500">Akcie</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -106,7 +106,7 @@ export function PropertiesTable({
                     asChild
                     variant="ghost"
                     size="icon-sm"
-                    className="text-[#004AAD] hover:bg-neutral-100 dark:text-[#3B82F6] dark:hover:bg-neutral-800"
+                    className="text-[#004AAD] hover:bg-neutral-100 hover:text-[#004AAD] dark:text-[#3B82F6] dark:hover:bg-neutral-800 dark:hover:text-[#3B82F6]"
                   >
                     <Link
                       href={`/properties/${property.id}`}
