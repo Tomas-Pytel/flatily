@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Building2, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { PaymentStatusBadge } from "@/components/common/payment-status-badge";
 import { DeletePropertyButton } from "@/components/properties/delete-property-button";
 import type { PropertyListItem } from "@/types/property";
 
@@ -81,7 +82,7 @@ export function PropertiesTable({
                 </td>
                 <td className="px-4 py-3.5">
                   {property.paymentStatus ? (
-                    <Badge>{property.paymentStatus}</Badge>
+                    <PaymentStatusBadge status={property.paymentStatus} />
                   ) : (
                     <span className="text-neutral-400">—</span>
                   )}

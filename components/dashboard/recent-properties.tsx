@@ -2,6 +2,7 @@ import { MyProperties } from "@/components/dashboard/my-properties";
 import { Card } from "@/components/ui/card";
 import Skeleton from "@/components/common/loading-skeleton";
 import { getRecentProperties } from "@/lib/dashboard";
+import type { PaymentStatus } from "@/types/property";
 
 type RecentPropertiesProps = {
   userId: string;
@@ -27,13 +28,13 @@ export async function RecentProperties({
   });
   const paymentStatus = (
     charge: NonNullable<(typeof properties)[number]["payment"]>,
-  ) => {
+  ): PaymentStatus => {
     const paid = charge.paidAmount;
     return paid >= charge.amount
       ? ("Uhradené" as const)
       : charge.dueDate < new Date()
         ? ("Omeškané" as const)
-        : ("Čaká" as const);
+        : ("Čakajúce" as const);
   };
   const apartments = properties.map((property) => ({
     id: property.id,

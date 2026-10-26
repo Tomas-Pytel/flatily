@@ -1,14 +1,6 @@
-import type { ComponentProps } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  AlertCircle,
-  ArrowRight,
-  Building2,
-  CheckCircle2,
-  Clock3,
-  LucideIcon,
-} from "lucide-react";
+import { ArrowRight, Building2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,31 +11,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PaymentStatusBadge } from "@/components/common/payment-status-badge";
 import { cn } from "@/lib/utils";
-
-type BadgeStatus = ComponentProps<typeof Badge>["variant"];
-
-const paymentStatusToBadge: Record<
-  string,
-  {
-    variant: BadgeStatus;
-    icon: LucideIcon;
-  }
-> = {
-  Uhradené: {
-    variant: "success",
-    icon: CheckCircle2,
-  },
-  Omeškané: {
-    variant: "warning",
-    icon: AlertCircle,
-  },
-  Čaká: {
-    variant: "default",
-    icon: Clock3,
-  },
-};
+import type { PaymentStatus } from "@/types/property";
 
 type PropertyCardProps = {
   id: string | number;
@@ -55,7 +25,7 @@ type PropertyCardProps = {
   area: number;
   rooms: number;
   tenantName?: string | null;
-  paymentStatus?: keyof typeof paymentStatusToBadge | null;
+  paymentStatus?: PaymentStatus | null;
   href?: string;
   className?: string;
 };
@@ -74,8 +44,6 @@ export function PropertyCard({
   href = `/properties/${id}`,
   className,
 }: PropertyCardProps) {
-  const Icon = paymentStatus ? paymentStatusToBadge[paymentStatus].icon : null;
-
   return (
     <Card
       className={cn(
@@ -127,13 +95,7 @@ export function PropertyCard({
             {tenantName ?? "Voľný byt"}
           </div>
           {paymentStatus ? (
-            <Badge
-              variant={paymentStatusToBadge[paymentStatus].variant}
-              className="gap-2"
-            >
-              {Icon && <Icon className="size-3.5" />}
-              {paymentStatus}
-            </Badge>
+            <PaymentStatusBadge status={paymentStatus} />
           ) : (
             <span className="shrink-0 text-[11px] text-muted-foreground">
               Bez platby

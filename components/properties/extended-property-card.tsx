@@ -5,42 +5,18 @@ import {
   AlertCircle,
   ArrowRight,
   Building2,
-  CheckCircle2,
-  Clock3,
   MapPin,
-  LucideIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PaymentStatusBadge } from "@/components/common/payment-status-badge";
 import { cn } from "@/lib/utils";
 import { DeletePropertyButton } from "@/components/properties/delete-property-button";
 import type { PropertyListItem } from "@/types/property";
 
 export type BadgeStatus = ComponentProps<typeof Badge>["variant"];
-type PaymentStatus = "Uhradené" | "Čakajúce" | "Omeškané";
-
-const paymentStatusToBadge: Record<
-  PaymentStatus,
-  {
-    variant: BadgeStatus;
-    icon: LucideIcon;
-  }
-> = {
-  Uhradené: {
-    variant: "success",
-    icon: CheckCircle2,
-  },
-  Omeškané: {
-    variant: "destructive",
-    icon: AlertCircle,
-  },
-  Čakajúce: {
-    variant: "default",
-    icon: Clock3,
-  },
-};
 
 type ExtendedPropertyCardProps = {
   property: PropertyListItem;
@@ -71,9 +47,6 @@ export function ExtendedPropertyCard({
     openRepairsCount,
   } = property;
   const propertyHref = href ?? `/properties/${id}`;
-  const PaymentIcon = paymentStatus
-    ? paymentStatusToBadge[paymentStatus].icon
-    : null;
 
   return (
     <Card
@@ -170,13 +143,7 @@ export function ExtendedPropertyCard({
 
             <div>
               {paymentStatus ? (
-                <Badge
-                  variant={paymentStatusToBadge[paymentStatus].variant}
-                  className="gap-1.5 border-0 font-medium px-2 py-0.5"
-                >
-                  {PaymentIcon && <PaymentIcon className="size-3" />}
-                  {paymentStatus}
-                </Badge>
+                <PaymentStatusBadge status={paymentStatus} />
               ) : (
                 <span className="text-[11px] text-muted-foreground">
                   Bez záznamu
