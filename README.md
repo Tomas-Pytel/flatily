@@ -10,6 +10,8 @@ Moderná full-stack webová aplikácia určená pre prenajímateľov a majiteľo
 
 Tento projekt slúži ako ukážka mojich zručností pri vývoji moderných webových aplikácií s využitím najnovších štandardov ekosystému React a Next.js (App Router, Server Actions).
 
+Link: https://flatily-rosy.vercel.app/
+
 ---
 
 ## ✨ Hlavné funkcionality
