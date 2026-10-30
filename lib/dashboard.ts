@@ -56,6 +56,7 @@ export type DashboardAttentionItem =
       tenantName: string;
       amount: number;
       dueDate: Date;
+      period: Date;
     }
   | {
       type: "expiringLease";
@@ -179,6 +180,7 @@ export async function getAttentionItems({
             where: { dueDate: { lt: today } },
             orderBy: { dueDate: "asc" },
             select: {
+              period: true,
               amount: true,
               dueDate: true,
               payments: { select: { amount: true } },
@@ -237,6 +239,7 @@ export async function getAttentionItems({
             tenantName,
             amount: new Prisma.Decimal(charge.amount).minus(paidAmount).toNumber(),
             dueDate: charge.dueDate,
+            period: charge.period,
           });
         }
       }

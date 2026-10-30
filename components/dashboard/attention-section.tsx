@@ -19,6 +19,13 @@ type AttentionSectionProps = {
 const formatAmount = (amount: number) =>
   `${Math.round(amount).toLocaleString("sk-SK")} €`;
 
+const formatPeriod = (date: Date) =>
+  date.toLocaleDateString("sk-SK", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
 export async function AttentionSection({
   userId,
   now,
@@ -43,6 +50,7 @@ export async function AttentionSection({
         badgeLabel: "Omeškaný nájom",
         meta: `${days} ${pluralize(days, "deň", "dni", "dní")} po splatnosti`,
         emphasizeMeta: true,
+        description: `Nájom za ${formatPeriod(item.period)}`,
         title: item.tenantName,
         subtitle: `${item.propertyTitle} (${item.city})`,
         amount: formatAmount(item.amount),
