@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { ApartmentsView } from "@/components/properties/properties-view";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma/browser";
-import { getToday } from "@/lib/utils";
+import { getToday, isLeaseInEffect } from "@/lib/utils";
 import { getPaymentStatus } from "@/lib/payments";
 import type { PaymentStatus, PropertyListItem } from "@/types/property";
 import type {
@@ -47,6 +47,8 @@ function getPropertySelect(period: Date, today: Date) {
       },
       take: 1,
       select: {
+        endDate: true,
+        autoRenew: true,
         tenant: {
           select: {
             firstName: true,
@@ -125,8 +127,8 @@ export default async function PropertiesPage({
     orderBy: { createdAt: "desc" },
   });
   const properties: PropertyListItem[] = propertyRows.map((property) => {
-    const activeTenant = property.leases[0]?.tenant;
     const lease = property.leases[0];
+    const isOccupied = lease ? isLeaseInEffect(lease, today) : false;
     const paymentStatus: PaymentStatus | null = lease
       ? getPaymentStatus(lease.charges, currentMonthStart, today)
       : null;
@@ -144,10 +146,10 @@ export default async function PropertiesPage({
       rentAmount: Number(property.monthlyRent),
       utilitiesAmount: Number(property.utilitiesAmount),
       photoUrl: property.images[0]?.url ?? null,
-      tenantName: activeTenant
-        ? `${activeTenant.firstName} ${activeTenant.lastName}`
+      tenantName: isOccupied && lease
+        ? `${lease.tenant.firstName} ${lease.tenant.lastName}`
         : null,
-      status: activeTenant ? "obsadeny" : "volny",
+      status: isOccupied ? "obsadeny" : "volny",
       paymentStatus,
       openRepairsCount: property.maintenance.length,
     };

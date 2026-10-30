@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { getToday, isLeaseInEffect } from "@/lib/utils";
 import { propertySchema, type PropertyFormInput } from "@/schemas/property";
 import type { ActionResult } from "@/types/action-result";
 import type { PropertyDetail } from "@/types/property";
@@ -220,7 +221,7 @@ export async function getProperty(
         where: { status: "ACTIVE" },
         orderBy: { startDate: "desc" },
         take: 1,
-        select: { id: true },
+        select: { endDate: true, autoRenew: true },
       },
     },
   });
@@ -242,7 +243,10 @@ export async function getProperty(
       depositAmount: Number(property.depositAmount),
       area: Number(property.area),
       photoUrl: images[0]?.url ?? null,
-      status: leases[0] ? "Obsadený" : "Voľný",
+      status:
+        leases[0] && isLeaseInEffect(leases[0], getToday())
+          ? "Obsadený"
+          : "Voľný",
     },
   };
 }

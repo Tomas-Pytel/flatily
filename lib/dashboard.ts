@@ -1,6 +1,6 @@
 import { Prisma } from "@/lib/generated/prisma/client";
 import prisma from "@/lib/prisma";
-import { isPastDue } from "@/lib/utils";
+import { isLeaseInEffect, isPastDue } from "@/lib/utils";
 import { getPaymentStatus } from "@/lib/payments";
 import type { PaymentStatus } from "@/types/property";
 
@@ -112,6 +112,8 @@ export async function getRecentProperties({
           orderBy: { startDate: "desc" },
           take: 1,
           select: {
+            endDate: true,
+            autoRenew: true,
             tenant: { select: { id: true, firstName: true, lastName: true } },
             charges: {
               where: {
@@ -144,7 +146,7 @@ export async function getRecentProperties({
         rentAmount: Number(property.monthlyRent),
         area: Number(property.area),
         rooms: property.rooms,
-        tenant: lease?.tenant ?? null,
+        tenant: lease && isLeaseInEffect(lease, today) ? lease.tenant : null,
         paymentStatus: lease
           ? getPaymentStatus(lease.charges, currentMonth, today)
           : null,
@@ -332,7 +334,9 @@ export async function getDashboardSummary({
          WHERE p.owner_id = ${userId}::uuid) AS "propertyCount",
         (SELECT COUNT(DISTINCT p.id)::int
          FROM properties p
-         JOIN leases l ON l.property_id = p.id AND l.status = 'ACTIVE'
+         JOIN leases l ON l.property_id = p.id
+           AND l.status = 'ACTIVE'
+           AND (l.end_date >= ${todayDate}::date OR l.auto_renew)
          WHERE p.owner_id = ${userId}::uuid) AS "occupiedPropertyCount",
         COALESCE((SELECT SUM(paid_amount) FROM current_charges), 0) AS "paidThisMonth",
         COALESCE((SELECT SUM(l.rent_amount)
@@ -341,7 +345,7 @@ export async function getDashboardSummary({
                   WHERE p.owner_id = ${userId}::uuid
                     AND l.status = 'ACTIVE'
                     AND l.start_date <= ${todayDate}::date
-                    AND l.end_date >= ${todayDate}::date), 0) AS "expectedRent",
+                    AND (l.end_date >= ${todayDate}::date OR l.auto_renew)), 0) AS "expectedRent",
         COALESCE((SELECT SUM(amount) FROM current_charges), 0) AS "currentRent",
         COALESCE((SELECT SUM(amount - paid_amount) FROM overdue_charges), 0) AS "overdueAmount",
         (SELECT COUNT(*)::int FROM overdue_charges) AS "overdueCount",

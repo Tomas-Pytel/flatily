@@ -37,6 +37,14 @@ export function isPastDue(dueDate: Date, today: Date): boolean {
   return dueDate.getTime() < today.getTime();
 }
 
+// An ACTIVE lease keeps the property occupied until its end date (inclusive), or indefinitely with auto-renewal.
+export function isLeaseInEffect(
+  lease: { endDate: Date; autoRenew: boolean },
+  today: Date,
+): boolean {
+  return lease.autoRenew || lease.endDate.getTime() >= today.getTime();
+}
+
 // This check can be removed, it is just for tutorial purposes
 export const hasEnvVars =
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
