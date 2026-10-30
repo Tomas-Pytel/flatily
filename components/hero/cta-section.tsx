@@ -17,7 +17,7 @@ export default function CTASection() {
             <Button
               size="lg"
               variant="secondary"
-              className="px-8 py-6 text-lg font-semibold shadow-lg hover:scale-105 transition-transform"
+              className="px-8 py-6 text-lg dark:text-white font-semibold shadow-lg hover:scale-105 transition-transform"
               asChild
             >
               <Link href="/auth/sign-up">Vytvoriť bezplatný účet</Link>

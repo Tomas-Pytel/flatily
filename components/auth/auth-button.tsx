@@ -18,7 +18,12 @@ export async function AuthButton() {
     </div>
   ) : (
     <div className="flex gap-2">
-      <Button asChild size="sm" variant={"outline"}>
+      <Button
+        asChild
+        size="sm"
+        variant={"outline"}
+        className="hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer"
+      >
         <Link href="/auth/login">Prihlásiť</Link>
       </Button>
       <Button asChild size="sm" variant={"default"}>
