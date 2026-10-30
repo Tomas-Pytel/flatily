@@ -2,21 +2,20 @@
 import { Badge } from "@/components/ui/badge";
 import type { PropertyDetail, PropertyOccupancyStatus } from "@/types/property";
 import {
-  AlertCircle,
   Building2,
   CheckCircle2,
   FilePlus,
   LucideIcon,
   MapPin,
-  Trash2,
+  Pencil,
   TriangleAlertIcon,
   Wrench,
 } from "lucide-react";
 import { DeletePropertyButton } from "../delete-property-button";
 import Image from "next/image";
-import { deleteProperty } from "@/app/actions/properties";
 import { Button } from "@/components/ui/button";
 import { BadgeStatus } from "../extended-property-card";
+import Link from "next/link";
 
 const occupancyStatusToBadge: Record<
   PropertyOccupancyStatus,
@@ -37,20 +36,12 @@ const occupancyStatusToBadge: Record<
 
 interface PropertyHeaderProps {
   property: PropertyDetail;
-  //   setIsNewMaintenanceModalOpen: (value: boolean) => void;
-  //   setIsUploadDocModalOpen: (value: boolean) => void;
 }
 
-export default function PropertyHeader({
-  property,
-  //   setIsNewMaintenanceModalOpen,
-  //   setIsUploadDocModalOpen,
-}: PropertyHeaderProps) {
+export default function PropertyHeader({ property }: PropertyHeaderProps) {
   const StatusIcon = property.status
     ? occupancyStatusToBadge[property.status].icon
     : null;
-  const setIsNewMaintenanceModalOpen = (value: boolean) => {};
-  const setIsUploadDocModalOpen = (value: boolean) => {};
 
   return (
     <div className="relative h-64 sm:h-72 w-full bg-neutral-900 overflow-hidden">
@@ -58,6 +49,8 @@ export default function PropertyHeader({
         <Image
           src={property.photoUrl}
           alt={property.title}
+          fill
+          sizes="100vw"
           referrerPolicy="no-referrer"
           className="w-full h-full object-cover opacity-90"
         />
@@ -100,23 +93,30 @@ export default function PropertyHeader({
 
         {/* Header Action Buttons */}
         <div className="flex items-center gap-2">
-          <Button
-            variant="default"
-            onClick={() => setIsNewMaintenanceModalOpen(true)}
-            className="cursor-pointer"
-          >
+          <Button variant="default" className="cursor-pointer">
             <Wrench className="w-3.5 h-3.5" />
             <span>Pridať opravu</span>
           </Button>
 
           <Button
             variant="secondary"
-            onClick={() => setIsUploadDocModalOpen(true)}
             className="cursor-pointer bg-white/90 text-neutral-800 hover:bg-white dark:bg-neutral-800/90 dark:text-neutral-200 dark:hover:bg-neutral-800"
           >
             <FilePlus className="w-3.5 h-3.5" />
             <span>Pridať dokument</span>
           </Button>
+
+          <Button
+            asChild
+            variant="secondary"
+            aria-label={`Upraviť nehnuteľnosť ${property.title}`}
+            className="cursor-pointer bg-white/90 text-neutral-800 hover:bg-white dark:bg-neutral-800/90 dark:text-neutral-200 dark:hover:bg-neutral-800"
+          >
+            <Link href={`/properties/${property.id}/update`}>
+              <Pencil className="w-3.5 h-3.5" />
+            </Link>
+          </Button>
+
           <DeletePropertyButton
             propertyId={property.id}
             propertyName={property.title}

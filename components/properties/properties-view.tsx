@@ -7,6 +7,8 @@ import {
 } from "@/components/properties/properties-toolbar";
 import { PropertiesGrid } from "@/components/properties/properties-grid";
 import { PropertiesTable } from "@/components/properties/properties-table";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type PropertiesViewProps = {
   properties: PropertyListItem[];
@@ -52,8 +54,17 @@ export function ApartmentsView({
         )}
       />
 
-      {filteredProperties.length === 0 ? (
-        <span>Zatiaľ nemáte žiadny byt</span>
+      {properties.length === 0 ? (
+        <div className="flex min-h-48 flex-col items-center justify-center gap-4 rounded-xl border border-dashed p-8 text-center text-muted-foreground">
+          <p>Zatiaľ nemáte žiadny byt.</p>
+          <Button asChild>
+            <Link href="/properties/new">Pridať nový byt</Link>
+          </Button>
+        </div>
+      ) : filteredProperties.length === 0 ? (
+        <div className="flex min-h-48 items-center justify-center rounded-xl border border-dashed p-8 text-center text-muted-foreground">
+          <p>Žiadny byt nezodpovedá zvolenému filtru.</p>
+        </div>
       ) : viewMode === "grid" ? (
         <PropertiesGrid properties={filteredProperties} />
       ) : (

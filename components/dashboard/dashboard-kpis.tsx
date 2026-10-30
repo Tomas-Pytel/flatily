@@ -9,10 +9,12 @@ import {
 import { KpiCard, type KpiCardProps } from "@/components/dashboard/kpi-card";
 import { Card } from "@/components/ui/card";
 import Skeleton from "@/components/common/loading-skeleton";
-import { getDashboardAggregates } from "@/lib/dashboard";
+import { getDashboardSummary } from "@/lib/dashboard";
+import { pluralize } from "@/lib/utils";
 
 type DashboardDates = {
   now: Date;
+  today: Date;
   currentMonth: Date;
   nextMonth: Date;
   twelveMonthsAgo: Date;
@@ -25,14 +27,14 @@ const formatAmount = (amount: number) =>
 
 export async function DashboardKpis({
   userId,
-  now,
+  today,
   currentMonth,
   nextMonth,
   twelveMonthsAgo,
 }: DashboardKpisProps) {
-  const aggregates = await getDashboardAggregates({
+  const aggregates = await getDashboardSummary({
     userId,
-    now,
+    today,
     currentMonth,
     nextMonth,
     twelveMonthsAgo,
@@ -40,9 +42,9 @@ export async function DashboardKpis({
 
   const cards: KpiCardProps[] = [
     {
-      title: "Mesačný príjem",
-      value: formatAmount(aggregates.monthlyIncome),
-      subtitle: "uhradené v aktuálnom mesiaci",
+      title: "Očakávaný príjem",
+      value: formatAmount(aggregates.expectedRent),
+      subtitle: "nájomné z platných zmlúv bez energií",
       statusColor: "success",
       icon: TrendingUp,
     },
@@ -55,21 +57,21 @@ export async function DashboardKpis({
     },
     {
       title: "Uhradené tento mesiac",
-      value: formatAmount(aggregates.monthlyIncome),
-      subtitle: `${aggregates.currentRent ? Math.round((aggregates.monthlyIncome / aggregates.currentRent) * 100) : 0}% nájomného uhradené`,
+      value: formatAmount(aggregates.paidThisMonth),
+      subtitle: `${aggregates.currentRent ? Math.round((aggregates.paidThisMonth / aggregates.currentRent) * 100) : 0}% nájomného uhradené`,
       icon: CheckCircle2,
     },
     {
       title: "Po splatnosti",
       value: formatAmount(aggregates.overdueAmount),
-      subtitle: `${aggregates.overdueCount} neuhradené platby`,
+      subtitle: `${aggregates.overdueCount} ${pluralize(aggregates.overdueCount, "neuhradená platba", "neuhradené platby", "neuhradených platieb")}`,
       icon: AlertCircle,
       statusColor: aggregates.overdueCount ? "warning" : "neutral",
     },
     {
       title: "Otvorené opravy",
       value: aggregates.openRepairCount,
-      subtitle: `${aggregates.urgentRepairCount} urgentné opravy`,
+      subtitle: `${aggregates.urgentRepairCount} ${pluralize(aggregates.urgentRepairCount, "urgentná oprava", "urgentné opravy", "urgentných opráv")}`,
       statusColor: aggregates.openRepairCount ? "error" : "neutral",
       icon: Wrench,
     },

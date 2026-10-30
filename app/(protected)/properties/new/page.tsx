@@ -1,5 +1,6 @@
+import { createNewProperty } from "@/app/actions/properties";
 import { AppHeader } from "@/components/common/app-header";
-import { NewPropertyForm } from "@/components/properties/new-property-form";
+import { PropertyForm } from "@/components/properties/property-form";
 import { Bell } from "lucide-react";
 
 export default function NewPropertyPage() {
@@ -12,7 +13,7 @@ export default function NewPropertyPage() {
         <Bell className="size-4 text-muted-foreground" />
       </AppHeader>
       <main className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4 sm:p-6 lg:gap-8 lg:p-8">
-        <NewPropertyForm />
+        <PropertyForm action={createNewProperty} />
       </main>
     </div>
   );

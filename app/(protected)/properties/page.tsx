@@ -4,6 +4,8 @@ import { requireUser } from "@/lib/auth";
 import { ApartmentsView } from "@/components/properties/properties-view";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@/lib/generated/prisma/browser";
+import { getToday, isLeaseInEffect } from "@/lib/utils";
+import { getPaymentStatus } from "@/lib/payments";
 import type { PaymentStatus, PropertyListItem } from "@/types/property";
 import type {
   SortByType,
@@ -11,81 +13,77 @@ import type {
   ViewModeType,
 } from "@/components/properties/properties-toolbar";
 
-function getCurrentMonthStart() {
-  const now = new Date();
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-}
-
-const propertySelect = {
-  id: true,
-  title: true,
-  street: true,
-  city: true,
-  district: true,
-  monthlyRent: true,
-  utilitiesAmount: true,
-  rooms: true,
-  area: true,
-  floor: true,
-  totalFloors: true,
-  images: {
-    where: {
-      isCover: true,
-    },
-    orderBy: {
-      sortOrder: "asc",
-    },
-    take: 1,
-    select: {
-      url: true,
-    },
-  },
-  leases: {
-    where: {
-      status: "ACTIVE",
-    },
-    orderBy: {
-      startDate: "desc",
-    },
-    take: 1,
-    select: {
-      tenant: {
-        select: {
-          firstName: true,
-          lastName: true,
-        },
+function getPropertySelect(period: Date, today: Date) {
+  return {
+    id: true,
+    title: true,
+    street: true,
+    city: true,
+    district: true,
+    monthlyRent: true,
+    utilitiesAmount: true,
+    rooms: true,
+    area: true,
+    floor: true,
+    totalFloors: true,
+    images: {
+      where: {
+        isCover: true,
       },
-      charges: {
-        where: {
-          period: getCurrentMonthStart(),
+      orderBy: {
+        sortOrder: "asc",
+      },
+      take: 1,
+      select: {
+        url: true,
+      },
+    },
+    leases: {
+      where: {
+        status: "ACTIVE",
+      },
+      orderBy: {
+        startDate: "desc",
+      },
+      take: 1,
+      select: {
+        endDate: true,
+        autoRenew: true,
+        tenant: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
         },
-        orderBy: {
-          dueDate: "desc",
-        },
-        select: {
-          amount: true,
-          dueDate: true,
-          payments: {
-            select: {
-              amount: true,
+        charges: {
+          where: {
+            OR: [{ period }, { dueDate: { lt: today } }],
+          },
+          select: {
+            period: true,
+            amount: true,
+            dueDate: true,
+            payments: {
+              select: {
+                amount: true,
+              },
             },
           },
         },
-        take: 1,
       },
     },
-  },
-  maintenance: {
-    where: {
-      status: {
-        in: ["OPEN", "IN_PROGRESS"],
+    maintenance: {
+      where: {
+        status: {
+          in: ["OPEN", "IN_PROGRESS"],
+        },
+      },
+      select: {
+        id: true,
       },
     },
-    select: {
-      id: true,
-    },
-  },
-} satisfies Prisma.PropertySelect;
+  } satisfies Prisma.PropertySelect;
+}
 
 type PropertiesSearchParams = {
   status?: string;
@@ -108,6 +106,7 @@ export default async function PropertiesPage({
   searchParams: Promise<PropertiesSearchParams>;
 }) {
   const user = await requireUser();
+  const today = getToday();
   const params = await searchParams;
   const statusFilter = statusFilters.includes(params.status as StatusFilterType)
     ? (params.status as StatusFilterType)
@@ -116,28 +115,22 @@ export default async function PropertiesPage({
     ? (params.sort as SortByType)
     : "name";
   const viewMode: ViewModeType = params.view === "table" ? "table" : "grid";
+  const currentMonthStart = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1),
+  );
 
   const propertyRows = await prisma.property.findMany({
-    select: propertySelect,
+    select: getPropertySelect(currentMonthStart, today),
     where: {
       ownerId: user.id,
     },
     orderBy: { createdAt: "desc" },
   });
   const properties: PropertyListItem[] = propertyRows.map((property) => {
-    const activeTenant = property.leases[0]?.tenant;
-    const charge = property.leases[0]?.charges[0];
-    const paidAmount =
-      charge?.payments.reduce(
-        (sum, payment) => sum + Number(payment.amount),
-        0,
-      ) ?? 0;
-    const paymentStatus: PaymentStatus | null = charge
-      ? paidAmount >= Number(charge.amount)
-        ? "Uhradené"
-        : charge.dueDate < new Date()
-          ? "Omeškané"
-          : "Čakajúce"
+    const lease = property.leases[0];
+    const isOccupied = lease ? isLeaseInEffect(lease, today) : false;
+    const paymentStatus: PaymentStatus | null = lease
+      ? getPaymentStatus(lease.charges, currentMonthStart, today)
       : null;
 
     return {
@@ -153,10 +146,10 @@ export default async function PropertiesPage({
       rentAmount: Number(property.monthlyRent),
       utilitiesAmount: Number(property.utilitiesAmount),
       photoUrl: property.images[0]?.url ?? null,
-      tenantName: activeTenant
-        ? `${activeTenant.firstName} ${activeTenant.lastName}`
+      tenantName: isOccupied && lease
+        ? `${lease.tenant.firstName} ${lease.tenant.lastName}`
         : null,
-      status: activeTenant ? "obsadeny" : "volny",
+      status: isOccupied ? "obsadeny" : "volny",
       paymentStatus,
       openRepairsCount: property.maintenance.length,
     };

@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/common/app-header";
-import { requireUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import PropertyHeader from "@/components/properties/property-detail/property-header";
@@ -16,20 +16,7 @@ export default async function PropertyDetailPage({
   const { id } = await params;
   const response = await getProperty(id);
 
-  if (!response.success)
-    return (
-      <main className="flex flex-1 items-center justify-center p-6">
-        <div className="max-w-md text-center">
-          <h1 className="text-xl font-semibold">Nehnuteľnosť sa nenašla</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Požadovaný byt neexistuje alebo k nemu nemáte prístup.
-          </p>
-          <Button asChild className="mt-6">
-            <Link href="/properties">Späť na nehnuteľnosti</Link>
-          </Button>
-        </div>
-      </main>
-    );
+  if (!response.success) notFound();
 
   return (
     <div className="flex h-full flex-col">

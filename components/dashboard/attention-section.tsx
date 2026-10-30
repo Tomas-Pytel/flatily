@@ -7,39 +7,50 @@ import {
 import { Card } from "@/components/ui/card";
 import Skeleton from "@/components/common/loading-skeleton";
 import { getAttentionItems } from "@/lib/dashboard";
+import { pluralize } from "@/lib/utils";
 
 type AttentionSectionProps = {
   userId: string;
   now: Date;
-  nextMonth: Date;
+  today: Date;
   twelveMonthsAgo: Date;
 };
 
 const formatAmount = (amount: number) =>
   `${Math.round(amount).toLocaleString("sk-SK")} €`;
 
+const formatPeriod = (date: Date) =>
+  date.toLocaleDateString("sk-SK", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
 export async function AttentionSection({
   userId,
   now,
-  nextMonth,
+  today,
   twelveMonthsAgo,
 }: AttentionSectionProps) {
   const attentionItems = await getAttentionItems({
     userId,
-    now,
-    nextMonth,
+    today,
     twelveMonthsAgo,
   });
   const daysFromNow = (date: Date) =>
     Math.ceil((date.getTime() - now.getTime()) / 86_400_000);
   const cards: AttentionCardProps[] = attentionItems.map((item) => {
     if (item.type === "overdue") {
+      const days = Math.round(
+        (today.getTime() - item.dueDate.getTime()) / 86_400_000,
+      );
       return {
         tone: "error",
         badgeStatus: "destructive",
         badgeLabel: "Omeškaný nájom",
-        meta: `${Math.max(1, daysFromNow(item.dueDate) * -1)} dní po splatnosti`,
+        meta: `${days} ${pluralize(days, "deň", "dni", "dní")} po splatnosti`,
         emphasizeMeta: true,
+        description: `Nájom za ${formatPeriod(item.period)}`,
         title: item.tenantName,
         subtitle: `${item.propertyTitle} (${item.city})`,
         amount: formatAmount(item.amount),
@@ -51,11 +62,15 @@ export async function AttentionSection({
       };
     }
     if (item.type === "expiringLease") {
+      const days = daysFromNow(item.endDate);
       return {
         tone: "warning",
         badgeStatus: "warning",
         badgeLabel: "Končiaca zmluva",
-        meta: `o ${daysFromNow(item.endDate)} dní`,
+        meta:
+          days === 0
+            ? "dnes"
+            : `o ${days} ${pluralize(days, "deň", "dni", "dní")}`,
         emphasizeMeta: true,
         title: item.tenantName,
         subtitle: `${item.propertyTitle} (${item.city})`,
@@ -66,11 +81,12 @@ export async function AttentionSection({
         },
       };
     }
+    const days = Math.max(1, daysFromNow(item.createdAt) * -1);
     return {
       tone: "error",
       badgeStatus: "destructive",
       badgeLabel: "Urgentná oprava",
-      meta: `Nahlásené pred ${Math.max(1, daysFromNow(item.createdAt) * -1)} dňami`,
+      meta: `Nahlásené pred ${days} ${pluralize(days, "dňom", "dňami", "dňami")}`,
       title: item.repairTitle,
       subtitle: `${item.propertyTitle} (${item.city})`,
       icon: AlertCircle,
@@ -86,19 +102,29 @@ export async function AttentionSection({
           <h3 className="text-base font-bold text-foreground">
             Vyžaduje vašu pozornosť
           </h3>
-          <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium tabular-nums text-destructive">
-            {cards.length} úlohy
-          </span>
+          {cards.length > 0 && (
+            <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium tabular-nums text-destructive">
+              {cards.length} {pluralize(cards.length, "úloha", "úlohy", "úloh")}
+            </span>
+          )}
         </div>
-        <span className="text-xs text-muted-foreground">
-          Zoradené podľa naliehavosti
-        </span>
+        {cards.length > 0 && (
+          <span className="text-xs text-muted-foreground">
+            Zoradené podľa naliehavosti
+          </span>
+        )}
       </div>
-      <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 xl:grid-cols-3">
-        {cards.map((card, index) => (
-          <AttentionCard key={index} {...card} />
-        ))}
-      </div>
+      {cards.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-border py-10 text-center text-xs text-muted-foreground">
+          Momentálne nič nevyžaduje vašu pozornosť.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 xl:grid-cols-3">
+          {cards.map((card, index) => (
+            <AttentionCard key={index} {...card} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

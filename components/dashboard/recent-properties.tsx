@@ -6,35 +6,25 @@ import { getRecentProperties } from "@/lib/dashboard";
 type RecentPropertiesProps = {
   userId: string;
   now: Date;
+  today: Date;
   currentMonth: Date;
-  nextMonth: Date;
   twelveMonthsAgo: Date;
 };
 
 export async function RecentProperties({
   userId,
+  today,
   currentMonth,
-  nextMonth,
 }: RecentPropertiesProps) {
-  const properties = await getRecentProperties({
+  const { properties, totalCount } = await getRecentProperties({
     userId,
     currentMonth,
-    nextMonth,
+    today,
   });
   const period = currentMonth.toLocaleDateString("sk-SK", {
     month: "long",
     year: "numeric",
   });
-  const paymentStatus = (
-    charge: NonNullable<(typeof properties)[number]["payment"]>,
-  ) => {
-    const paid = charge.paidAmount;
-    return paid >= charge.amount
-      ? ("Uhradené" as const)
-      : charge.dueDate < new Date()
-        ? ("Omeškané" as const)
-        : ("Čaká" as const);
-  };
   const apartments = properties.map((property) => ({
     id: property.id,
     name: property.name,
@@ -50,18 +40,13 @@ export async function RecentProperties({
   return (
     <MyProperties
       apartments={apartments}
+      totalCount={totalCount}
       tenants={properties.flatMap((property) =>
         property.tenant ? [property.tenant] : [],
       )}
       payments={properties.flatMap((property) =>
-        property.payment
-          ? [
-              {
-                apartmentId: property.id,
-                period,
-                status: paymentStatus(property.payment),
-              },
-            ]
+        property.paymentStatus
+          ? [{ apartmentId: property.id, period, status: property.paymentStatus }]
           : [],
       )}
       period={period}

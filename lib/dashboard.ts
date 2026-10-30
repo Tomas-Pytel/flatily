@@ -1,10 +1,14 @@
 import { Prisma } from "@/lib/generated/prisma/client";
 import prisma from "@/lib/prisma";
+import { isLeaseInEffect, isPastDue } from "@/lib/utils";
+import { getPaymentStatus } from "@/lib/payments";
+import type { PaymentStatus } from "@/types/property";
 
 type DashboardAggregateRow = {
   propertyCount: number;
   occupiedPropertyCount: number;
-  monthlyIncome: string | number;
+  paidThisMonth: string | number;
+  expectedRent: string | number;
   currentRent: string | number;
   overdueAmount: string | number;
   overdueCount: number;
@@ -18,20 +22,16 @@ type CashFlowAggregateRow = {
   expenses: string | number;
 };
 
-export type DashboardAggregates = {
+export type DashboardSummary = {
   propertyCount: number;
   occupiedPropertyCount: number;
-  monthlyIncome: number;
+  paidThisMonth: number;
+  expectedRent: number;
   currentRent: number;
   overdueAmount: number;
   overdueCount: number;
   openRepairCount: number;
   urgentRepairCount: number;
-  cashFlow: Array<{
-    period: Date;
-    income: number;
-    expenses: number;
-  }>;
 };
 
 export type DashboardProperty = {
@@ -44,11 +44,7 @@ export type DashboardProperty = {
   area: number;
   rooms: number;
   tenant: { id: string; firstName: string; lastName: string } | null;
-  payment: {
-    amount: number;
-    dueDate: Date;
-    paidAmount: number;
-  } | null;
+  paymentStatus: PaymentStatus | null;
 };
 
 export type DashboardAttentionItem =
@@ -60,6 +56,7 @@ export type DashboardAttentionItem =
       tenantName: string;
       amount: number;
       dueDate: Date;
+      period: Date;
     }
   | {
       type: "expiringLease";
@@ -85,87 +82,87 @@ const numeric = (value: string | number) =>
 export async function getRecentProperties({
   userId,
   currentMonth,
-  nextMonth,
+  today,
 }: {
   userId: string;
   currentMonth: Date;
-  nextMonth: Date;
-}): Promise<DashboardProperty[]> {
-  const properties = await prisma.property.findMany({
-    where: { ownerId: userId },
-    take: 4,
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      title: true,
-      city: true,
-      district: true,
-      monthlyRent: true,
-      area: true,
-      rooms: true,
-      images: {
-        where: { isCover: true },
-        orderBy: { sortOrder: "asc" },
-        take: 1,
-        select: { url: true },
-      },
-      leases: {
-        where: { status: "ACTIVE" },
-        orderBy: { startDate: "desc" },
-        take: 1,
-        select: {
-          tenant: { select: { id: true, firstName: true, lastName: true } },
-          charges: {
-            where: { period: { gte: currentMonth, lt: nextMonth } },
-            take: 1,
-            select: {
-              amount: true,
-              dueDate: true,
-              payments: { select: { amount: true } },
+  today: Date;
+}): Promise<{ properties: DashboardProperty[]; totalCount: number }> {
+  const [properties, totalCount] = await Promise.all([
+    prisma.property.findMany({
+      where: { ownerId: userId },
+      take: 4,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        city: true,
+        district: true,
+        monthlyRent: true,
+        area: true,
+        rooms: true,
+        images: {
+          where: { isCover: true },
+          orderBy: { sortOrder: "asc" },
+          take: 1,
+          select: { url: true },
+        },
+        leases: {
+          where: { status: "ACTIVE" },
+          orderBy: { startDate: "desc" },
+          take: 1,
+          select: {
+            endDate: true,
+            autoRenew: true,
+            tenant: { select: { id: true, firstName: true, lastName: true } },
+            charges: {
+              where: {
+                OR: [{ period: currentMonth }, { dueDate: { lt: today } }],
+              },
+              select: {
+                period: true,
+                amount: true,
+                dueDate: true,
+                payments: { select: { amount: true } },
+              },
             },
           },
         },
       },
-    },
-  });
+    }),
+    prisma.property.count({ where: { ownerId: userId } }),
+  ]);
 
-  return properties.map((property) => {
-    const lease = property.leases[0];
-    const charge = lease?.charges[0];
+  return {
+    properties: properties.map((property) => {
+      const lease = property.leases[0];
 
-    return {
-      id: property.id,
-      name: property.title,
-      city: property.city,
-      district: property.district ?? "",
-      photoUrl: property.images[0]?.url ?? null,
-      rentAmount: Number(property.monthlyRent),
-      area: Number(property.area),
-      rooms: property.rooms,
-      tenant: lease?.tenant ?? null,
-      payment: charge
-        ? {
-            amount: Number(charge.amount),
-            dueDate: charge.dueDate,
-            paidAmount: charge.payments.reduce(
-              (sum, payment) => sum + Number(payment.amount),
-              0,
-            ),
-          }
-        : null,
-    };
-  });
+      return {
+        id: property.id,
+        name: property.title,
+        city: property.city,
+        district: property.district ?? "",
+        photoUrl: property.images[0]?.url ?? null,
+        rentAmount: Number(property.monthlyRent),
+        area: Number(property.area),
+        rooms: property.rooms,
+        tenant: lease && isLeaseInEffect(lease, today) ? lease.tenant : null,
+        paymentStatus: lease
+          ? getPaymentStatus(lease.charges, currentMonth, today)
+          : null,
+      };
+    }),
+    totalCount,
+  };
 }
 
 export async function getAttentionItems({
   userId,
-  now,
-  nextMonth,
+  today,
   twelveMonthsAgo,
 }: {
   userId: string;
-  now: Date;
-  nextMonth: Date;
+  today: Date;
   twelveMonthsAgo: Date;
 }): Promise<DashboardAttentionItem[]> {
   const properties = await prisma.property.findMany({
@@ -182,13 +179,10 @@ export async function getAttentionItems({
           endDate: true,
           tenant: { select: { firstName: true, lastName: true } },
           charges: {
-            where: {
-              period: {
-                gte: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)),
-                lt: nextMonth,
-              },
-            },
+            where: { dueDate: { lt: today } },
+            orderBy: { dueDate: "asc" },
             select: {
+              period: true,
               amount: true,
               dueDate: true,
               payments: { select: { amount: true } },
@@ -219,8 +213,8 @@ export async function getAttentionItems({
       : "";
 
     if (lease) {
-      const daysToEnd = Math.ceil(
-        (lease.endDate.getTime() - now.getTime()) / 86_400_000,
+      const daysToEnd = Math.round(
+        (lease.endDate.getTime() - today.getTime()) / 86_400_000,
       );
       if (daysToEnd >= 0 && daysToEnd <= 30) {
         items.push({
@@ -235,18 +229,19 @@ export async function getAttentionItems({
 
       for (const charge of lease.charges) {
         const paidAmount = charge.payments.reduce(
-          (sum, payment) => sum + Number(payment.amount),
-          0,
+          (sum, payment) => sum.plus(payment.amount),
+          new Prisma.Decimal(0),
         );
-        if (charge.dueDate < now && paidAmount < Number(charge.amount)) {
+        if (isPastDue(charge.dueDate, today) && paidAmount.lt(charge.amount)) {
           items.push({
             type: "overdue",
             propertyId: property.id,
             propertyTitle: property.title,
             city: property.city,
             tenantName,
-            amount: Number(charge.amount) - paidAmount,
+            amount: new Prisma.Decimal(charge.amount).minus(paidAmount).toNumber(),
             dueDate: charge.dueDate,
+            period: charge.period,
           });
         }
       }
@@ -265,28 +260,49 @@ export async function getAttentionItems({
     }
   }
 
+  const typeOrder = {
+    overdue: 0,
+    urgentRepair: 1,
+    expiringLease: 2,
+  } as const;
+
+  items.sort((a, b) => {
+    const typeDifference = typeOrder[a.type] - typeOrder[b.type];
+    if (typeDifference !== 0) return typeDifference;
+
+    if (a.type === "overdue" && b.type === "overdue") {
+      return a.dueDate.getTime() - b.dueDate.getTime();
+    }
+    if (a.type === "urgentRepair" && b.type === "urgentRepair") {
+      return a.createdAt.getTime() - b.createdAt.getTime();
+    }
+    if (a.type === "expiringLease" && b.type === "expiringLease") {
+      return a.endDate.getTime() - b.endDate.getTime();
+    }
+    return 0;
+  });
+
   return items;
 }
 
-export async function getDashboardAggregates({
+export async function getDashboardSummary({
   userId,
-  now,
+  today,
   currentMonth,
   nextMonth,
   twelveMonthsAgo,
 }: {
   userId: string;
-  now: Date;
+  today: Date;
   currentMonth: Date;
   nextMonth: Date;
   twelveMonthsAgo: Date;
-}): Promise<DashboardAggregates> {
-  const [summaryRows, cashFlowRows] = await Promise.all([
-    prisma.$queryRaw<DashboardAggregateRow[]>(Prisma.sql`
+}): Promise<DashboardSummary> {
+  const todayDate = today.toISOString().slice(0, 10);
+  const summaryRows = await prisma.$queryRaw<DashboardAggregateRow[]>(Prisma.sql`
       WITH current_charges AS (
         SELECT
           rc.amount,
-          rc.due_date,
           COALESCE(SUM(pay.amount), 0) AS paid_amount
         FROM rent_charges rc
         JOIN leases l ON l.id = rc.lease_id
@@ -296,7 +312,21 @@ export async function getDashboardAggregates({
           AND l.status = 'ACTIVE'
           AND rc.period >= ${currentMonth}
           AND rc.period < ${nextMonth}
-        GROUP BY rc.id, rc.amount, rc.due_date
+        GROUP BY rc.id, rc.amount
+      ),
+      overdue_charges AS (
+        SELECT
+          rc.amount,
+          COALESCE(SUM(pay.amount), 0) AS paid_amount
+        FROM rent_charges rc
+        JOIN leases l ON l.id = rc.lease_id
+        JOIN properties p ON p.id = l.property_id
+        LEFT JOIN payments pay ON pay.charge_id = rc.id
+        WHERE p.owner_id = ${userId}::uuid
+          AND l.status = 'ACTIVE'
+          AND rc.due_date < ${todayDate}::date
+        GROUP BY rc.id, rc.amount
+        HAVING COALESCE(SUM(pay.amount), 0) < rc.amount
       )
       SELECT
         (SELECT COUNT(*)::int
@@ -304,20 +334,21 @@ export async function getDashboardAggregates({
          WHERE p.owner_id = ${userId}::uuid) AS "propertyCount",
         (SELECT COUNT(DISTINCT p.id)::int
          FROM properties p
-         JOIN leases l ON l.property_id = p.id AND l.status = 'ACTIVE'
+         JOIN leases l ON l.property_id = p.id
+           AND l.status = 'ACTIVE'
+           AND (l.end_date >= ${todayDate}::date OR l.auto_renew)
          WHERE p.owner_id = ${userId}::uuid) AS "occupiedPropertyCount",
-        COALESCE((SELECT SUM(paid_amount) FROM current_charges), 0) AS "monthlyIncome",
+        COALESCE((SELECT SUM(paid_amount) FROM current_charges), 0) AS "paidThisMonth",
+        COALESCE((SELECT SUM(l.rent_amount)
+                  FROM leases l
+                  JOIN properties p ON p.id = l.property_id
+                  WHERE p.owner_id = ${userId}::uuid
+                    AND l.status = 'ACTIVE'
+                    AND l.start_date <= ${todayDate}::date
+                    AND (l.end_date >= ${todayDate}::date OR l.auto_renew)), 0) AS "expectedRent",
         COALESCE((SELECT SUM(amount) FROM current_charges), 0) AS "currentRent",
-        COALESCE((
-          SELECT SUM(amount - paid_amount)
-          FROM current_charges
-          WHERE due_date < ${now}
-            AND paid_amount < amount
-        ), 0) AS "overdueAmount",
-        (SELECT COUNT(*)::int
-         FROM current_charges
-         WHERE due_date < ${now}
-           AND paid_amount < amount) AS "overdueCount",
+        COALESCE((SELECT SUM(amount - paid_amount) FROM overdue_charges), 0) AS "overdueAmount",
+        (SELECT COUNT(*)::int FROM overdue_charges) AS "overdueCount",
         (SELECT COUNT(*)::int
          FROM maintenance_records m
          JOIN properties p ON p.id = m.property_id
@@ -331,8 +362,38 @@ export async function getDashboardAggregates({
            AND m.created_at >= ${twelveMonthsAgo}
            AND m.status <> 'RESOLVED'
            AND m.priority = 'URGENT') AS "urgentRepairCount"
-    `),
-    prisma.$queryRaw<CashFlowAggregateRow[]>(Prisma.sql`
+    `);
+
+  const summary = summaryRows[0];
+  if (!summary) {
+    throw new Error("Nepodarilo sa načítať agregácie dashboardu.");
+  }
+
+  return {
+    propertyCount: summary.propertyCount,
+    occupiedPropertyCount: summary.occupiedPropertyCount,
+    paidThisMonth: numeric(summary.paidThisMonth),
+    expectedRent: numeric(summary.expectedRent),
+    currentRent: numeric(summary.currentRent),
+    overdueAmount: numeric(summary.overdueAmount),
+    overdueCount: summary.overdueCount,
+    openRepairCount: summary.openRepairCount,
+    urgentRepairCount: summary.urgentRepairCount,
+  };
+}
+
+export async function getCashFlow({
+  userId,
+  now,
+  nextMonth,
+  twelveMonthsAgo,
+}: {
+  userId: string;
+  now: Date;
+  nextMonth: Date;
+  twelveMonthsAgo: Date;
+}): Promise<Array<{ period: Date; income: number; expenses: number }>> {
+  const cashFlowRows = await prisma.$queryRaw<CashFlowAggregateRow[]>(Prisma.sql`
       WITH months AS (
         SELECT generate_series(
           date_trunc('month'::text, ${twelveMonthsAgo}::timestamptz),
@@ -369,27 +430,11 @@ export async function getDashboardAggregates({
       LEFT JOIN income ON income.period = months.period
       LEFT JOIN expenses ON expenses.period = months.period
       ORDER BY months.period
-    `),
-  ]);
+    `);
 
-  const summary = summaryRows[0];
-  if (!summary) {
-    throw new Error("Nepodarilo sa načítať agregácie dashboardu.");
-  }
-
-  return {
-    propertyCount: summary.propertyCount,
-    occupiedPropertyCount: summary.occupiedPropertyCount,
-    monthlyIncome: numeric(summary.monthlyIncome),
-    currentRent: numeric(summary.currentRent),
-    overdueAmount: numeric(summary.overdueAmount),
-    overdueCount: summary.overdueCount,
-    openRepairCount: summary.openRepairCount,
-    urgentRepairCount: summary.urgentRepairCount,
-    cashFlow: cashFlowRows.map((row) => ({
-      period: row.period,
-      income: numeric(row.income),
-      expenses: numeric(row.expenses),
-    })),
-  };
+  return cashFlowRows.map((row) => ({
+    period: row.period,
+    income: numeric(row.income),
+    expenses: numeric(row.expenses),
+  }));
 }
