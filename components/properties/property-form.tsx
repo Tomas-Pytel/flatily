@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  PropertySchema,
+  propertySchema,
   type PropertyFormInput,
   type PropertyFormOutput,
 } from "@/schemas/property";
@@ -41,7 +41,7 @@ export const PropertyForm = ({
   const router = useRouter();
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const form = useForm<PropertyFormInput, unknown, PropertyFormOutput>({
-    resolver: zodResolver(PropertySchema),
+    resolver: zodResolver(propertySchema),
     defaultValues: {
       title: property?.title ?? "",
       description: property?.description ?? "",
@@ -357,7 +357,9 @@ export const PropertyForm = ({
         onOpenChange={setIsCancelDialogOpen}
         title="Opustiť formulár?"
         description={`Neuložené zmeny sa stratia. Naozaj chcete prejsť ${
-          property ? "späť na detail nehnuteľnosti" : "späť na zoznam nehnuteľností"
+          property
+            ? "späť na detail nehnuteľnosti"
+            : "späť na zoznam nehnuteľností"
         }?`}
         cancelText="Pokračovať v úprave"
         confirmText="Opustiť formulár"

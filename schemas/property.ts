@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const PropertySchema = z
+export const propertySchema = z
   .object({
     title: z
       .string()
@@ -91,5 +91,5 @@ export const PropertySchema = z
     path: ["floor"],
   });
 
-export type PropertyFormInput = z.input<typeof PropertySchema>;
-export type PropertyFormOutput = z.output<typeof PropertySchema>;
+export type PropertyFormInput = z.input<typeof propertySchema>;
+export type PropertyFormOutput = z.output<typeof propertySchema>;

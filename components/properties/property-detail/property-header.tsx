@@ -109,6 +109,7 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
           <Button
             asChild
             variant="secondary"
+            aria-label={`Upraviť nehnuteľnosť ${property.title}`}
             className="cursor-pointer bg-white/90 text-neutral-800 hover:bg-white dark:bg-neutral-800/90 dark:text-neutral-200 dark:hover:bg-neutral-800"
           >
             <Link href={`/properties/${property.id}/update`}>

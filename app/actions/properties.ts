@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { PropertySchema, type PropertyFormInput } from "@/schemas/property";
+import { propertySchema, type PropertyFormInput } from "@/schemas/property";
 import type { ActionResult } from "@/types/action-result";
 import type { PropertyDetail } from "@/types/property";
 
@@ -48,7 +48,7 @@ export async function createNewProperty(
   formData: unknown,
 ): Promise<ActionResult<{ id: string }>> {
   const user = await requireUser();
-  const parsedData = PropertySchema.safeParse(formData);
+  const parsedData = propertySchema.safeParse(formData);
 
   if (!parsedData.success) {
     return {
@@ -97,7 +97,7 @@ export async function updateProperty(
     };
   }
 
-  const parsedData = PropertySchema.safeParse(formData);
+  const parsedData = propertySchema.safeParse(formData);
 
   if (!parsedData.success) {
     return {
