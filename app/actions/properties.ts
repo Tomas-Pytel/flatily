@@ -4,10 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import {
-  PropertySchema,
-  type PropertyFormInput,
-} from "@/schemas/property";
+import { PropertySchema, type PropertyFormInput } from "@/schemas/property";
 import type { ActionResult } from "@/types/action-result";
 import type { PropertyDetail } from "@/types/property";
 
@@ -140,6 +137,7 @@ export async function updateProperty(
 
   revalidatePath("/properties");
   revalidatePath(`/properties/${propertyId}`);
+  revalidatePath(`/properties/${propertyId}/update`);
   revalidatePath("/dashboard");
 
   return { success: true, data: { id: propertyId } };

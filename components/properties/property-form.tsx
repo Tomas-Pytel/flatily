@@ -74,9 +74,13 @@ export const PropertyForm = ({
       return;
     }
 
-    form.reset();
-    if (property) router.push(`/properties/${result.data.id}`);
-    else router.push("/properties");
+    if (property) {
+      form.reset(data);
+      router.push(`/properties/${result.data.id}`);
+    } else {
+      form.reset();
+      router.push("/properties");
+    }
   };
 
   const renderNumberField = (
