@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  newPropertySchema,
-  type NewPropertyFormInput,
-  type NewPropertyFormOutput,
+  PropertySchema,
+  type PropertyFormInput,
+  type PropertyFormOutput,
 } from "@/schemas/property";
 import {
   Form,
@@ -25,37 +25,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { createNewProperty } from "@/app/actions/properties";
+import { ActionResult } from "@/types/action-result";
 
-export const NewPropertyForm = () => {
+interface PropertyFormProps {
+  property?: PropertyFormInput;
+  cancelHref?: string;
+  action: (data: PropertyFormOutput) => Promise<ActionResult<{ id: string }>>;
+}
+
+export const PropertyForm = ({
+  property,
+  cancelHref = "/properties",
+  action,
+}: PropertyFormProps) => {
   const router = useRouter();
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
-  const form = useForm<NewPropertyFormInput, unknown, NewPropertyFormOutput>({
-    resolver: zodResolver(newPropertySchema),
+  const form = useForm<PropertyFormInput, unknown, PropertyFormOutput>({
+    resolver: zodResolver(PropertySchema),
     defaultValues: {
-      title: "",
-      description: "",
-      street: "",
-      city: "",
-      district: "",
-      postalCode: "",
-      monthlyRent: 0,
-      utilitiesAmount: 0,
-      depositAmount: 0,
-      rooms: 1,
-      area: 1,
-      floor: 0,
-      totalFloors: 1,
-      hasElevator: true,
-      hasBalcony: true,
-      hasCellar: true,
+      title: property?.title ?? "",
+      description: property?.description ?? "",
+      street: property?.street ?? "",
+      city: property?.city ?? "",
+      district: property?.district ?? "",
+      postalCode: property?.postalCode ?? "",
+      monthlyRent: property?.monthlyRent ?? 0,
+      utilitiesAmount: property?.utilitiesAmount ?? 0,
+      depositAmount: property?.depositAmount ?? 0,
+      rooms: property?.rooms ?? 1,
+      area: property?.area ?? 1,
+      floor: property?.floor ?? 0,
+      totalFloors: property?.totalFloors ?? 1,
+      hasElevator: property?.hasElevator ?? false,
+      hasBalcony: property?.hasBalcony ?? false,
+      hasCellar: property?.hasCellar ?? false,
     },
   });
 
-  const onSubmit = async (data: NewPropertyFormOutput) => {
+  const onSubmit = async (data: PropertyFormOutput) => {
     form.clearErrors("root.server");
 
-    const result = await createNewProperty(data);
+    const result = await action(data);
 
     if (!result.success) {
       form.setError("root.server", {
@@ -65,7 +75,8 @@ export const NewPropertyForm = () => {
     }
 
     form.reset();
-    router.push("/properties");
+    if (property) router.push(`/properties/${result.data.id}`);
+    else router.push("/properties");
   };
 
   const renderNumberField = (
@@ -165,7 +176,11 @@ export const NewPropertyForm = () => {
                   <FormItem>
                     <FormLabel>Ulica a číslo *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Hlavná 24" maxLength={100} {...field} />
+                      <Input
+                        placeholder="Hlavná 24"
+                        maxLength={100}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -318,7 +333,11 @@ export const NewPropertyForm = () => {
                 disabled={form.formState.isSubmitting}
                 className="cursor-pointer"
               >
-                {form.formState.isSubmitting ? "Ukladám..." : "Uložiť byt"}
+                {form.formState.isSubmitting
+                  ? "Ukladám..."
+                  : property
+                    ? "Uložiť zmeny"
+                    : "Uložiť byt"}
               </Button>
             </div>
           </form>
@@ -333,10 +352,12 @@ export const NewPropertyForm = () => {
         open={isCancelDialogOpen}
         onOpenChange={setIsCancelDialogOpen}
         title="Opustiť formulár?"
-        description="Neuložené zmeny sa stratia. Naozaj chcete prejsť späť na zoznam nehnuteľností?"
+        description={`Neuložené zmeny sa stratia. Naozaj chcete prejsť ${
+          property ? "späť na detail nehnuteľnosti" : "späť na zoznam nehnuteľností"
+        }?`}
         cancelText="Pokračovať v úprave"
         confirmText="Opustiť formulár"
-        onConfirm={() => router.push("/properties")}
+        onConfirm={() => router.push(cancelHref)}
       />
     </Form>
   );

@@ -7,6 +7,7 @@ import {
   FilePlus,
   LucideIcon,
   MapPin,
+  Pencil,
   TriangleAlertIcon,
   Wrench,
 } from "lucide-react";
@@ -14,6 +15,7 @@ import { DeletePropertyButton } from "../delete-property-button";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { BadgeStatus } from "../extended-property-card";
+import Link from "next/link";
 
 const occupancyStatusToBadge: Record<
   PropertyOccupancyStatus,
@@ -36,9 +38,7 @@ interface PropertyHeaderProps {
   property: PropertyDetail;
 }
 
-export default function PropertyHeader({
-  property,
-}: PropertyHeaderProps) {
+export default function PropertyHeader({ property }: PropertyHeaderProps) {
   const StatusIcon = property.status
     ? occupancyStatusToBadge[property.status].icon
     : null;
@@ -93,10 +93,7 @@ export default function PropertyHeader({
 
         {/* Header Action Buttons */}
         <div className="flex items-center gap-2">
-          <Button
-            variant="default"
-            className="cursor-pointer"
-          >
+          <Button variant="default" className="cursor-pointer">
             <Wrench className="w-3.5 h-3.5" />
             <span>Pridať opravu</span>
           </Button>
@@ -108,6 +105,17 @@ export default function PropertyHeader({
             <FilePlus className="w-3.5 h-3.5" />
             <span>Pridať dokument</span>
           </Button>
+
+          <Button
+            asChild
+            variant="secondary"
+            className="cursor-pointer bg-white/90 text-neutral-800 hover:bg-white dark:bg-neutral-800/90 dark:text-neutral-200 dark:hover:bg-neutral-800"
+          >
+            <Link href={`/properties/${property.id}/update`}>
+              <Pencil className="w-3.5 h-3.5" />
+            </Link>
+          </Button>
+
           <DeletePropertyButton
             propertyId={property.id}
             propertyName={property.title}
