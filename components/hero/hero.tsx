@@ -1,6 +1,13 @@
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { Banknote, Wrench, FileText } from "lucide-react";
+import {
+  Banknote,
+  Wrench,
+  FileText,
+  Filter,
+  Building,
+  ChartNoAxesCombined,
+} from "lucide-react";
 import { InfoCard } from "./info-card";
 import Link from "next/link";
 import { InformationCard } from "@/types/hero";
@@ -8,27 +15,27 @@ import { InformationCard } from "@/types/hero";
 export function Hero() {
   const infoCards: InformationCard[] = [
     {
-      title: "Automatizované financie",
-      description: "Prehľad platieb, nájomného a výdavkov v reálnom čase",
-      icon: <Banknote className="size-6 text-blue-500" />,
+      title: "Vaše portfólio",
+      description: "Spravujte celé portfólio nehnuteľností na jednom mieste.",
+      icon: <Building className="size-6 text-blue-500" />,
     },
     {
-      title: "Inteligentná údržba",
+      title: "Stav prenájmov",
       description:
-        "AI predikcia opráv, ktorá odhalí technické problémy skôr, než sa stanú drahými.",
-      icon: <Wrench className="size-6 text-blue-500" />,
+        "Rýchlo zistite, ktoré byty sú prenajaté a ktoré čakajú na nájomníka.",
+      icon: <Filter className="size-6 text-blue-500" />,
     },
     {
-      title: "Legislatívny súlad",
+      title: "Príjmy a náklady",
       description:
-        "Automatická generácia zmlúv a aktualizácie podľa platnej slovenskej legislatívy.",
-      icon: <FileText className="size-6 text-blue-500" />,
+        "Vizualizujte finančný vývoj portfólia pomocou prehľadných grafov.",
+      icon: <ChartNoAxesCombined className="size-6 text-blue-500" />,
     },
   ];
 
   return (
     <div className="flex flex-col w-full max-w-7xl gap-20 items-center px-4 sm:px-6 lg:px-8">
-      {/**Top section */}
+      {/*Top section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-center">
         <div className="flex flex-col gap-6 items-center md:items-start text-center md:text-left">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
@@ -48,7 +55,7 @@ export function Hero() {
           </Button>
         </div>
 
-        {/**Image wrapper */}
+        {/*Image wrapper */}
         <div className="relative w-full aspect-4/3 rounded-3xl overflow-hidden shadow-2xl border border-border/50">
           <Image
             src="/hero-img.jpg"
@@ -60,7 +67,7 @@ export function Hero() {
         </div>
       </section>
 
-      {/**Bottom section */}
+      {/*Bottom section */}
       <section className="flex flex-col items-center justify-center">
         <div className="text-center max-w-2xl space-y-4">
           <h2 className="text-3xl font-bold tracking-tight">
@@ -72,7 +79,7 @@ export function Hero() {
           </p>
         </div>
 
-        {/**Information cards */}
+        {/*Information cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mt-12 w-full">
           {infoCards.map((card, index) => (
             <InfoCard key={index} card={card} />

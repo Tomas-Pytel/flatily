@@ -10,6 +10,8 @@ Moderná full-stack webová aplikácia určená pre prenajímateľov a majiteľo
 
 Tento projekt slúži ako ukážka mojich zručností pri vývoji moderných webových aplikácií s využitím najnovších štandardov ekosystému React a Next.js (App Router, Server Actions).
 
+Link: https://flatily-rosy.vercel.app/
+
 ---
 
 ## ✨ Hlavné funkcionality
@@ -77,10 +79,20 @@ DIRECT_URL=...
 
 ### 4. Inicializácia databázy
 
+Projekt používa Prisma Migrate. Existujúce migrácie sa aplikujú na databázu príkazom:
+
 ```bash
 npx prisma generate
-npx prisma db push
+npx prisma migrate deploy
 ```
+
+`migrate deploy` aplikuje migrácie uložené v `prisma/migrations` a je vhodný aj na nasadenie aplikácie. Na vytvorenie novej migrácie počas vývoja upravte `prisma/schema.prisma` a spustite:
+
+```bash
+npx prisma migrate dev --name popis_zmeny
+```
+
+Novú vygenerovanú migráciu vždy skontrolujte a uložte do repozitára. Na synchronizáciu schémy nepoužívajte `prisma db push`.
 
 ### 5. Spustenie vývojového servera
 

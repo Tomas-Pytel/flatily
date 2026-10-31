@@ -1,8 +1,8 @@
-import AppSidebar from "@/components/app-sidebar";
+import AppSidebar from "@/components/common/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { requireUser } from "@/lib/auth";
 import { Suspense } from "react";
-import SidebarSkeleton from "@/components/sidebar-skeleton";
+import SidebarSkeleton from "@/components/common/sidebar-skeleton";
 
 async function SidebarWithUser() {
   const user = await requireUser();
@@ -20,13 +20,13 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-svh overflow-hidden">
       <Suspense fallback={<SidebarSkeleton />}>
         <SidebarWithUser />
       </Suspense>
       <SidebarInset>
         {/* Page content */}
-        <main className="flex-1">{children}</main>
+        {children}
       </SidebarInset>
     </SidebarProvider>
   );

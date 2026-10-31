@@ -1,19 +1,19 @@
-import { DashboardHeader } from "@/components/dashboard-header";
-import { Button } from "@/components/ui/button";
-import NewPropertyForm from "@/components/properties/new-property-form";
-import Link from "next/link";
+import { createNewProperty } from "@/app/actions/properties";
+import { AppHeader } from "@/components/common/app-header";
+import { PropertyForm } from "@/components/properties/property-form";
+import { Bell } from "lucide-react";
 
 export default function NewPropertyPage() {
   return (
-    <div className="flex h-full flex-col bg-muted/20">
-      <DashboardHeader title="Nová nehnuteľnosť">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/properties">Späť</Link>
-        </Button>
-      </DashboardHeader>
-
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 flex justify-center">
-        <NewPropertyForm />
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <AppHeader
+        title="Pridať nový byt"
+        subtitle="Tu môžete pridať nový byt do svojho portfólia."
+      >
+        <Bell className="size-4 text-muted-foreground" />
+      </AppHeader>
+      <main className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4 sm:p-6 lg:gap-8 lg:p-8">
+        <PropertyForm action={createNewProperty} />
       </main>
     </div>
   );

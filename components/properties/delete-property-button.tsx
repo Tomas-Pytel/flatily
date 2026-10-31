@@ -1,60 +1,57 @@
 "use client";
 
-import { Trash } from "lucide-react";
-import { Button } from "../ui/button";
-import ConfirmPopup from "../confirm-popup";
-import { useState, useTransition } from "react";
-import { deleteProperty } from "@/app/actions/property-actions";
-import { toast } from "sonner";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-export default function DeletePropertyButton({
+const DeletePropertyDialog = dynamic(
+  () =>
+    import("@/components/properties/delete-property-dialog").then(
+      (module) => module.DeletePropertyDialog,
+    ),
+  { ssr: false },
+);
+
+export function DeletePropertyButton({
   propertyId,
+  propertyName,
+  className,
 }: {
   propertyId: string;
+  propertyName: string;
+  className?: string;
 }) {
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
-
-  const handleDelete = () => {
-    startTransition(async () => {
-      const result = await deleteProperty(propertyId);
-
-      // if error occurs, show error toast and close popup
-      if (!result.success) {
-        toast.error(result.error);
-        setIsPopupOpen(false);
-        return;
-      }
-      toast.success("Nehnuteľnosť bola úspešne zmazaná");
-      setIsPopupOpen(false);
-    });
-  };
+  const router = useRouter();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
     <>
       <Button
-        variant="outline"
-        size="icon"
-        className="opacity-70 hover:opacity-100 cursor-pointer"
-        onClick={(e) => {
-          e.preventDefault();
-          setIsPopupOpen(true);
-        }}
+        variant="ghost"
+        size="icon-sm"
+        type="button"
+        onClick={() => setIsDialogOpen(true)}
+        className={cn(
+          "cursor-pointer text-neutral-400 hover:bg-neutral-100 hover:text-[#DC2626] dark:hover:bg-neutral-800 dark:hover:text-[#EF4444]",
+          className,
+        )}
+        title="Zmazať"
+        aria-label={`Zmazať nehnuteľnosť ${propertyName}`}
       >
-        <Trash className="size-4" />
+        <Trash2 className="size-4" />
       </Button>
-
-      <ConfirmPopup
-        open={isPopupOpen}
-        onOpenChange={setIsPopupOpen}
-        title="Ste si istý, že chcete odstrániť túto nehnuteľnosť?"
-        description="Tato akcia je nevratná a odstráni aj všetky súvisiace údaje."
-        variant="danger"
-        confirmLabel="Ano, zmazať"
-        cancelLabel="Zrušit"
-        onConfirm={handleDelete}
-        isLoading={isPending}
-      />
+      {isDialogOpen && (
+        <DeletePropertyDialog
+          propertyId={propertyId}
+          propertyName={propertyName}
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          onDeleted={() => router.refresh()}
+        />
+      )}
     </>
   );
 }
