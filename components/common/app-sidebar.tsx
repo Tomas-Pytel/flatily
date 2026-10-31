@@ -198,7 +198,7 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
       icon: Building2,
       url: "/properties",
       badge: apartmentsCount,
-    },
+    } /*
     { title: "Nájomníci", icon: Users, url: "/leases" },
     { title: "Platby", icon: CreditCard, url: "/payments" },
     {
@@ -211,10 +211,11 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
           : null,
       alertType: "danger",
     },
-    { title: "Dokumenty", icon: FileText, url: "/documents" },
+    { title: "Dokumenty", icon: FileText, url: "/documents" },*/,
   ];
 
   const settingsNav: NavItem[] = [
+    /*
     {
       title: "Notifikácie",
       icon: Bell,
@@ -225,7 +226,7 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
           : null,
       alertType: "primary",
     },
-    { title: "Nastavenia", icon: Settings, url: "/settings" },
+    { title: "Nastavenia", icon: Settings, url: "/settings" },*/
   ];
 
   return (
@@ -298,21 +299,25 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
         </SidebarGroup>
 
         {/* Settings group */}
-        <SidebarGroup className="gap-1 border-t border-sidebar-border/60 p-3 pt-2">
-          <SidebarGroupLabel className={groupLabelClass}>
-            SYSTÉM
-          </SidebarGroupLabel>
-          <SidebarMenu>
-            {settingsNav.map((item) => (
-              <NavMenuItem
-                key={item.title}
-                item={item}
-                isActive={isLinkActive(item.url)}
-                compact
-              />
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
+        {settingsNav && settingsNav.length !== 0 ? (
+          <SidebarGroup className="gap-1 border-t border-sidebar-border/60 p-3 pt-2">
+            <SidebarGroupLabel className={groupLabelClass}>
+              SYSTÉM
+            </SidebarGroupLabel>
+            <SidebarMenu>
+              {settingsNav.map((item) => (
+                <NavMenuItem
+                  key={item.title}
+                  item={item}
+                  isActive={isLinkActive(item.url)}
+                  compact
+                />
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        ) : (
+          ""
+        )}
 
         {/* Help (pushed to bottom) */}
         <SidebarGroup className="mt-auto p-3">
