@@ -79,10 +79,20 @@ DIRECT_URL=...
 
 ### 4. Inicializácia databázy
 
+Projekt používa Prisma Migrate. Existujúce migrácie sa aplikujú na databázu príkazom:
+
 ```bash
 npx prisma generate
-npx prisma db push
+npx prisma migrate deploy
 ```
+
+`migrate deploy` aplikuje migrácie uložené v `prisma/migrations` a je vhodný aj na nasadenie aplikácie. Na vytvorenie novej migrácie počas vývoja upravte `prisma/schema.prisma` a spustite:
+
+```bash
+npx prisma migrate dev --name popis_zmeny
+```
+
+Novú vygenerovanú migráciu vždy skontrolujte a uložte do repozitára. Na synchronizáciu schémy nepoužívajte `prisma db push`.
 
 ### 5. Spustenie vývojového servera
 
