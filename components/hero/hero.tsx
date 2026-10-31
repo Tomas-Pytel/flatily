@@ -1,13 +1,6 @@
 import { Button } from "../ui/button";
 import Image from "next/image";
-import {
-  Banknote,
-  Wrench,
-  FileText,
-  Filter,
-  Building,
-  ChartNoAxesCombined,
-} from "lucide-react";
+import { Filter, Building, ChartNoAxesCombined } from "lucide-react";
 import { InfoCard } from "./info-card";
 import Link from "next/link";
 import { InformationCard } from "@/types/hero";
