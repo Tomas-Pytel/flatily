@@ -16,9 +16,9 @@ export default function FunctionsSection() {
           </p>
           <ul className="space-y-4">
             {[
-              "Automatické párovanie platieb",
-              "Prehľadné reporty pre vlastníkov",
-              "Legislatívny súlad a zmluvy",
+              "Prehľad nehnuteľností a ich obsadenosti",
+              "Dashboard s očakávaným nájmom a prijatými platbami",
+              "Upozornenia na urgentné opravy",
             ].map((item) => (
               <li key={item} className="flex items-center gap-3">
                 <div className="bg-primary/10 p-1 rounded-full">
