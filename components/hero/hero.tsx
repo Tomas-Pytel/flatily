@@ -1,6 +1,13 @@
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { Banknote, Wrench, FileText } from "lucide-react";
+import {
+  Banknote,
+  Wrench,
+  FileText,
+  Filter,
+  Building,
+  ChartNoAxesCombined,
+} from "lucide-react";
 import { InfoCard } from "./info-card";
 import Link from "next/link";
 import { InformationCard } from "@/types/hero";
@@ -8,21 +15,21 @@ import { InformationCard } from "@/types/hero";
 export function Hero() {
   const infoCards: InformationCard[] = [
     {
-      title: "Automatizované financie",
-      description: "Prehľad platieb, nájomného a výdavkov v reálnom čase",
-      icon: <Banknote className="size-6 text-blue-500" />,
+      title: "Vaše portfólio",
+      description: "Spravujte celé portfólio nehnuteľností na jednom mieste.",
+      icon: <Building className="size-6 text-blue-500" />,
     },
     {
-      title: "Inteligentná údržba",
+      title: "Stav prenájmov",
       description:
-        "AI predikcia opráv, ktorá odhalí technické problémy skôr, než sa stanú drahými.",
-      icon: <Wrench className="size-6 text-blue-500" />,
+        "Rýchlo zistite, ktoré byty sú prenajaté a ktoré čakajú na nájomníka.",
+      icon: <Filter className="size-6 text-blue-500" />,
     },
     {
-      title: "Legislatívny súlad",
+      title: "Príjmy a náklady",
       description:
-        "Automatická generácia zmlúv a aktualizácie podľa platnej slovenskej legislatívy.",
-      icon: <FileText className="size-6 text-blue-500" />,
+        "Vizualizujte finančný vývoj portfólia pomocou prehľadných grafov.",
+      icon: <ChartNoAxesCombined className="size-6 text-blue-500" />,
     },
   ];
 
