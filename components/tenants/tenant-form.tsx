@@ -46,7 +46,7 @@ export const TenantForm = ({
       email: tenant?.email ?? "",
       phone: tenant?.phone ?? "",
       idCardNumber: tenant?.idCardNumber ?? "",
-      notes: tenant?.idCardNumber ?? "",
+      notes: tenant?.notes ?? "",
     },
   });
 
@@ -64,7 +64,7 @@ export const TenantForm = ({
 
     if (tenant) {
       form.reset(data);
-      router.push(`/tenants/${result.data.id}`);
+      router.push("/tenants");
     } else {
       form.reset();
       router.push("/tenants");
