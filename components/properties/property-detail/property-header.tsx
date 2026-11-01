@@ -55,13 +55,21 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
           className="w-full h-full object-cover opacity-90"
         />
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-muted/50 text-muted">
-          <Building2 className="size-8 opacity-90" />
-          <span className="text-xs font-medium">Žiadny obrázok</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 overflow-hidden bg-linear-to-br from-neutral-800 via-neutral-700 to-neutral-900 text-white">
+          <div className="relative flex flex-col items-center gap-3">
+            <div className="rounded-2xl border border-white/15 bg-white/10 p-4 shadow-lg backdrop-blur-sm">
+              <Building2 aria-hidden="true" className="size-8" />
+            </div>
+            <span className="text-sm font-medium text-white/85">
+              Fotografia nie je pridaná
+            </span>
+          </div>
         </div>
       )}
 
-      <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/35 to-transparent" />
+      {property.photoUrl && (
+        <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/35 to-transparent" />
+      )}
 
       {/* Overlay info */}
       <div className="absolute bottom-5 left-5 right-5 flex flex-col sm:flex-row sm:items-end justify-between gap-4 text-white">
@@ -99,8 +107,8 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
           </Button>
 
           <Button
-            variant="secondary"
-            className="cursor-pointer bg-white/90 text-neutral-800 hover:bg-white dark:bg-neutral-800/90 dark:text-neutral-200 dark:hover:bg-neutral-800"
+            variant="outline"
+            className="cursor-pointer bg-white/90 text-neutral-800 hover:bg-white dark:border-neutral-700 dark:bg-black/40 dark:text-neutral-200 dark:hover:bg-neutral-800"
           >
             <FilePlus className="w-3.5 h-3.5" />
             <span>Pridať dokument</span>
@@ -108,9 +116,10 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
 
           <Button
             asChild
-            variant="secondary"
+            variant="ghost"
+            size="icon"
             aria-label={`Upraviť nehnuteľnosť ${property.title}`}
-            className="cursor-pointer bg-white/90 text-neutral-800 hover:bg-white dark:bg-neutral-800/90 dark:text-neutral-200 dark:hover:bg-neutral-800"
+            className="cursor-pointer border-0 bg-white/90 text-neutral-800 hover:bg-white hover:text-primary dark:border-0 dark:bg-black/40 dark:text-neutral-300 dark:hover:bg-black/60 dark:hover:text-primary"
           >
             <Link href={`/properties/${property.id}/update`}>
               <Pencil className="w-3.5 h-3.5" />
@@ -120,7 +129,7 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
           <DeletePropertyButton
             propertyId={property.id}
             propertyName={property.title}
-            className="bg-black/40 text-neutral-300 hover:bg-black/60 hover:text-[#DC2626] dark:hover:text-[#EF4444]"
+            className="bg-white/90 text-neutral-800 hover:bg-white hover:text-[#DC2626] dark:bg-black/40 dark:text-neutral-300 dark:hover:bg-black/60 dark:hover:text-[#EF4444]"
           />
         </div>
       </div>
