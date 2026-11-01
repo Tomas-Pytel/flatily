@@ -24,7 +24,12 @@ export async function createNewTenant(
   try {
     const tenant = await prisma.tenant.create({
       data: {
-        ...parsedData.data,
+        firstName: parsedData.data.firstName,
+        lastName: parsedData.data.lastName,
+        email: parsedData.data.email,
+        phone: parsedData.data.phone?.trim() || null,
+        idCardNumber: parsedData.data.idCardNumber?.trim() || null,
+        notes: parsedData.data.notes?.trim() || null,
         ownerId: user.id,
       },
       select: { id: true },

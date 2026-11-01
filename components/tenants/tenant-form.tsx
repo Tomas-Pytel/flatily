@@ -44,7 +44,7 @@ export const TenantForm = ({
       firstName: tenant?.firstName ?? "",
       lastName: tenant?.lastName ?? "",
       email: tenant?.email ?? "",
-      phone: tenant?.phone ?? "+421",
+      phone: tenant?.phone ?? "",
       idCardNumber: tenant?.idCardNumber ?? "",
       notes: tenant?.idCardNumber ?? "",
     },
@@ -62,7 +62,13 @@ export const TenantForm = ({
       return;
     }
 
-    form.reset();
+    if (tenant) {
+      form.reset(data);
+      router.push(`/tenants/${result.data.id}`);
+    } else {
+      form.reset();
+      router.push("/tenants");
+    }
   };
 
   return (
@@ -136,13 +142,14 @@ export const TenantForm = ({
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Telefón *</FormLabel>
+                  <FormLabel>Telefón</FormLabel>
                   <FormControl>
                     <Input
                       type="tel"
-                      placeholder="+421"
+                      placeholder="+421 900 123 456"
                       autoComplete="tel"
                       {...field}
+                      value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -161,6 +168,7 @@ export const TenantForm = ({
                       placeholder="EA 123456"
                       className="font-mono"
                       {...field}
+                      value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -179,6 +187,7 @@ export const TenantForm = ({
                       rows={3}
                       placeholder="Dohodnuté špecifiká, preferovaný kontakt..."
                       {...field}
+                      value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormMessage />
