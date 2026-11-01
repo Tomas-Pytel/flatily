@@ -201,6 +201,7 @@ export const TenantForm = ({
               <Button
                 type="button"
                 variant="outline"
+                className="hover:bg-neutral-100 dark:hover:bg-neutral-800"
                 onClick={() => setIsCancelDialogOpen(true)}
                 disabled={form.formState.isSubmitting}
               >
