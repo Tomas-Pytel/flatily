@@ -11,6 +11,16 @@ export function pluralize(count: number, one: string, few: string, many: string)
   return many;
 }
 
+export function formatPhoneNumber(phone: string | null): string {
+  if (!phone) return "—";
+
+  const digits = phone.replace(/\D/g, "");
+  const groups = digits.match(/\d{1,3}/g);
+  if (!groups) return "—";
+
+  return `${phone.startsWith("+") ? "+" : ""}${groups.join(" ")}`;
+}
+
 const APP_TIME_ZONE = "Europe/Bratislava";
 
 // Today's calendar date in Slovakia as UTC midnight – same shape as Prisma @db/Date values.
