@@ -18,7 +18,6 @@ import Link from "next/link";
 import Image from "next/image";
 import Logo from "@/app/favicon.ico";
 import {
-  Bell,
   ChevronsUpDown,
   LayoutDashboard,
   LogOut,
@@ -27,9 +26,6 @@ import {
   Building2,
   LucideIcon,
   Users,
-  Wrench,
-  CreditCard,
-  FileText,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -188,8 +184,8 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
   };
 
   const apartmentsCount = props.counts?.apartments ?? null;
-  const urgentRepairsCount = props.counts?.urgentRepairs ?? null;
-  const unreadNotifsCount = props.counts?.unreadNotifs ?? null;
+  //const urgentRepairsCount = props.counts?.urgentRepairs ?? null;
+  //const unreadNotifsCount = props.counts?.unreadNotifs ?? null;
 
   const platformNav: NavItem[] = [
     { title: "Prehľad", icon: LayoutDashboard, badge: null, url: "/dashboard" },
@@ -198,8 +194,8 @@ export default function AppSidebar({ user, ...props }: AppSidebarProps) {
       icon: Building2,
       url: "/properties",
       badge: apartmentsCount,
-    } /*
-    { title: "Nájomníci", icon: Users, url: "/leases" },
+    },
+    { title: "Nájomníci", icon: Users, url: "/tenants" } /*
     { title: "Platby", icon: CreditCard, url: "/payments" },
     {
       title: "Opravy",
