@@ -31,7 +31,7 @@ export function DeletePropertyButton({
     <>
       <Button
         variant="ghost"
-        size="icon-sm"
+        size="icon"
         type="button"
         onClick={() => setIsDialogOpen(true)}
         className={cn(
