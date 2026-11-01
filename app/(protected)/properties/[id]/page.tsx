@@ -2,8 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/common/app-header";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import PropertyHeader from "@/components/properties/property-detail/property-header";
+import PropertyDetailContent from "@/components/properties/property-detail/property-detail-content";
 import { getProperty } from "@/app/actions/properties";
 
 interface PropertyDetailPageProps {
@@ -19,18 +21,18 @@ export default async function PropertyDetailPage({
   if (!response.success) notFound();
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <AppHeader
         title="Detail nehnuteľnosti"
-        subtitle="Táto stránka bude čoskoro dostupná."
+        subtitle="Prehľad a správa nehnuteľnosti."
       />
 
-      <main className="flex-1 p-4 sm:p-6 lg:p-8">
+      <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 sm:p-6 lg:p-8 *:shrink-0">
         {/* Navigate back to properties list */}
         <div>
           <Button
             asChild
-            variant="outline"
+            variant="ghost"
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
           >
             <Link href="/properties">
@@ -41,9 +43,10 @@ export default async function PropertyDetailPage({
         </div>
 
         {/* Property detail */}
-        <div className="bg-white dark:bg-[#141414] border border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden shadow-xs">
+        <Card className="overflow-hidden rounded-xl bg-white shadow-xs dark:bg-[#141414]">
           <PropertyHeader property={response.data} />
-        </div>
+          <PropertyDetailContent property={response.data} />
+        </Card>
       </main>
     </div>
   );
